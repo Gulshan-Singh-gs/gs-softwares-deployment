@@ -74,8 +74,8 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
             onClick={() => onNavigate('home')} 
             className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none min-w-0"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
-              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
+              <img src="/favicon.png" alt="GS Logo" className="w-full h-full rounded-[0.8rem] object-cover" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
@@ -86,7 +86,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
                   2.0
                 </span>
               </div>
-              <p className="text-[10px] opacity-70 font-medium truncate hidden sm:block">100% Client-Side Private PWA</p>
+              <p className="text-[10px] opacity-70 font-medium truncate hidden sm:block">100% Private</p>
             </div>
           </div>
 

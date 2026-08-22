@@ -367,3 +367,61 @@ input[type="range"] {
   background: #6366f1;
   border-radius: 9999px;
 }
+
+/* Quick Value Badge Theme-Aware Icons: Black for Light, Black with Glow for Grey, White for Dark */
+.value-badge-icon {
+  transition: color 0.3s ease, filter 0.3s ease, transform 0.2s ease;
+}
+
+/* 1. White / Light Mode: Pure Black */
+html.theme-light .value-badge-icon,
+body.theme-light .value-badge-icon {
+  color: #000000 !important;
+  filter: none !important;
+  stroke-width: 2.5px;
+}
+
+/* 2. Grey / Semi-Dark Mode: Pure Black with High-Contrast Outer Glow */
+html.theme-semi .value-badge-icon,
+body.theme-semi .value-badge-icon {
+  color: #000000 !important;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.7)) !important;
+  stroke-width: 2.5px;
+}
+
+/* 3. Dark Mode: Pure White */
+html.theme-dark .value-badge-icon,
+body.theme-dark .value-badge-icon,
+.value-badge-icon {
+  color: #ffffff !important;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5)) !important;
+  stroke-width: 2.2px;
+}
+
+/* Quick Value Badge & Table Theme-Aware Text: Black for Light/Grey, White for Dark */
+.value-badge-text {
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* 1. White / Light Mode: Pure Black */
+html.theme-light .value-badge-text,
+body.theme-light .value-badge-text {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* 2. Grey / Semi-Dark Mode: Pure Black with High-Contrast Outer Glow */
+html.theme-semi .value-badge-text,
+body.theme-semi .value-badge-text {
+  color: #000000 !important;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.95), 0 0 2px rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 3. Dark Mode: Pure White */
+html.theme-dark .value-badge-text,
+body.theme-dark .value-badge-text,
+.value-badge-text {
+  color: #ffffff !important;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.5) !important;
+}
+

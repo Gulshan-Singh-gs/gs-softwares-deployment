@@ -130,12 +130,12 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
   ];
 
   const comparisonRows = [
-    { feature: 'File Upload Required?', gs: 'No', gsIcon: X, gsColor: 'text-rose-500', typical: 'Yes', typicalIcon: Check, typicalColor: 'text-emerald-500' },
-    { feature: 'Processing Speed', gs: 'Instant', gsIcon: Zap, gsColor: 'text-indigo-500', typical: 'Depends on Internet', typicalIcon: Globe, typicalColor: 'text-amber-500' },
-    { feature: 'Privacy Guarantee', gs: '100% Local', gsIcon: Lock, gsColor: 'text-emerald-500', typical: 'Server Storage', typicalIcon: ShieldCheck, typicalColor: 'text-rose-500' },
-    { feature: 'Watermarks', gs: 'Never', gsIcon: X, gsColor: 'text-rose-500', typical: 'Paid Removal', typicalIcon: DollarSignFallback, typicalColor: 'text-amber-500' },
-    { feature: 'Offline Access', gs: 'Yes', gsIcon: Check, gsColor: 'text-emerald-500', typical: 'No', typicalIcon: X, typicalColor: 'text-rose-500' },
-    { feature: 'Max File Size', gs: 'RAM Limited', gsIcon: HardDrive, gsColor: 'text-indigo-500', typical: 'Often 5-10MB', typicalIcon: X, typicalColor: 'text-rose-500' },
+    { feature: 'File Upload Required?', gs: 'No', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Yes', typicalIcon: Check, typicalColor: 'text-emerald-400/90 font-medium' },
+    { feature: 'Processing Speed', gs: 'Instant', gsIcon: Zap, gsColor: 'text-indigo-400 font-medium', typical: 'Depends on Internet', typicalIcon: Globe, typicalColor: 'text-amber-400/90 font-medium' },
+    { feature: 'Privacy Guarantee', gs: '100% Local', gsIcon: Lock, gsColor: 'text-emerald-400 font-medium', typical: 'Server Storage', typicalIcon: ShieldCheck, typicalColor: 'text-rose-400/90 font-medium' },
+    { feature: 'Watermarks', gs: 'Never', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Paid Removal', typicalIcon: DollarSignFallback, typicalColor: 'text-amber-400/90 font-medium' },
+    { feature: 'Offline Access', gs: 'Yes', gsIcon: Check, gsColor: 'text-emerald-400 font-medium', typical: 'No', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
+    { feature: 'Max File Size', gs: 'RAM Limited', gsIcon: HardDrive, gsColor: 'text-indigo-400 font-medium', typical: 'Often 5-10MB', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
   ];
 
   function DollarSignFallback(props: any) {
@@ -171,11 +171,6 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
       {/* 1. HERO SECTION WITH DROPZONE */}
       <section className="pt-6 sm:pt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         <div className="lg:col-span-7 space-y-6 text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full neu-flat text-indigo-600 font-bold text-xs tracking-wide">
-            <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse shrink-0" />
-            <span>100% Local Browser Engine</span>
-          </div>
-
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.1]">
             Your Files <br />
             <span className="text-gradient-loop">
@@ -189,11 +184,11 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           </p>
 
           {/* Quick Value Badges */}
-          <div className="flex flex-wrap gap-3 pt-2 text-xs font-bold opacity-80">
-            <span className="flex items-center gap-1.5"><Lock className="w-4 h-4 text-emerald-500" /> Zero Data Transmission</span>
-            <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-amber-500" /> Instant Processing</span>
-            <span className="flex items-center gap-1.5"><X className="w-4 h-4 text-rose-500" /> No Watermarks</span>
-            <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-emerald-500" /> Works Offline</span>
+          <div className="flex flex-wrap gap-3 pt-2 text-xs font-bold opacity-90">
+            <span className="flex items-center gap-1.5"><Lock className="w-4 h-4 value-badge-icon" /> Zero Data Transmission</span>
+            <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 value-badge-icon" /> Instant Processing</span>
+            <span className="flex items-center gap-1.5"><X className="w-4 h-4 value-badge-icon" /> No Watermarks</span>
+            <span className="flex items-center gap-1.5"><Check className="w-4 h-4 value-badge-icon" /> Works Offline</span>
           </div>
         </div>
 
@@ -307,14 +302,14 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           <div className="divide-y divide-slate-500/10 text-xs sm:text-sm font-medium">
             {comparisonRows.map((row, i) => (
               <div key={i} className="grid grid-cols-12 py-3.5 items-center">
-                <div className="col-span-5 font-bold">{row.feature}</div>
-                <div className={`col-span-3 font-bold flex items-center gap-1.5 ${row.gsColor}`}>
-                  <row.gsIcon className="w-4 h-4 shrink-0" />
-                  <span>{row.gs}</span>
+                <div className="col-span-5 font-semibold text-slate-300">{row.feature}</div>
+                <div className="col-span-3 flex items-center gap-1.5 font-bold">
+                  <row.gsIcon className="w-4 h-4 shrink-0 value-badge-icon" />
+                  <span className="value-badge-text">{row.gs}</span>
                 </div>
-                <div className={`col-span-4 font-semibold flex items-center gap-1.5 opacity-80 ${row.typicalColor}`}>
-                  <row.typicalIcon className="w-4 h-4 shrink-0" />
-                  <span>{row.typical}</span>
+                <div className="col-span-4 flex items-center gap-1.5 font-bold opacity-90">
+                  <row.typicalIcon className="w-4 h-4 shrink-0 value-badge-icon" />
+                  <span className="value-badge-text">{row.typical}</span>
                 </div>
               </div>
             ))}
