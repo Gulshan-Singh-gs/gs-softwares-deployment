@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>GS Softwares Suite | 100% Client-Side Private PWA Tools</title>
+    <meta name="description" content="Ultimate private client-side software suite for Images, PDFs, Video, Audio, and Text processing with WebAssembly. No server uploads." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      #pwa-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #0f172a;
+        color: #f8fafc;
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
+      }
+      #pwa-splash.loaded {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .splash-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 2.5rem;
+        border-radius: 1.75rem;
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+        max-width: 380px;
+        width: 90%;
+        text-align: center;
+      }
+      .splash-icon-wrap {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        border-radius: 1.25rem;
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+      }
+      .splash-ring {
+        position: absolute;
+        inset: -6px;
+        border-radius: 1.5rem;
+        border: 2px solid transparent;
+        border-top-color: #818cf8;
+        border-right-color: #10b981;
+        animation: splash-spin 1.2s linear infinite;
+      }
+      @keyframes splash-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .splash-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .splash-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+      .splash-progress-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+        overflow: hidden;
+        position: relative;
+      }
+      .splash-progress-inner {
+        width: 45%;
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1, #10b981);
+        border-radius: 9999px;
+        animation: splash-indeterminate 1.5s ease-in-out infinite;
+      }
+      @keyframes splash-indeterminate {
+        0% { transform: translateX(-100%); width: 30%; }
+        50% { transform: translateX(100%); width: 60%; }
+        100% { transform: translateX(250%); width: 30%; }
+      }
+    </style>
+  </head>
+  <body class="antialiased min-h-screen">
+    <div id="pwa-splash">
+      <div class="splash-box">
+        <div class="splash-icon-wrap">
+          <div class="splash-ring"></div>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="splash-title">GS Softwares Suite</div>
+          <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">100% Client-Side WebAssembly PWA</div>
+        </div>
+        <div class="splash-badge">Zero Server Uploads</div>
+        <div class="splash-progress-bar">
+          <div class="splash-progress-inner"></div>
+        </div>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,369 @@
+@import "tailwindcss";
+
+:root {
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Default / Mode 1: Light (Off-White Neumorphism - High Contrast Pure Black Text & Icons) */
+  --bg-main: #e2e8f0;
+  --text-main: #020617;
+  --text-muted: #1e293b;
+  --neu-surface-gradient: linear-gradient(145deg, #f8fafc, #dbe4ee);
+  --neu-surface-hover: linear-gradient(145deg, #ffffff, #d2dfea);
+  --neu-flat-gradient: linear-gradient(145deg, #f1f5f9, #dbe4ee);
+  --neu-btn-gradient: linear-gradient(145deg, #ffffff, #dbe5ee);
+  --neu-shadow-dark: rgba(148, 163, 184, 0.75);
+  --neu-shadow-light: rgba(255, 255, 255, 1);
+  --neu-inset-bg: #dbe4ee;
+  --neu-inset-dark: rgba(148, 163, 184, 0.85);
+  --neu-inset-light: rgba(255, 255, 255, 0.95);
+  --border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Explicit Mode 1: Light (Pure High-Contrast Black Text & Icons) */
+html.theme-light,
+body.theme-light {
+  --bg-main: #e2e8f0 !important;
+  --text-main: #000000 !important;
+  --text-muted: #1e293b !important;
+  --neu-surface-gradient: linear-gradient(145deg, #f8fafc, #dbe4ee) !important;
+  --neu-surface-hover: linear-gradient(145deg, #ffffff, #d2dfea) !important;
+  --neu-flat-gradient: linear-gradient(145deg, #f1f5f9, #dbe4ee) !important;
+  --neu-btn-gradient: linear-gradient(145deg, #ffffff, #dbe5ee) !important;
+  --neu-shadow-dark: rgba(148, 163, 184, 0.75) !important;
+  --neu-shadow-light: rgba(255, 255, 255, 1) !important;
+  --neu-inset-bg: #dbe4ee !important;
+  --neu-inset-dark: rgba(148, 163, 184, 0.85) !important;
+  --neu-inset-light: rgba(255, 255, 255, 0.95) !important;
+  --border-color: rgba(255, 255, 255, 0.8) !important;
+  background-color: #e2e8f0 !important;
+  color: #000000 !important;
+}
+
+html.theme-light .neu-card,
+body.theme-light .neu-card {
+  color: #000000 !important;
+}
+
+html.theme-light p,
+body.theme-light p,
+html.theme-light span,
+body.theme-light span,
+html.theme-light h1,
+body.theme-light h1,
+html.theme-light h2,
+body.theme-light h2,
+html.theme-light h3,
+body.theme-light h3,
+html.theme-light h4,
+body.theme-light h4 {
+  color: #000000;
+}
+
+html.theme-light .text-indigo-500,
+body.theme-light .text-indigo-500,
+html.theme-light .text-indigo-600,
+body.theme-light .text-indigo-600 {
+  color: #4338ca !important;
+}
+
+html.theme-light .neu-flat .text-white,
+body.theme-light .neu-flat .text-white {
+  color: #ffffff !important;
+}
+
+html.theme-light .neu-btn,
+body.theme-light .neu-btn {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+html.theme-light .neu-inset,
+body.theme-light .neu-inset {
+  color: #000000 !important;
+}
+
+/* =========================================================================
+   Mode 2: Semi-Dark (Frosted Soft Matte Slate & High-Contrast Glowing Specular)
+   ========================================================================= */
+html.theme-semi,
+body.theme-semi {
+  --bg-main: #37424d !important;
+  --text-main: #ffffff !important;
+  --text-muted: #cbd5e1 !important;
+  --neu-surface-gradient: linear-gradient(145deg, #44515f, #333d47) !important;
+  --neu-surface-hover: linear-gradient(145deg, #4b5969, #38434e) !important;
+  --neu-flat-gradient: linear-gradient(145deg, #3f4b57, #333d47) !important;
+  --neu-btn-gradient: linear-gradient(145deg, #465361, #343e49) !important;
+  --neu-shadow-dark: rgba(22, 28, 34, 0.85) !important;
+  --neu-shadow-light: rgba(255, 255, 255, 0.22) !important;
+  --neu-inset-bg: #2d363f !important;
+  --neu-inset-dark: rgba(18, 23, 28, 0.95) !important;
+  --neu-inset-light: rgba(255, 255, 255, 0.12) !important;
+  --border-color: rgba(255, 255, 255, 0.28) !important;
+  background-color: #37424d !important;
+  background-image: radial-gradient(circle at 50% 0%, #4a5866 0%, #37424d 70%, #2b343d 100%) !important;
+  color: #ffffff !important;
+}
+
+/* High-Contrast Luminous Accents for Semi-Dark */
+html.theme-semi .text-indigo-500,
+body.theme-semi .text-indigo-500,
+html.theme-semi .text-indigo-600,
+body.theme-semi .text-indigo-600 {
+  color: #38bdf8 !important; /* High-Contrast Luminous Sky Cyan */
+}
+
+html.theme-semi .neu-card,
+body.theme-semi .neu-card {
+  background: linear-gradient(145deg, rgba(74, 87, 101, 0.85), rgba(49, 58, 68, 0.9)) !important;
+  backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 
+    8px 8px 24px rgba(20, 26, 32, 0.75), 
+    -6px -6px 20px rgba(255, 255, 255, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+
+html.theme-semi .neu-btn,
+body.theme-semi .neu-btn {
+  background: linear-gradient(145deg, #445261, #333d48) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    5px 5px 14px rgba(18, 24, 30, 0.8), 
+    -4px -4px 12px rgba(255, 255, 255, 0.18),
+    inset 0 1px 2px rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+}
+
+html.theme-semi .neu-btn:hover,
+body.theme-semi .neu-btn:hover {
+  background: linear-gradient(145deg, #4c5b6b, #37434e) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 
+    7px 7px 18px rgba(18, 24, 30, 0.85), 
+    -5px -5px 15px rgba(255, 255, 255, 0.25),
+    inset 0 1px 3px rgba(255, 255, 255, 0.6) !important;
+}
+
+html.theme-semi .neu-flat,
+body.theme-semi .neu-flat {
+  background: linear-gradient(145deg, #424f5d, #323d47) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 
+    6px 6px 16px rgba(18, 24, 30, 0.75), 
+    -4px -4px 14px rgba(255, 255, 255, 0.16),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+}
+
+html.theme-semi .neu-inset,
+body.theme-semi .neu-inset {
+  background: #2b343d !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 
+    inset 4px 4px 10px rgba(15, 20, 25, 0.9), 
+    inset -3px -3px 8px rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+}
+
+/* Mode 3: Dark (Pitch Dark / OLED Neumorphism) */
+html.theme-dark,
+body.theme-dark {
+  --bg-main: #05070c !important;
+  --text-main: #f1f5f9 !important;
+  --text-muted: #64748b !important;
+  --neu-surface-gradient: linear-gradient(145deg, #0f1522, #04060a) !important;
+  --neu-surface-hover: linear-gradient(145deg, #131b2b, #06090e) !important;
+  --neu-flat-gradient: linear-gradient(145deg, #101624, #05070c) !important;
+  --neu-btn-gradient: linear-gradient(145deg, #111726, #06090f) !important;
+  --neu-shadow-dark: rgba(0, 0, 0, 0.95) !important;
+  --neu-shadow-light: rgba(255, 255, 255, 0.04) !important;
+  --neu-inset-bg: #030407 !important;
+  --neu-inset-dark: rgba(0, 0, 0, 0.98) !important;
+  --neu-inset-light: rgba(255, 255, 255, 0.03) !important;
+  --border-color: rgba(255, 255, 255, 0.04) !important;
+  background-color: #05070c !important;
+  color: #f1f5f9 !important;
+}
+
+html, body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+code, pre, kbd {
+  font-family: var(--font-mono);
+}
+
+/* =========================================================================
+   ANIMATED COLOR ROTATION LOOP FOR HERO GRADIENT TEXT
+   ========================================================================= */
+
+@keyframes rotate-gradient-loop {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.text-gradient-loop {
+  background: linear-gradient(
+    90deg, 
+    #6366f1, 
+    #a855f7, 
+    #ec4899, 
+    #f43f5e, 
+    #38bdf8, 
+    #06b6d4, 
+    #6366f1
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rotate-gradient-loop 4s ease infinite;
+}
+
+/* =========================================================================
+   TRIPLE-MODE SOFT NEUMORPHIC SYSTEM
+   ========================================================================= */
+
+/* Raised Surface */
+.neu-flat {
+  background: var(--neu-flat-gradient) !important;
+  box-shadow: 
+    6px 6px 16px var(--neu-shadow-dark),
+    -4px -4px 12px var(--neu-shadow-light) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Raised Interactive Card (Smooth Lift) */
+.neu-card {
+  background: var(--neu-surface-gradient) !important;
+  box-shadow: 
+    8px 8px 22px var(--neu-shadow-dark),
+    -5px -5px 16px var(--neu-shadow-light) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neu-card:hover {
+  background: var(--neu-surface-hover) !important;
+  box-shadow: 
+    12px 12px 28px var(--neu-shadow-dark),
+    -6px -6px 18px var(--neu-shadow-light) !important;
+  transform: translateY(-2px);
+}
+
+/* Soft Neumorphic Inset / Sunken Wells */
+.neu-inset {
+  background: var(--neu-inset-bg) !important;
+  box-shadow: 
+    inset 4px 4px 10px var(--neu-inset-dark),
+    inset -3px -3px 8px var(--neu-inset-light) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Neumorphic Clickable Action Button */
+.neu-btn {
+  background: var(--neu-btn-gradient) !important;
+  box-shadow: 
+    5px 5px 12px var(--neu-shadow-dark),
+    -3px -3px 9px var(--neu-shadow-light) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: all 0.18s ease;
+}
+
+.neu-btn:hover {
+  box-shadow: 
+    6px 6px 15px var(--neu-shadow-dark),
+    -4px -4px 11px var(--neu-shadow-light) !important;
+}
+
+.neu-btn:active, .neu-btn.active {
+  background: var(--neu-inset-bg) !important;
+  box-shadow: 
+    inset 3px 3px 8px var(--neu-inset-dark),
+    inset -2px -2px 6px var(--neu-inset-light) !important;
+  transform: scale(0.98);
+}
+
+/* Neumorphic Convex Pill Badge */
+.neu-pill {
+  background: var(--neu-flat-gradient) !important;
+  box-shadow: 
+    3px 3px 8px var(--neu-shadow-dark),
+    -2px -2px 6px var(--neu-shadow-light) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Backward Compatibility */
+.glass-panel {
+  background: var(--neu-surface-gradient) !important;
+  box-shadow: 
+    8px 8px 22px var(--neu-shadow-dark),
+    -5px -5px 16px var(--neu-shadow-light) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Range Inputs Soft Neumorphism */
+input[type="range"] {
+  height: 6px;
+  background: var(--neu-inset-bg) !important;
+  border-radius: 9999px;
+  box-shadow: inset 2px 2px 5px var(--neu-inset-dark), inset -1px -1px 3px var(--neu-inset-light) !important;
+}
+
+/* Sleek Modern Global Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #6366f1 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.5);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.9);
+}
+
+/* Custom Ribbon Scrollbar */
+.scrollbar-glow {
+  scrollbar-width: thin;
+  scrollbar-color: #6366f1 transparent;
+}
+.scrollbar-glow::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+.scrollbar-glow::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 9999px;
+}
