@@ -292,7 +292,8 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
       <section className="space-y-8 text-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">The GS Softwares Advantage</h2>
 
-        <div className="neu-card rounded-3xl overflow-hidden p-6 max-w-4xl mx-auto text-left">
+        {/* Desktop Table View */}
+        <div className="neu-card rounded-3xl overflow-hidden p-4 sm:p-6 max-w-4xl mx-auto text-left hidden sm:block">
           <div className="grid grid-cols-12 border-b border-slate-500/20 pb-4 text-xs font-extrabold uppercase tracking-wider opacity-75">
             <div className="col-span-5">Feature</div>
             <div className="col-span-3 text-cyan-500">GS Softwares</div>
@@ -302,7 +303,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           <div className="divide-y divide-slate-500/10 text-xs sm:text-sm font-medium">
             {comparisonRows.map((row, i) => (
               <div key={i} className="grid grid-cols-12 py-3.5 items-center">
-                <div className="col-span-5 font-semibold text-slate-300">{row.feature}</div>
+                <div className="col-span-5 font-semibold opacity-80">{row.feature}</div>
                 <div className="col-span-3 flex items-center gap-1.5 font-bold">
                   <row.gsIcon className="w-4 h-4 shrink-0 value-badge-icon" />
                   <span className="value-badge-text">{row.gs}</span>
@@ -315,36 +316,42 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
             ))}
           </div>
         </div>
-      </section>
 
-      {/* 5. TRUSTED BY PROFESSIONALS */}
-      <section className="space-y-8 text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Trusted by Professionals</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-left">
-          <div className="neu-card p-6 rounded-3xl space-y-4">
-            <p className="text-xs sm:text-sm font-medium italic opacity-90 leading-relaxed">
-              "Finally, a tool I can use for client work without worrying about NDAs. It's crazy fast."
-            </p>
-            <p className="text-xs font-bold text-cyan-500">— Sarah J., Photographer</p>
-          </div>
-
-          <div className="neu-card p-6 rounded-3xl space-y-4">
-            <p className="text-xs sm:text-sm font-medium italic opacity-90 leading-relaxed">
-              "Compressed 50 wedding photos in seconds. No upload bar! The AVIF conversion is flawless."
-            </p>
-            <p className="text-xs font-bold text-cyan-500">— Mark T., Web Developer</p>
-          </div>
+        {/* Mobile Card View */}
+        <div className="block sm:hidden space-y-3 max-w-md mx-auto">
+          {comparisonRows.map((row, i) => (
+            <div key={i} className="neu-card rounded-2xl p-4 text-left space-y-3">
+              <p className="text-xs font-extrabold uppercase tracking-wide opacity-70">{row.feature}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="neu-inset rounded-xl p-3 space-y-1">
+                  <p className="text-[10px] font-bold text-cyan-500 uppercase tracking-wider">GS Softwares</p>
+                  <div className="flex items-center gap-1.5">
+                    <row.gsIcon className="w-3.5 h-3.5 shrink-0 value-badge-icon" />
+                    <span className="text-xs font-bold value-badge-text">{row.gs}</span>
+                  </div>
+                </div>
+                <div className="neu-inset rounded-xl p-3 space-y-1">
+                  <p className="text-[10px] font-bold opacity-50 uppercase tracking-wider">Typical Tools</p>
+                  <div className="flex items-center gap-1.5">
+                    <row.typicalIcon className="w-3.5 h-3.5 shrink-0 value-badge-icon" />
+                    <span className="text-xs font-bold value-badge-text">{row.typical}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
+
+      {/* 5. TRUSTED BY PROFESSIONALS - Removed as per user request */}
 
       {/* 6. BUILT FOR YOU - PERSONA TABS */}
       <section className="space-y-8 text-center">
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Built For You</h2>
 
-        <div className="neu-card rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto space-y-6">
+        <div className="neu-card rounded-3xl p-4 sm:p-8 max-w-4xl mx-auto space-y-6">
           {/* Persona Tabs Header */}
-          <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 border-b border-slate-500/20 scrollbar-glow">
+          <div className="flex flex-wrap items-center justify-center gap-2 pb-2 border-b border-slate-500/20">
             {[
               { id: 'photographers', label: 'Photographers' },
               { id: 'developers', label: 'Web Developers' },

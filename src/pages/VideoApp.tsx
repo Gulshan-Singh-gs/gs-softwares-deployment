@@ -404,29 +404,26 @@ export const VideoApp: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Studio Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 neu-card p-6 rounded-3xl border-slate-800">
+      <div className="flex flex-col gap-4 neu-card p-4 sm:p-6 rounded-3xl border-slate-800">
+        {/* Title Row */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 flex items-center justify-center shadow-lg shadow-emerald-600/30 neu-flat">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 flex items-center justify-center shadow-lg shadow-emerald-600/30 neu-flat shrink-0">
             <VideoIcon className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-white tracking-tight">GS-Video Master Studio</h1>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full neu-inset text-emerald-300">
-                Master Category Architecture
-              </span>
-            </div>
-            <p className="text-xs text-slate-400">WebAssembly Frame-Accurate Editing, Multi-Track, Color Wheels, Chroma, AI Speech & Export</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">GS-Video Studio</h1>
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">WebAssembly Frame-Accurate Editing, Multi-Track, Color Wheels, Chroma, AI Speech &amp; Export</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Actions Row */}
+        <div className="flex flex-wrap items-center gap-2">
           {/* Undo & Redo History Controls */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-2xl p-1">
+          <div className="flex items-center gap-1 neu-inset rounded-2xl p-1">
             <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
               title="Undo last change"
             >
               <Undo2 className="w-3.5 h-3.5" />
@@ -435,7 +432,7 @@ export const VideoApp: React.FC = () => {
             <button
               onClick={handleRedo}
               disabled={historyIndex >= history.length - 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
               title="Redo change"
             >
               <Redo2 className="w-3.5 h-3.5" />

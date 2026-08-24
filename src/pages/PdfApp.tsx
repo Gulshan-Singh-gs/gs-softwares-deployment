@@ -615,23 +615,20 @@ export const PdfApp: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Studio Master Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border-slate-800">
+      <div className="flex flex-col gap-4 glass-panel p-4 sm:p-6 rounded-2xl border-slate-800">
+        {/* Title Row */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-600 via-red-600 to-amber-600 flex items-center justify-center shadow-lg shadow-rose-600/30">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-rose-600 via-red-600 to-amber-600 flex items-center justify-center shadow-lg shadow-rose-600/30 shrink-0">
             <FileText className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-white tracking-tight">GS-PDF Enterprise Studio</h1>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                100% Client-Side Engine
-              </span>
-            </div>
-            <p className="text-xs text-slate-400">15 Master Suite Modules • Zero Server Egress • WASM & In-Memory Computation</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">GS-PDF Studio</h1>
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">15 Master Suite Modules • Zero Server Egress • WASM &amp; In-Memory Computation</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Actions Row */}
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => fileInputRef.current?.click()}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold transition-all shadow-md"

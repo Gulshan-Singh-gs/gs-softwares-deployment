@@ -796,31 +796,27 @@ export const PixelsApp: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border-slate-800">
+      <div className="flex flex-col gap-4 glass-panel p-4 sm:p-6 rounded-2xl border-slate-800">
+        {/* Title Row */}
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shrink-0">
             <ImageIcon className="w-6 h-6 text-white" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-white">GS-Pixels Studio</h1>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                Integrated Image Studio
-              </span>
-            </div>
-            <p className="text-xs text-slate-400">Complete suite: Resize, Crop, Compress, Rotate, Watermark, EXIF, Palette & Base64</p>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">GS-Pixels Studio</h1>
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Complete suite: Resize, Crop, Compress, Rotate, Watermark, EXIF, Palette &amp; Base64</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Actions Row */}
+        <div className="flex flex-wrap items-center gap-2">
           {/* Undo & Redo Controls */}
-          <div className="flex items-center gap-1 bg-black border border-white/10 rounded-xl p-1">
+          <div className="flex items-center gap-1 neu-inset rounded-xl p-1">
             <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
               title="Undo last adjustment"
             >
               <Undo2 className="w-3.5 h-3.5" />
@@ -829,7 +825,7 @@ export const PixelsApp: React.FC = () => {
             <button
               onClick={handleRedo}
               disabled={historyIndex >= history.length - 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
               title="Redo adjustment"
             >
               <Redo2 className="w-3.5 h-3.5" />

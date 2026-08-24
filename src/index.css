@@ -84,6 +84,33 @@ body.theme-light .neu-inset {
   color: #000000 !important;
 }
 
+/* Light mode: fix slate text colors for legibility in studio headers */
+html.theme-light .text-slate-400,
+body.theme-light .text-slate-400,
+html.theme-light .text-slate-300,
+body.theme-light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.theme-light .text-white,
+body.theme-light .text-white {
+  color: #020617 !important;
+}
+
+/* Protect white text inside colored gradient buttons/icons in light mode */
+html.theme-light [class*='bg-cyan-'],
+body.theme-light [class*='bg-cyan-'],
+html.theme-light [class*='bg-emerald-'],
+body.theme-light [class*='bg-emerald-'],
+html.theme-light [class*='bg-rose-6'],
+body.theme-light [class*='bg-rose-6'],
+html.theme-light [class*='bg-amber-6'],
+body.theme-light [class*='bg-amber-6'],
+html.theme-light [class*='from-'],
+body.theme-light [class*='from-'] {
+  color: #ffffff !important;
+}
+
 /* =========================================================================
    Mode 2: Semi-Dark (Frosted Soft Matte Slate & High-Contrast Glowing Specular)
    ========================================================================= */
