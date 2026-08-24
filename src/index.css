@@ -84,7 +84,7 @@ body.theme-light .neu-inset {
   color: #000000 !important;
 }
 
-/* Light mode: fix slate text colors for legibility in studio headers */
+/* ── Light Mode: Fix slate & black text colors in studio panels ── */
 html.theme-light .text-slate-400,
 body.theme-light .text-slate-400,
 html.theme-light .text-slate-300,
@@ -97,18 +97,113 @@ body.theme-light .text-white {
   color: #020617 !important;
 }
 
-/* Protect white text inside colored gradient buttons/icons in light mode */
-html.theme-light [class*='bg-cyan-'],
-body.theme-light [class*='bg-cyan-'],
-html.theme-light [class*='bg-emerald-'],
-body.theme-light [class*='bg-emerald-'],
-html.theme-light [class*='bg-rose-6'],
-body.theme-light [class*='bg-rose-6'],
-html.theme-light [class*='bg-amber-6'],
-body.theme-light [class*='bg-amber-6'],
-html.theme-light [class*='from-'],
-body.theme-light [class*='from-'] {
+/* ── Light Mode: Remap hardcoded dark button BGs to neumorphic surface ── */
+
+/* bg-slate-900 used as inactive toggle button background */
+html.theme-light .bg-slate-900,
+body.theme-light .bg-slate-900 {
+  background: var(--neu-btn-gradient) !important;
+  color: #1e293b !important;
+}
+
+/* bg-slate-800 used for hover states / alternate surfaces */
+html.theme-light .bg-slate-800,
+body.theme-light .bg-slate-800 {
+  background: var(--neu-flat-gradient) !important;
+  color: #1e293b !important;
+}
+
+/* bg-black used for inputs / undo-redo containers */
+html.theme-light .bg-black,
+body.theme-light .bg-black,
+html.theme-light .bg-neutral-900,
+body.theme-light .bg-neutral-900 {
+  background: #ffffff !important;
+  color: #020617 !important;
+}
+
+/* Dark borders → light border */
+html.theme-light .border-slate-800,
+body.theme-light .border-slate-800 {
+  border-color: rgba(148, 163, 184, 0.5) !important;
+}
+
+html.theme-light .border-slate-900,
+body.theme-light .border-slate-900 {
+  border-color: rgba(148, 163, 184, 0.4) !important;
+}
+
+/* border-white/10 used on inputs in dark mode → remap to visible border */
+html.theme-light [class*='border-white'],
+body.theme-light [class*='border-white'] {
+  border-color: rgba(148, 163, 184, 0.6) !important;
+}
+
+/* Dark text inputs (bg-black / bg-slate-900 input fields) → white bg, dark text */
+html.theme-light input[class*='bg-black'],
+body.theme-light input[class*='bg-black'],
+html.theme-light input[class*='bg-slate'],
+body.theme-light input[class*='bg-slate'],
+html.theme-light textarea[class*='bg-black'],
+body.theme-light textarea[class*='bg-black'],
+html.theme-light textarea[class*='bg-slate'],
+body.theme-light textarea[class*='bg-slate'],
+html.theme-light select[class*='bg-black'],
+body.theme-light select[class*='bg-black'],
+html.theme-light select[class*='bg-slate'],
+body.theme-light select[class*='bg-slate'] {
+  background: #ffffff !important;
+  color: #020617 !important;
+  border-color: rgba(148, 163, 184, 0.6) !important;
+}
+
+/* ── Protect white text inside active/colored buttons in light mode ── */
+/* These use saturated bg colors so white text is still legible */
+html.theme-light .bg-cyan-600,
+body.theme-light .bg-cyan-600,
+html.theme-light .bg-cyan-500,
+body.theme-light .bg-cyan-500,
+html.theme-light .bg-emerald-600,
+body.theme-light .bg-emerald-600,
+html.theme-light .bg-emerald-500,
+body.theme-light .bg-emerald-500,
+html.theme-light .bg-rose-500,
+body.theme-light .bg-rose-500,
+html.theme-light .bg-rose-600,
+body.theme-light .bg-rose-600,
+html.theme-light .bg-amber-500,
+body.theme-light .bg-amber-500,
+html.theme-light .bg-amber-600,
+body.theme-light .bg-amber-600,
+html.theme-light .bg-indigo-600,
+body.theme-light .bg-indigo-600,
+html.theme-light .bg-indigo-500,
+body.theme-light .bg-indigo-500,
+html.theme-light [class*='from-rose'],
+body.theme-light [class*='from-rose'],
+html.theme-light [class*='from-cyan'],
+body.theme-light [class*='from-cyan'],
+html.theme-light [class*='from-emerald'],
+body.theme-light [class*='from-emerald'],
+html.theme-light [class*='from-amber'],
+body.theme-light [class*='from-amber'],
+html.theme-light [class*='from-indigo'],
+body.theme-light [class*='from-indigo'],
+html.theme-light [class*='from-blue'],
+body.theme-light [class*='from-blue'] {
   color: #ffffff !important;
+}
+
+/* ── Light Mode: Fix hover states that would show white text on light bg ── */
+html.theme-light .hover\:text-white:hover,
+body.theme-light .hover\:text-white:hover {
+  color: #020617 !important;
+}
+
+html.theme-light .hover\:bg-slate-800:hover,
+body.theme-light .hover\:bg-slate-800:hover {
+  background: var(--neu-flat-gradient) !important;
+  color: #020617 !important;
 }
 
 /* =========================================================================
