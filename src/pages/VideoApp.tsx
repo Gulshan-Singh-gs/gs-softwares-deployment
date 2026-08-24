@@ -37,9 +37,14 @@ import {
   Repeat, 
   ShieldCheck, 
   Check, 
-  Copy
+  Copy,
+  Undo2,
+  Redo2,
+  RotateCcw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { saveWorkspaceFile, getWorkspaceFilesByApp, deleteWorkspaceFile } from '../lib/db';
+import { processAndExportVideo, extractAudioFromVideo } from '../lib/videoEngine';
 
 export type VideoCategory = 
   | 'playback' 
@@ -85,13 +90,129 @@ export const VideoApp: React.FC = () => {
   const [rotation, setRotation] = useState<number>(0);
   const [flipX, setFlipX] = useState<boolean>(false);
   const [activeFilter, setActiveFilter] = useState<'none' | 'vhs' | 'glitch' | 'cinema' | 'sepia' | 'bnw'>('none');
-  const [textOverlay, setTextOverlay] = useState<string>('GS Studio Text');
+  const [textOverlay, setTextOverlay] = useState<string>('');
   const [textSize, setTextSize] = useState<number>(24);
   const [stripAudio, setStripAudio] = useState<boolean>(false);
   const [audioGain, setAudioGain] = useState<number>(100);
   const [chromaTolerance, setChromaTolerance] = useState<number>(40);
   const [aiSpeechTranscript, setAiSpeechTranscript] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
+
+  // Undo / Redo History Stack
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+
+  // Auto-Sync Video Properties Live
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = videoSpeed;
+      videoRef.current.volume = Math.max(0, Math.min(1, audioGain / 100));
+      videoRef.current.muted = stripAudio;
+    }
+  }, [videoSpeed, audioGain, stripAudio]);
+
+  const isApplyingUndoRedo = useRef<boolean>(false);
+
+  // Automated History Snapshot Tracker
+  useEffect(() => {
+    if (isApplyingUndoRedo.current) {
+      isApplyingUndoRedo.current = false;
+      return;
+    }
+
+    const snapshot = {
+      videoSpeed,
+      aspectRatio,
+      brightness,
+      contrast,
+      saturation,
+      rotation,
+      flipX,
+      activeFilter,
+      textOverlay,
+      audioGain,
+      stripAudio
+    };
+
+    const timeout = setTimeout(() => {
+      setHistory((prev) => {
+        const newHistory = prev.slice(0, historyIndex + 1);
+        const last = newHistory[newHistory.length - 1];
+        if (last && JSON.stringify(last) === JSON.stringify(snapshot)) {
+          return prev;
+        }
+        const updated = [...newHistory, snapshot].slice(-50);
+        setHistoryIndex(updated.length - 1);
+        return updated;
+      });
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [
+    videoSpeed,
+    aspectRatio,
+    brightness,
+    contrast,
+    saturation,
+    rotation,
+    flipX,
+    activeFilter,
+    textOverlay,
+    audioGain,
+    stripAudio
+  ]);
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const prevIndex = historyIndex - 1;
+      const prev = history[prevIndex];
+      setHistoryIndex(prevIndex);
+      restoreSnapshot(prev);
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      const nextIndex = historyIndex + 1;
+      const next = history[nextIndex];
+      setHistoryIndex(nextIndex);
+      restoreSnapshot(next);
+    }
+  };
+
+  const restoreSnapshot = (snap: any) => {
+    if (!snap) return;
+    isApplyingUndoRedo.current = true;
+    if (snap.videoSpeed !== undefined) setVideoSpeed(snap.videoSpeed);
+    if (snap.aspectRatio !== undefined) setAspectRatio(snap.aspectRatio);
+    if (snap.brightness !== undefined) setBrightness(snap.brightness);
+    if (snap.contrast !== undefined) setContrast(snap.contrast);
+    if (snap.saturation !== undefined) setSaturation(snap.saturation);
+    if (snap.rotation !== undefined) setRotation(snap.rotation);
+    if (snap.flipX !== undefined) setFlipX(snap.flipX);
+    if (snap.activeFilter !== undefined) setActiveFilter(snap.activeFilter);
+    if (snap.textOverlay !== undefined) setTextOverlay(snap.textOverlay);
+    if (snap.audioGain !== undefined) setAudioGain(snap.audioGain);
+    if (snap.stripAudio !== undefined) setStripAudio(snap.stripAudio);
+  };
+
+  // Keyboard Hotkeys (Ctrl+Z / Ctrl+Y)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [historyIndex, history]);
   
   // Progress & Execution State
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -103,23 +224,52 @@ export const VideoApp: React.FC = () => {
 
   // 16 Full Master Tool Suites
   const categories = [
-    { id: 'editing', name: '2. Basic Editing', icon: Scissors, count: '18 Tools' },
-    { id: 'playback', name: '1. Playback & Scrub', icon: Play, count: '15 Tools' },
-    { id: 'timeline', name: '3. Multi-Track Timeline', icon: Layers, count: '21 Tools' },
-    { id: 'speed', name: '4. Speed & Time Ops', icon: Gauge, count: '10 Tools' },
-    { id: 'audio', name: '5. Audio Ops', icon: Volume2, count: '26 Tools' },
-    { id: 'color', name: '6. Color Grading', icon: Sun, count: '26 Tools' },
-    { id: 'filters', name: '7. FX & Shaders', icon: Sparkles, count: '32 Tools' },
-    { id: 'transitions', name: '8. Transitions', icon: SplitSquareHorizontal, count: '26 Tools' },
-    { id: 'text', name: '9. Titles & Subtitles', icon: Type, count: '27 Tools' },
-    { id: 'overlays', name: '10. Overlays & PiP', icon: ImageIcon, count: '26 Tools' },
-    { id: 'chroma', name: '11. Chroma & Masking', icon: Wand2, count: '20 Tools' },
-    { id: 'codecs', name: '12. Formats & Codecs', icon: Film, count: '21 Tools' },
-    { id: 'compress', name: '13. Compression Deck', icon: Sliders, count: '17 Tools' },
-    { id: 'ai', name: '14. AI Smart Tools', icon: Cpu, count: '34 Tools' },
-    { id: 'recording', name: '15. Capture & Studio', icon: Camera, count: '16 Tools' },
-    { id: 'export', name: '16. Export Pipeline', icon: Download, count: '28 Tools' },
+    { id: 'editing', name: 'Basic Editing', icon: Scissors, count: 'Editing Tools' },
+    { id: 'playback', name: 'Playback & Scrub', icon: Play, count: 'Playback Tools' },
+    { id: 'timeline', name: 'Multi-Track Timeline', icon: Layers, count: 'Timeline Tools' },
+    { id: 'speed', name: 'Speed & Time Ops', icon: Gauge, count: 'Speed Tools' },
+    { id: 'audio', name: 'Audio Ops', icon: Volume2, count: 'Audio Tools' },
+    { id: 'color', name: 'Color Grading', icon: Sun, count: 'Grading Tools' },
+    { id: 'filters', name: 'FX & Shaders', icon: Sparkles, count: 'Shader Tools' },
+    { id: 'transitions', name: 'Transitions', icon: SplitSquareHorizontal, count: 'Transition Tools' },
+    { id: 'text', name: 'Titles & Subtitles', icon: Type, count: 'Title Tools' },
+    { id: 'overlays', name: 'Overlays & PiP', icon: ImageIcon, count: 'Overlay Tools' },
+    { id: 'chroma', name: 'Chroma & Masking', icon: Wand2, count: 'Masking Tools' },
+    { id: 'codecs', name: 'Formats & Codecs', icon: Film, count: 'Codec Tools' },
+    { id: 'compress', name: 'Compression Deck', icon: Sliders, count: 'Compressor Tools' },
+    { id: 'ai', name: 'AI Smart Tools', icon: Cpu, count: 'AI Tools' },
+    { id: 'recording', name: 'Capture & Studio', icon: Camera, count: 'Capture Tools' },
+    { id: 'export', name: 'Export Pipeline', icon: Download, count: 'Export Tools' },
   ];
+
+  // Restore video track from IndexedDB on refresh
+  useEffect(() => {
+    const restoreFromDB = async () => {
+      const stored = await getWorkspaceFilesByApp('video');
+      if (stored.length === 0) return;
+      const rec = stored[0];
+      try {
+        const blob = new Blob([rec.data as ArrayBuffer], { type: rec.type });
+        const file = new File([blob], rec.name, { type: rec.type });
+        const url = URL.createObjectURL(file);
+        const tempVideo = document.createElement('video');
+        tempVideo.src = url;
+        tempVideo.onloadedmetadata = () => {
+          setVideo({
+            file,
+            url,
+            name: rec.name,
+            size: rec.size,
+            duration: tempVideo.duration || 0
+          });
+          setEndTime(tempVideo.duration || 0);
+        };
+      } catch (e) {
+        console.error('IndexedDB Video Restore Error:', e);
+      }
+    };
+    restoreFromDB();
+  }, []);
 
   const handleVideoUpload = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -139,31 +289,77 @@ export const VideoApp: React.FC = () => {
       });
       setEndTime(tempVideo.duration || 0);
       setResultUrl(null);
+
+      file.arrayBuffer().then((buf) => {
+        saveWorkspaceFile({
+          id: 'active_video_track',
+          app: 'video',
+          name: file.name,
+          type: file.type || 'video/mp4',
+          size: file.size,
+          data: buf,
+          timestamp: Date.now()
+        });
+      });
     };
   };
 
   const handleProcessVideo = async () => {
-    if (!video || isProcessing) return;
+    if (!video || !videoRef.current || isProcessing) return;
     setIsProcessing(true);
-    setProgress(10);
+    setProgress(5);
 
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(interval);
-          return 90;
-        }
-        return prev + 20;
-      });
-    }, 250);
+    try {
+      const exportedBlob = await processAndExportVideo(
+        videoRef.current,
+        {
+          startTime,
+          endTime: endTime || video.duration,
+          playbackRate: videoSpeed,
+          brightness,
+          contrast,
+          saturation,
+          rotation,
+          flipX,
+          filter: activeFilter,
+          textOverlay,
+          textSize,
+          stripAudio,
+          audioGain,
+          chromaKey: activeCategory === 'chroma',
+          chromaTolerance,
+          targetPreset,
+        },
+        (prog) => setProgress(prog)
+      );
 
-    setTimeout(() => {
-      clearInterval(interval);
+      const url = URL.createObjectURL(exportedBlob);
+      setResultUrl(url);
       setProgress(100);
+      confetti({ particleCount: 60, spread: 70, origin: { y: 0.8 } });
+    } catch (err) {
+      console.error('Video Processing Error:', err);
+    } finally {
       setIsProcessing(false);
-      setResultUrl(video.url);
+    }
+  };
+
+  const handleAudioExtract = async () => {
+    if (!video || !videoRef.current || isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const audioBlob = await extractAudioFromVideo(videoRef.current);
+      const url = URL.createObjectURL(audioBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `audio-${video.name.replace(/\.[^/.]+$/, '')}.mp3`;
+      a.click();
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
-    }, 1600);
+    } catch (e) {
+      console.error('Audio Extraction Error:', e);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleAutoSubtitles = () => {
@@ -217,7 +413,7 @@ export const VideoApp: React.FC = () => {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-white tracking-tight">GS-Video Master Studio</h1>
               <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full neu-inset text-emerald-300">
-                22-Category Architecture
+                Master Category Architecture
               </span>
             </div>
             <p className="text-xs text-slate-400">WebAssembly Frame-Accurate Editing, Multi-Track, Color Wheels, Chroma, AI Speech & Export</p>
@@ -225,6 +421,28 @@ export const VideoApp: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Undo & Redo History Controls */}
+          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-2xl p-1">
+            <button
+              onClick={handleUndo}
+              disabled={historyIndex <= 0}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              title="Undo last change"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Undo</span>
+            </button>
+            <button
+              onClick={handleRedo}
+              disabled={historyIndex >= history.length - 1}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              title="Redo change"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+              <span>Redo</span>
+            </button>
+          </div>
+
           <button
             onClick={() => fileInputRef.current?.click()}
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg"
@@ -707,23 +925,17 @@ export const VideoApp: React.FC = () => {
             </div>
           )}
 
-          <button
-            onClick={handleProcessVideo}
-            disabled={!video || isProcessing}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2"
-          >
-            {isProcessing ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Processing Stream...</span>
-              </>
-            ) : (
-              <>
-                <Film className="w-4 h-4" />
-                <span>Render & Apply {categories.find((c) => c.id === activeCategory)?.name}</span>
-              </>
-            )}
-          </button>
+          {/* REAL-TIME AUTO ENGINE STATUS (Replaces manual render button) */}
+          <div className="w-full py-3 px-4 rounded-2xl bg-slate-900/80 border border-emerald-500/30 text-xs font-bold flex items-center justify-between text-emerald-300 shadow-md">
+            <div className="flex items-center gap-2">
+              <Sparkles className={`w-4 h-4 text-emerald-400 ${isProcessing ? 'animate-spin' : 'animate-pulse'}`} />
+              <span>Real-Time Live Video Processing Active</span>
+            </div>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              Live
+            </span>
+          </div>
         </div>
 
         {/* Video Player & Stage Visualizer */}
@@ -744,8 +956,16 @@ export const VideoApp: React.FC = () => {
           ) : (
             <div className="neu-card p-5 rounded-3xl space-y-4">
               
-              {/* Stage Viewport */}
-              <div className="relative aspect-video rounded-2xl overflow-hidden bg-black flex items-center justify-center neu-inset">
+              {/* Stage Viewport with Dynamic Aspect Ratio */}
+              <div 
+                className="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center neu-inset transition-all duration-300 min-h-[280px]"
+                style={{
+                  aspectRatio: aspectRatio === '16:9' ? '16/9' : aspectRatio === '9:16' ? '9/16' : aspectRatio === '1:1' ? '1/1' : '4/3',
+                  maxHeight: aspectRatio === '9:16' ? '460px' : '480px',
+                  maxWidth: aspectRatio === '9:16' ? '260px' : aspectRatio === '1:1' ? '400px' : '100%',
+                  margin: '0 auto'
+                }}
+              >
                 <video
                   ref={videoRef}
                   src={resultUrl || video.url!}
@@ -766,7 +986,7 @@ export const VideoApp: React.FC = () => {
                 />
 
                 {/* Live Subtitle / Title Overlay Preview */}
-                {textOverlay && (
+                {textOverlay.trim() !== '' && (
                   <div 
                     className="absolute bottom-12 px-4 py-1.5 rounded-lg bg-black/60 backdrop-blur-md text-white font-bold text-center pointer-events-none"
                     style={{ fontSize: `${textSize}px` }}
@@ -777,7 +997,7 @@ export const VideoApp: React.FC = () => {
               </div>
 
               {/* Status Bar */}
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center justify-between pt-2 gap-3 flex-wrap">
                 <div>
                   <p className="text-xs font-bold text-white truncate max-w-sm">{video.name}</p>
                   <p className="text-[11px] text-slate-400">
@@ -785,16 +1005,30 @@ export const VideoApp: React.FC = () => {
                   </p>
                 </div>
 
-                {resultUrl && (
-                  <a
-                    href={resultUrl}
-                    download={`gs-rendered-${video.name}`}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md"
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setVideo(null);
+                      setResultUrl(null);
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition-all"
+                    title="Remove active video file"
                   >
-                    <Download className="w-4 h-4" />
-                    <span>Download Production Asset</span>
-                  </a>
-                )}
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove Video</span>
+                  </button>
+
+                  {resultUrl && (
+                    <a
+                      href={resultUrl}
+                      download={`gs-rendered-${video.name}`}
+                      className="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download Production Asset</span>
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           )}

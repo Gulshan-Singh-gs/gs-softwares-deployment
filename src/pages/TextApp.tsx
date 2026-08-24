@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileCode, 
   Copy, 
@@ -35,9 +35,12 @@ import {
   CheckSquare, 
   FileText, 
   RefreshCw, 
-  Layers
+  Layers,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { saveWorkspaceFile, getWorkspaceFilesByApp } from '../lib/db';
 
 export type TextCategory = 
   | 'editor' 
@@ -80,18 +83,46 @@ export const TextApp: React.FC = () => {
   // UI & Feedback
   const [copied, setCopied] = useState<boolean>(false);
 
+  // Restore document text from IndexedDB on refresh
+  useEffect(() => {
+    const restoreFromDB = async () => {
+      const stored = await getWorkspaceFilesByApp('text');
+      if (stored.length > 0 && stored[0].data) {
+        setContent(stored[0].data as string);
+      }
+    };
+    restoreFromDB();
+  }, []);
+
+  // Auto-save document text to IndexedDB on change
+  useEffect(() => {
+    if (!content) return;
+    const timeout = setTimeout(() => {
+      saveWorkspaceFile({
+        id: 'active_text_doc',
+        app: 'text',
+        name: 'document.md',
+        type: 'text/markdown',
+        size: content.length,
+        data: content,
+        timestamp: Date.now()
+      });
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [content]);
+
   // 10 Comprehensive Studio Suites
   const categories = [
-    { id: 'markdown', name: '7. Markdown Studio', icon: BookOpen, count: '28 Tools' },
-    { id: 'editor', name: '1. Core & Rich Text', icon: Type, count: '42 Tools' },
-    { id: 'json', name: '19. JSON & Data', icon: Code, count: '31 Tools' },
-    { id: 'diff', name: '17. Diff Comparator', icon: GitCompare, count: '16 Tools' },
-    { id: 'analytics', name: '5. Writing Analytics', icon: BarChart2, count: '44 Tools' },
-    { id: 'typography', name: '14. Typography FX', icon: Layers, count: '20 Tools' },
-    { id: 'ai', name: '5. AI Intelligence', icon: Cpu, count: '44 Tools' },
-    { id: 'templates', name: '6. Templates & PRD', icon: FileSpreadsheet, count: '15 Tools' },
-    { id: 'developer', name: '19. Dev Utilities', icon: Zap, count: '31 Tools' },
-    { id: 'security', name: '16. Security & Privacy', icon: Lock, count: '23 Tools' },
+    { id: 'markdown', name: 'Markdown Studio', icon: BookOpen, count: 'Markdown Suite' },
+    { id: 'editor', name: 'Core & Rich Text', icon: Type, count: 'Text Suite' },
+    { id: 'json', name: 'JSON & Data', icon: Code, count: 'Data Suite' },
+    { id: 'diff', name: 'Diff Comparator', icon: GitCompare, count: 'Diff Suite' },
+    { id: 'analytics', name: 'Writing Analytics', icon: BarChart2, count: 'Analytics Suite' },
+    { id: 'typography', name: 'Typography FX', icon: Layers, count: 'Typography Suite' },
+    { id: 'ai', name: 'AI Intelligence', icon: Cpu, count: 'AI Suite' },
+    { id: 'templates', name: 'Templates & PRD', icon: FileSpreadsheet, count: 'Templates Suite' },
+    { id: 'developer', name: 'Dev Utilities', icon: Zap, count: 'Dev Suite' },
+    { id: 'security', name: 'Security & Privacy', icon: Lock, count: 'Security Suite' },
   ];
 
   // Document Statistics
@@ -189,7 +220,7 @@ export const TextApp: React.FC = () => {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-white tracking-tight">GS-Text Document Studio</h1>
               <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full neu-inset text-amber-300">
-                20-Category Architecture
+                Master Category Architecture
               </span>
             </div>
             <p className="text-xs text-slate-400">Markdown Studio, Dual-Pane Diff, Regex Engine, JSON Validator, Analytics & Dev Utilities</p>
@@ -197,6 +228,28 @@ export const TextApp: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Undo & Redo controls */}
+          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-2xl p-1">
+            <button
+              onClick={() => {}}
+              disabled={true}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              title="Undo text change"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Undo</span>
+            </button>
+            <button
+              onClick={() => {}}
+              disabled={true}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              title="Redo text change"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+              <span>Redo</span>
+            </button>
+          </div>
+
           <button
             onClick={() => handleCopy(content)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold transition-all shadow-lg"
@@ -207,10 +260,11 @@ export const TextApp: React.FC = () => {
 
           <button
             onClick={() => setContent('')}
-            className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-2xl neu-inset transition-colors"
-            title="Clear text"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition-all"
+            title="Remove active document"
           >
-            <Trash2 className="w-5 h-5" />
+            <Trash2 className="w-4 h-4" />
+            <span>Remove File</span>
           </button>
         </div>
       </div>
@@ -425,7 +479,7 @@ export const TextApp: React.FC = () => {
               <label className="text-xs font-semibold text-slate-300">Load Boilerplate</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setContent('# Product Requirements Document (PRD)\n\n## 1. Objective\n## 2. User Stories\n## 3. Metrics')}
+                  onClick={() => setContent('# Product Requirements Document (PRD)\n\n## Objective\n## User Stories\n## Metrics')}
                   className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300"
                 >
                   PRD Doc
@@ -489,7 +543,7 @@ export const TextApp: React.FC = () => {
                 </div>
                 <div className="p-4 neu-inset rounded-2xl">
                   <span className="text-xs text-slate-400">Est. Reading Time</span>
-                  <p className="text-2xl font-bold text-indigo-400 mt-1">{readingTime} min</p>
+                  <p className="text-2xl font-bold text-cyan-400 mt-1">{readingTime} min</p>
                 </div>
                 <div className="p-4 neu-inset rounded-2xl">
                   <span className="text-xs text-slate-400">Est. Speaking Time</span>

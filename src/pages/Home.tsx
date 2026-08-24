@@ -131,11 +131,11 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
 
   const comparisonRows = [
     { feature: 'File Upload Required?', gs: 'No', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Yes', typicalIcon: Check, typicalColor: 'text-emerald-400/90 font-medium' },
-    { feature: 'Processing Speed', gs: 'Instant', gsIcon: Zap, gsColor: 'text-indigo-400 font-medium', typical: 'Depends on Internet', typicalIcon: Globe, typicalColor: 'text-amber-400/90 font-medium' },
+    { feature: 'Processing Speed', gs: 'Instant', gsIcon: Zap, gsColor: 'text-cyan-400 font-medium', typical: 'Depends on Internet', typicalIcon: Globe, typicalColor: 'text-amber-400/90 font-medium' },
     { feature: 'Privacy Guarantee', gs: '100% Local', gsIcon: Lock, gsColor: 'text-emerald-400 font-medium', typical: 'Server Storage', typicalIcon: ShieldCheck, typicalColor: 'text-rose-400/90 font-medium' },
     { feature: 'Watermarks', gs: 'Never', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Paid Removal', typicalIcon: DollarSignFallback, typicalColor: 'text-amber-400/90 font-medium' },
     { feature: 'Offline Access', gs: 'Yes', gsIcon: Check, gsColor: 'text-emerald-400 font-medium', typical: 'No', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
-    { feature: 'Max File Size', gs: 'RAM Limited', gsIcon: HardDrive, gsColor: 'text-indigo-400 font-medium', typical: 'Often 5-10MB', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
+    { feature: 'Max File Size', gs: 'RAM Limited', gsIcon: HardDrive, gsColor: 'text-cyan-400 font-medium', typical: 'Often 5-10MB', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
   ];
 
   function DollarSignFallback(props: any) {
@@ -198,7 +198,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
             onClick={() => onSelectApp('pixels')}
             className="neu-card p-8 rounded-3xl text-center flex flex-col items-center justify-center gap-5 cursor-pointer group hover:scale-[1.01] transition-all min-h-[300px]"
           >
-            <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 text-indigo-600 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 rounded-2xl bg-cyan-600/10 text-cyan-600 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
               <UploadCloud className="w-8 h-8" />
             </div>
             <div className="space-y-1">
@@ -215,7 +215,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
       {/* 2. THREE PILLARS VALUE BANNER */}
       <section className="neu-card p-6 sm:p-8 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
         <div className="space-y-2">
-          <div className="w-10 h-10 rounded-2xl neu-inset mx-auto flex items-center justify-center text-indigo-500">
+          <div className="w-10 h-10 rounded-2xl neu-inset mx-auto flex items-center justify-center text-cyan-500">
             <Zap className="w-5 h-5" />
           </div>
           <h3 className="text-base font-extrabold">No Upload Wait</h3>
@@ -264,11 +264,11 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
                 className="group neu-card rounded-3xl p-6 cursor-pointer flex flex-col justify-between hover:scale-[1.01] transition-all space-y-4"
               >
                 <div className="space-y-3">
-                  <div className="w-11 h-11 rounded-2xl neu-inset flex items-center justify-center text-indigo-500">
+                  <div className="w-11 h-11 rounded-2xl neu-inset flex items-center justify-center text-cyan-500">
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold group-hover:text-indigo-500 transition-colors">
+                    <h3 className="text-lg font-extrabold group-hover:text-cyan-500 transition-colors">
                       {t.title}
                     </h3>
                     <p className="text-xs font-medium opacity-80 mt-1 leading-relaxed">
@@ -278,7 +278,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
                 </div>
 
                 <div className="pt-2 border-t border-slate-500/10 flex items-center justify-between">
-                  <span className="text-xs font-bold text-indigo-500 group-hover:underline flex items-center gap-1">
+                  <span className="text-xs font-bold text-cyan-500 group-hover:underline flex items-center gap-1">
                     Try It <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
@@ -295,7 +295,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
         <div className="neu-card rounded-3xl overflow-hidden p-6 max-w-4xl mx-auto text-left">
           <div className="grid grid-cols-12 border-b border-slate-500/20 pb-4 text-xs font-extrabold uppercase tracking-wider opacity-75">
             <div className="col-span-5">Feature</div>
-            <div className="col-span-3 text-indigo-500">GS Softwares</div>
+            <div className="col-span-3 text-cyan-500">GS Softwares</div>
             <div className="col-span-4">Typical Online Tools</div>
           </div>
 
@@ -326,14 +326,14 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
             <p className="text-xs sm:text-sm font-medium italic opacity-90 leading-relaxed">
               "Finally, a tool I can use for client work without worrying about NDAs. It's crazy fast."
             </p>
-            <p className="text-xs font-bold text-indigo-500">— Sarah J., Photographer</p>
+            <p className="text-xs font-bold text-cyan-500">— Sarah J., Photographer</p>
           </div>
 
           <div className="neu-card p-6 rounded-3xl space-y-4">
             <p className="text-xs sm:text-sm font-medium italic opacity-90 leading-relaxed">
               "Compressed 50 wedding photos in seconds. No upload bar! The AVIF conversion is flawless."
             </p>
-            <p className="text-xs font-bold text-indigo-500">— Mark T., Web Developer</p>
+            <p className="text-xs font-bold text-cyan-500">— Mark T., Web Developer</p>
           </div>
         </div>
       </section>
@@ -356,7 +356,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
                 onClick={() => setActivePersonaTab(tab.id as any)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   activePersonaTab === tab.id
-                    ? 'neu-inset text-indigo-500 shadow'
+                    ? 'neu-inset text-cyan-500 shadow'
                     : 'opacity-70 hover:opacity-100'
                 }`}
               >
@@ -408,7 +408,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
                   className="w-full p-4 sm:p-5 flex items-center justify-between text-xs sm:text-sm font-extrabold gap-4"
                 >
                   <span>{faq.q}</span>
-                  {isOpen ? <ChevronUp className="w-4 h-4 text-indigo-500 shrink-0" /> : <ChevronDown className="w-4 h-4 opacity-60 shrink-0" />}
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-cyan-500 shrink-0" /> : <ChevronDown className="w-4 h-4 opacity-60 shrink-0" />}
                 </button>
                 {isOpen && (
                   <div className="px-4 sm:px-5 pb-4 text-xs font-medium opacity-85 leading-relaxed border-t border-slate-500/10 pt-2">

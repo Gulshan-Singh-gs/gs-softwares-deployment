@@ -14,7 +14,8 @@ import {
   HelpCircle,
   Menu,
   X,
-  Zap
+  Zap,
+  Download
 } from 'lucide-react';
 
 export type ThemeMode = 'light' | 'semi' | 'dark';
@@ -32,18 +33,55 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
     return (localStorage.getItem('gs_theme_mode') as ThemeMode) || 'dark';
   });
 
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (navigator as any).standalone === true
+    );
+  });
+
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstalled(false);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    };
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
+
+  const handleInstallPWA = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      alert('PWA install prompt is ready. Look for the install icon in your address bar or browser menu!');
+    }
+  };
 
   useEffect(() => {
     const classes = ['theme-light', 'theme-semi', 'theme-dark'];
@@ -74,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
             onClick={() => onNavigate('home')} 
             className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none min-w-0"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
               <img src="/favicon.png" alt="GS Logo" className="w-full h-full rounded-[0.8rem] object-cover" />
             </div>
             <div className="min-w-0">
@@ -82,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
                 <span className="font-extrabold text-base sm:text-lg tracking-tight truncate">
                   GS Softwares
                 </span>
-                <span className="hidden xs:inline-block text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full neu-inset text-indigo-500 shrink-0">
+                <span className="hidden xs:inline-block text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full neu-inset text-cyan-400 shrink-0">
                   2.0
                 </span>
               </div>
@@ -101,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
                   onClick={() => onNavigate(item.id)}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
                     isActive
-                      ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30'
+                      ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-lg shadow-cyan-600/30'
                       : 'opacity-70 hover:opacity-100 hover:bg-slate-500/10'
                   }`}
                 >
@@ -145,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
                 onClick={() => setTheme('dark')}
                 className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
                   theme === 'dark' 
-                    ? 'bg-indigo-600 text-white shadow-md' 
+                    ? 'bg-cyan-600 text-white shadow-md' 
                     : 'opacity-60 hover:opacity-100'
                 }`}
                 title="Dark Mode (Pitch Dark Neumorphism)"
@@ -154,15 +192,17 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
               </button>
             </div>
 
-            {/* Offline Status Badge (Desktop only) */}
-            <div className={`hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-              isOnline 
-                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
-                : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-            }`}>
-              {isOnline ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-              <span>{isOnline ? 'PWA Ready' : 'Offline'}</span>
-            </div>
+            {/* Dynamic Install PWA Button (Hidden if PWA is installed or in standalone mode) */}
+            {!isInstalled && (
+              <button
+                onClick={handleInstallPWA}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg transition-all"
+                title="Install PWA to Desktop / Mobile"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Install PWA</span>
+              </button>
+            )}
 
             {/* Privacy Guarantee Icon */}
             <button
@@ -187,7 +227,26 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden neu-flat px-4 pt-3 pb-5 space-y-1.5 border-t border-slate-500/20">
+        <div className="lg:hidden neu-flat px-4 pt-3 pb-5 space-y-2 border-t border-slate-500/20">
+          {/* Install PWA Mobile Action Button */}
+          {!isInstalled && (
+            <button
+              onClick={() => {
+                handleInstallPWA();
+                setMobileMenuOpen(false);
+              }}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-lg shadow-emerald-600/30 transition-all mb-2 border border-emerald-400/30"
+            >
+              <div className="flex items-center gap-3">
+                <Download className="w-4 h-4 text-emerald-200 animate-bounce" />
+                <span>Install PWA Application</span>
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-white/20 text-white">
+                Install App
+              </span>
+            </button>
+          )}
+
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentApp === item.id;
@@ -200,7 +259,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
                 }}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-lg'
+                    ? 'bg-cyan-600 text-white shadow-lg'
                     : 'opacity-75 hover:opacity-100 hover:bg-slate-500/10 neu-btn'
                 }`}
               >

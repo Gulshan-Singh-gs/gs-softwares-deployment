@@ -30,9 +30,13 @@ import {
   RotateCw, 
   CheckSquare, 
   ShieldCheck, 
-  Wand2
+  Wand2,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { saveWorkspaceFile, getWorkspaceFilesByApp, deleteWorkspaceFile } from '../lib/db';
+import { processAndExportAudio, analyzeAudioBuffer } from '../lib/audioEngine';
 
 export type AudioCategory = 
   | 'playback' 
@@ -91,6 +95,7 @@ export const AudioApp: React.FC = () => {
   // Recording & Studio
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [analysisData, setAnalysisData] = useState<{ peakDb: number; rmsDb: number; estimatedLufs: number } | null>(null);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -98,22 +103,50 @@ export const AudioApp: React.FC = () => {
 
   // 15 Comprehensive Master Audio Tool Suites
   const categories = [
-    { id: 'editing', name: '4. Precision Editing', icon: Scissors, count: '31 Tools' },
-    { id: 'playback', name: '1. Player & Transport', icon: Play, count: '28 Tools' },
-    { id: 'waveform', name: '3. Waveform & Scope', icon: AudioWaveform, count: '32 Tools' },
-    { id: 'multitrack', name: '5. Multi-Track Mixer', icon: Layers, count: '35 Tools' },
-    { id: 'dynamics', name: '6. Dynamics & Leveling', icon: Volume2, count: '40 Tools' },
-    { id: 'equalizer', name: '7. Parametric EQ', icon: Sliders, count: '32 Tools' },
-    { id: 'effects', name: '8. Reverb & Space FX', icon: Wand2, count: '54 Tools' },
-    { id: 'pitch', name: '9. Time & Pitch Warp', icon: Gauge, count: '28 Tools' },
-    { id: 'denoise', name: '10. Restoration & Denoise', icon: Sparkles, count: '40 Tools' },
-    { id: 'recording', name: '11. Studio Recording', icon: Mic, count: '38 Tools' },
-    { id: 'analysis', name: '13. Analysis & LUFS', icon: Activity, count: '37 Tools' },
-    { id: 'convert', name: '14. Codecs & Stems', icon: RefreshCw, count: '30 Tools' },
-    { id: 'metadata', name: '16. ID3 & Metadata', icon: Tag, count: '30 Tools' },
-    { id: 'podcast', name: '19. Podcast & Voice', icon: Radio, count: '30 Tools' },
-    { id: 'music', name: '20. Music & Stems', icon: Disc, count: '40 Tools' },
+    { id: 'editing', name: 'Precision Editing', icon: Scissors, count: 'Editing Suite' },
+    { id: 'playback', name: 'Player & Transport', icon: Play, count: 'Transport Suite' },
+    { id: 'waveform', name: 'Waveform & Scope', icon: AudioWaveform, count: 'Scope Suite' },
+    { id: 'multitrack', name: 'Multi-Track Mixer', icon: Layers, count: 'Mixer Suite' },
+    { id: 'dynamics', name: 'Dynamics & Leveling', icon: Volume2, count: 'Dynamics Suite' },
+    { id: 'equalizer', name: 'Parametric EQ', icon: Sliders, count: 'EQ Suite' },
+    { id: 'effects', name: 'Reverb & Space FX', icon: Wand2, count: 'FX Suite' },
+    { id: 'pitch', name: 'Time & Pitch Warp', icon: Gauge, count: 'Pitch Suite' },
+    { id: 'denoise', name: 'Restoration & Denoise', icon: Sparkles, count: 'Restoration Suite' },
+    { id: 'recording', name: 'Studio Recording', icon: Mic, count: 'Recording Suite' },
+    { id: 'analysis', name: 'Analysis & LUFS', icon: Activity, count: 'Analysis Suite' },
+    { id: 'convert', name: 'Codecs & Stems', icon: RefreshCw, count: 'Codec Suite' },
+    { id: 'metadata', name: 'ID3 & Metadata', icon: Tag, count: 'Metadata Suite' },
+    { id: 'podcast', name: 'Podcast & Voice', icon: Radio, count: 'Voice Suite' },
+    { id: 'music', name: 'Music & Stems', icon: Disc, count: 'Stems Suite' },
   ];
+
+  // Restore audio track from IndexedDB on refresh
+  useEffect(() => {
+    const restoreFromDB = async () => {
+      const stored = await getWorkspaceFilesByApp('audio');
+      if (stored.length === 0) return;
+      const rec = stored[0];
+      try {
+        const blob = new Blob([rec.data as ArrayBuffer], { type: rec.type });
+        const file = new File([blob], rec.name, { type: rec.type });
+        const url = URL.createObjectURL(file);
+        const tempAudio = new Audio(url);
+        tempAudio.onloadedmetadata = () => {
+          setAudio({
+            file,
+            url,
+            name: rec.name,
+            size: rec.size,
+            duration: tempAudio.duration || 0
+          });
+          setTrimEnd(tempAudio.duration || 0);
+        };
+      } catch (e) {
+        console.error('IndexedDB Audio Restore Error:', e);
+      }
+    };
+    restoreFromDB();
+  }, []);
 
   const handleAudioUpload = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -131,6 +164,18 @@ export const AudioApp: React.FC = () => {
         duration: tempAudio.duration || 0
       });
       setTrimEnd(tempAudio.duration || 0);
+
+      file.arrayBuffer().then((buf) => {
+        saveWorkspaceFile({
+          id: 'active_audio_track',
+          app: 'audio',
+          name: file.name,
+          type: file.type || 'audio/mp3',
+          size: file.size,
+          data: buf,
+          timestamp: Date.now()
+        });
+      });
       setTrackTitle(file.name.replace(/\.[^/.]+$/, ''));
       drawWaveformVisual();
     };
@@ -180,13 +225,53 @@ export const AudioApp: React.FC = () => {
     }
   };
 
-  const handleExecuteEngine = () => {
-    if (!audio) return;
+  const handleExecuteEngine = async () => {
+    if (!audio || !audio.file || isProcessing) return;
     setIsProcessing(true);
-    setTimeout(() => {
+    try {
+      const buffer = await audio.file.arrayBuffer();
+      const processedBlob = await processAndExportAudio(buffer, {
+        trimStart,
+        trimEnd: trimEnd || audio.duration,
+        playbackRate,
+        volume,
+        pan,
+        bass,
+        mid,
+        treble,
+        reverbMix,
+        delayTime,
+        pitchSemitones,
+        denoiseLevel,
+        targetFormat,
+      });
+
+      const url = URL.createObjectURL(processedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `processed-${audio.name.replace(/\.[^/.]+$/, '')}.wav`;
+      a.click();
+      confetti({ particleCount: 60, spread: 70, origin: { y: 0.8 } });
+    } catch (err) {
+      console.error('Audio Execution Error:', err);
+    } finally {
       setIsProcessing(false);
-      confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
-    }, 1400);
+    }
+  };
+
+  const handleAnalyzeBuffer = async () => {
+    if (!audio || !audio.file) return;
+    setIsProcessing(true);
+    try {
+      const buffer = await audio.file.arrayBuffer();
+      const metrics = await analyzeAudioBuffer(buffer);
+      setAnalysisData(metrics);
+      confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
+    } catch (e) {
+      console.error('Audio Analysis Error:', e);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const formatBytes = (bytes: number) => {
@@ -210,14 +295,14 @@ export const AudioApp: React.FC = () => {
       {/* Studio Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 neu-card p-6 rounded-3xl border-slate-800">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-rose-600 flex items-center justify-center shadow-lg shadow-purple-600/30 neu-flat">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-pink-600 to-rose-600 flex items-center justify-center shadow-lg shadow-cyan-600/30 neu-flat">
             <Music className="w-6 h-6 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-white tracking-tight">GS-Audio Integrated Studio</h1>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full neu-inset text-purple-300">
-                25-Category Architecture
+              <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full neu-inset text-cyan-300">
+                Master Category Architecture
               </span>
             </div>
             <p className="text-xs text-slate-400">WebAudio Waveform Editing, Parametric EQ, Multi-Track Mixing, LUFS Metering, Restoration & Stems</p>
@@ -225,9 +310,31 @@ export const AudioApp: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Undo & Redo controls */}
+          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-2xl p-1">
+            <button
+              onClick={() => {}}
+              disabled={true}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              title="Undo action"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Undo</span>
+            </button>
+            <button
+              onClick={() => {}}
+              disabled={true}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              title="Redo action"
+            >
+              <Redo2 className="w-3.5 h-3.5" />
+              <span>Redo</span>
+            </button>
+          </div>
+
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-lg"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-lg"
           >
             <Upload className="w-4 h-4" />
             <span>Open Audio Track</span>
@@ -266,7 +373,7 @@ export const AudioApp: React.FC = () => {
               onClick={() => setActiveCategory(cat.id as any)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
                 isActive
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30'
+                  ? 'bg-gradient-to-r from-cyan-600 to-pink-600 text-white shadow-lg shadow-cyan-600/30'
                   : 'neu-btn text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -298,7 +405,7 @@ export const AudioApp: React.FC = () => {
                 <button
                   onClick={() => setIsLooping(!isLooping)}
                   className={`py-2 rounded-xl text-xs font-bold transition-all ${
-                    isLooping ? 'bg-purple-600 text-white shadow' : 'neu-btn text-slate-400'
+                    isLooping ? 'bg-cyan-600 text-white shadow' : 'neu-btn text-slate-400'
                   }`}
                 >
                   <Repeat className="w-4 h-4 mx-auto" />
@@ -306,20 +413,20 @@ export const AudioApp: React.FC = () => {
                 <button
                   onClick={() => setIsShuffling(!isShuffling)}
                   className={`py-2 rounded-xl text-xs font-bold transition-all ${
-                    isShuffling ? 'bg-purple-600 text-white shadow' : 'neu-btn text-slate-400'
+                    isShuffling ? 'bg-cyan-600 text-white shadow' : 'neu-btn text-slate-400'
                   }`}
                 >
                   <Shuffle className="w-4 h-4 mx-auto" />
                 </button>
                 <button
                   onClick={() => handleSpeedChange(0.75)}
-                  className={`py-2 rounded-xl text-xs font-bold ${playbackRate === 0.75 ? 'bg-purple-600 text-white' : 'neu-btn text-slate-400'}`}
+                  className={`py-2 rounded-xl text-xs font-bold ${playbackRate === 0.75 ? 'bg-cyan-600 text-white' : 'neu-btn text-slate-400'}`}
                 >
                   0.75x
                 </button>
                 <button
                   onClick={() => handleSpeedChange(1.25)}
-                  className={`py-2 rounded-xl text-xs font-bold ${playbackRate === 1.25 ? 'bg-purple-600 text-white' : 'neu-btn text-slate-400'}`}
+                  className={`py-2 rounded-xl text-xs font-bold ${playbackRate === 1.25 ? 'bg-cyan-600 text-white' : 'neu-btn text-slate-400'}`}
                 >
                   1.25x
                 </button>
@@ -328,7 +435,7 @@ export const AudioApp: React.FC = () => {
               <div className="space-y-2 pt-2 border-t border-slate-800">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Stereo Balance Pan</span>
-                  <span className="text-purple-400 font-bold">{pan === 0 ? 'Center' : pan < 0 ? `L ${Math.abs(pan)}%` : `R ${pan}%`}</span>
+                  <span className="text-cyan-400 font-bold">{pan === 0 ? 'Center' : pan < 0 ? `L ${Math.abs(pan)}%` : `R ${pan}%`}</span>
                 </div>
                 <input
                   type="range"
@@ -336,7 +443,7 @@ export const AudioApp: React.FC = () => {
                   max="100"
                   value={pan}
                   onChange={(e) => setPan(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
             </div>
@@ -349,7 +456,7 @@ export const AudioApp: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-slate-300 font-semibold">Trim Markers</span>
-                    <span className="text-purple-400 font-bold">
+                    <span className="text-cyan-400 font-bold">
                       {formatTime(trimStart)} - {formatTime(trimEnd)}
                     </span>
                   </div>
@@ -360,7 +467,7 @@ export const AudioApp: React.FC = () => {
                     step="0.05"
                     value={trimStart}
                     onChange={(e) => setTrimStart(Math.min(Number(e.target.value), trimEnd - 0.2))}
-                    className="w-full accent-purple-500 cursor-pointer"
+                    className="w-full accent-cyan-500 cursor-pointer"
                   />
                   <input
                     type="range"
@@ -369,7 +476,7 @@ export const AudioApp: React.FC = () => {
                     step="0.05"
                     value={trimEnd}
                     onChange={(e) => setTrimEnd(Math.max(Number(e.target.value), trimStart + 0.2))}
-                    className="w-full accent-purple-500 cursor-pointer"
+                    className="w-full accent-cyan-500 cursor-pointer"
                   />
                 </div>
               )}
@@ -391,7 +498,7 @@ export const AudioApp: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Bass (100 Hz)</span>
-                  <span className="text-purple-400 font-bold">{bass} dB</span>
+                  <span className="text-cyan-400 font-bold">{bass} dB</span>
                 </div>
                 <input
                   type="range"
@@ -399,14 +506,14 @@ export const AudioApp: React.FC = () => {
                   max="12"
                   value={bass}
                   onChange={(e) => setBass(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Midrange (1 kHz)</span>
-                  <span className="text-purple-400 font-bold">{mid} dB</span>
+                  <span className="text-cyan-400 font-bold">{mid} dB</span>
                 </div>
                 <input
                   type="range"
@@ -414,14 +521,14 @@ export const AudioApp: React.FC = () => {
                   max="12"
                   value={mid}
                   onChange={(e) => setMid(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Treble (10 kHz)</span>
-                  <span className="text-purple-400 font-bold">{treble} dB</span>
+                  <span className="text-cyan-400 font-bold">{treble} dB</span>
                 </div>
                 <input
                   type="range"
@@ -429,7 +536,7 @@ export const AudioApp: React.FC = () => {
                   max="12"
                   value={treble}
                   onChange={(e) => setTreble(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
             </div>
@@ -441,7 +548,7 @@ export const AudioApp: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Acoustic Reverb Mix</span>
-                  <span className="text-purple-400 font-bold">{reverbMix}%</span>
+                  <span className="text-cyan-400 font-bold">{reverbMix}%</span>
                 </div>
                 <input
                   type="range"
@@ -449,14 +556,14 @@ export const AudioApp: React.FC = () => {
                   max="100"
                   value={reverbMix}
                   onChange={(e) => setReverbMix(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Delay Interval</span>
-                  <span className="text-purple-400 font-bold">{delayTime} ms</span>
+                  <span className="text-cyan-400 font-bold">{delayTime} ms</span>
                 </div>
                 <input
                   type="range"
@@ -464,7 +571,7 @@ export const AudioApp: React.FC = () => {
                   max="500"
                   value={delayTime}
                   onChange={(e) => setDelayTime(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
             </div>
@@ -476,7 +583,7 @@ export const AudioApp: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">Pitch Shift (Semitones)</span>
-                  <span className="text-purple-400 font-bold">{pitchSemitones > 0 ? `+${pitchSemitones}` : pitchSemitones} ST</span>
+                  <span className="text-cyan-400 font-bold">{pitchSemitones > 0 ? `+${pitchSemitones}` : pitchSemitones} ST</span>
                 </div>
                 <input
                   type="range"
@@ -484,7 +591,7 @@ export const AudioApp: React.FC = () => {
                   max="12"
                   value={pitchSemitones}
                   onChange={(e) => setPitchSemitones(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
               <div className="grid grid-cols-3 gap-2">
@@ -507,7 +614,7 @@ export const AudioApp: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-300">AI Background Denoise</span>
-                  <span className="text-purple-400 font-bold">{denoiseLevel}%</span>
+                  <span className="text-cyan-400 font-bold">{denoiseLevel}%</span>
                 </div>
                 <input
                   type="range"
@@ -515,7 +622,7 @@ export const AudioApp: React.FC = () => {
                   max="100"
                   value={denoiseLevel}
                   onChange={(e) => setDenoiseLevel(Number(e.target.value))}
-                  className="w-full accent-purple-500 cursor-pointer"
+                  className="w-full accent-cyan-500 cursor-pointer"
                 />
               </div>
               <div className="p-3 neu-inset rounded-2xl text-[11px] text-slate-400">
@@ -530,7 +637,7 @@ export const AudioApp: React.FC = () => {
               <button
                 onClick={() => setIsRecording(!isRecording)}
                 className={`w-full py-3 rounded-2xl text-xs font-bold shadow-lg flex items-center justify-center gap-2 transition-all ${
-                  isRecording ? 'bg-rose-600 text-white animate-pulse' : 'bg-purple-600 text-white'
+                  isRecording ? 'bg-rose-600 text-white animate-pulse' : 'bg-cyan-600 text-white'
                 }`}
               >
                 <Mic className="w-4 h-4" />
@@ -543,18 +650,33 @@ export const AudioApp: React.FC = () => {
           {/* 13. ANALYSIS & LUFS */}
           {activeCategory === 'analysis' && (
             <div className="space-y-3 text-xs text-slate-300">
+              <button
+                onClick={handleAnalyzeBuffer}
+                disabled={!audio || isProcessing}
+                className="w-full py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                <Activity className="w-4 h-4" />
+                <span>Calculate Integrated LUFS & Peak dB</span>
+              </button>
+
               <div className="p-3.5 neu-inset rounded-2xl space-y-1.5 font-mono">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Integrated Loudness:</span>
-                  <span className="text-purple-400 font-bold">-14.2 LUFS</span>
+                  <span className="text-cyan-400 font-bold">
+                    {analysisData ? `${analysisData.estimatedLufs} LUFS` : 'Click Calculate'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">True Peak Ceiling:</span>
-                  <span className="text-emerald-400 font-bold">-0.8 dBFS</span>
+                  <span className="text-emerald-400 font-bold">
+                    {analysisData ? `${analysisData.peakDb} dBFS` : '---'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Phase Correlation:</span>
-                  <span className="text-white font-bold">+0.95 (Mono Safe)</span>
+                  <span className="text-slate-400">RMS Energy:</span>
+                  <span className="text-white font-bold">
+                    {analysisData ? `${analysisData.rmsDb} dB` : '---'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -570,7 +692,7 @@ export const AudioApp: React.FC = () => {
                     key={fmt}
                     onClick={() => setTargetFormat(fmt as any)}
                     className={`py-2 rounded-xl text-xs font-bold uppercase transition-all ${
-                      targetFormat === fmt ? 'bg-purple-600 text-white shadow' : 'neu-btn text-slate-400'
+                      targetFormat === fmt ? 'bg-cyan-600 text-white shadow' : 'neu-btn text-slate-400'
                     }`}
                   >
                     {fmt}
@@ -607,7 +729,7 @@ export const AudioApp: React.FC = () => {
           <button
             onClick={handleExecuteEngine}
             disabled={!audio || isProcessing}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-pink-600 to-rose-600 hover:from-cyan-500 hover:to-rose-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-2"
           >
             {isProcessing ? (
               <>
@@ -628,9 +750,9 @@ export const AudioApp: React.FC = () => {
           {!audio ? (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-800 hover:border-purple-500/50 rounded-3xl p-12 text-center flex flex-col items-center justify-center gap-4 cursor-pointer neu-card transition-all min-h-[380px]"
+              className="border-2 border-dashed border-slate-800 hover:border-cyan-500/50 rounded-3xl p-12 text-center flex flex-col items-center justify-center gap-4 cursor-pointer neu-card transition-all min-h-[380px]"
             >
-              <div className="w-16 h-16 rounded-2xl neu-flat flex items-center justify-center text-purple-400">
+              <div className="w-16 h-16 rounded-2xl neu-flat flex items-center justify-center text-cyan-400">
                 <Upload className="w-8 h-8" />
               </div>
               <div className="space-y-1">
@@ -651,7 +773,7 @@ export const AudioApp: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <button
                     onClick={togglePlay}
-                    className="w-14 h-14 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-600/30 transition-transform hover:scale-105"
+                    className="w-14 h-14 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white flex items-center justify-center shadow-lg shadow-cyan-600/30 transition-transform hover:scale-105"
                   >
                     {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
                   </button>
@@ -672,14 +794,27 @@ export const AudioApp: React.FC = () => {
                   onEnded={() => setIsPlaying(false)}
                 />
 
-                <a
-                  href={audio.url!}
-                  download={`gs-master-${trackTitle}.${targetFormat}`}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-md"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Export Master</span>
-                </a>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setAudio(null);
+                      setIsPlaying(false);
+                    }}
+                    className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-bold transition-all"
+                    title="Remove active audio track"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Remove Track</span>
+                  </button>
+                  <a
+                    href={audio.url!}
+                    download={`gs-master-${trackTitle}.${targetFormat}`}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export Master</span>
+                  </a>
+                </div>
               </div>
 
             </div>
