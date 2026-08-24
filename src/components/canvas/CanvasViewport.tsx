@@ -8,15 +8,15 @@ import {
   CanvasPoint,
   BezierSegment,
   VectorNode,
-  GridType
+  CanvasImageItem,
+  CanvasSheet
 } from '../../lib/canvas/types';
 import {
   simplifyPointsRDP,
   pointsToBezierSegments,
   computeBounds,
   isPointNearStroke,
-  isStrokeInLasso,
-  calculateDynamicWidth
+  isStrokeInLasso
 } from '../../lib/canvas/bezierMath';
 import { recognizeSmartShape, RecognizedShape } from '../../lib/canvas/smartShapes';
 
@@ -34,6 +34,11 @@ interface CanvasViewportProps {
   onStrokesDeleted: (strokeIds: string[]) => void;
   onSelectionChanged: (selectedIds: string[]) => void;
   onCameraChanged: (camera: CameraViewport) => void;
+  onUndo: () => void;
+  onImageAdded?: (image: CanvasImageItem) => void;
+  onImageUpdated?: (image: CanvasImageItem) => void;
+  onImageDeleted?: (imageId: string) => void;
+  onSheetSelect?: (sheetIndex: number) => void;
 }
 
 export const CanvasViewport: React.FC<CanvasViewportProps> = ({
@@ -49,7 +54,12 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
   onStrokeCompleted,
   onStrokesDeleted,
   onSelectionChanged,
-  onCameraChanged
+  onCameraChanged,
+  onUndo,
+  onImageAdded,
+  onImageUpdated,
+  onImageDeleted,
+  onSheetSelect
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -62,34 +72,65 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
   const smartShapeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const activeShapePreviewRef = useRef<RecognizedShape | null>(null);
 
-  // Pan / Zoom touch state
-  const touchesRef = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const initialPinchDistRef = useRef<number | null>(null);
-  const initialZoomRef = useRef<number>(1);
+  // Precision Pan / Zoom dual-touch state
+  const touchesRef = useRef<Map<number, { x: number; y: number; time: number }>>(new Map());
+  const twoTouchStateRef = useRef<{
+    isActive: boolean;
+    startTime: number;
+    startDist: number;
+    startZoom: number;
+    startCam: CameraViewport;
+    startCenter: { x: number; y: number };
+    lastCenter: { x: number; y: number };
+    movedDist: number;
+  }>({
+    isActive: false,
+    startTime: 0,
+    startDist: 0,
+    startZoom: 1,
+    startCam: { x: 0, y: 0, zoom: 1 },
+    startCenter: { x: 0, y: 0 },
+    lastCenter: { x: 0, y: 0 },
+    movedDist: 0
+  });
+
   const lastPanPointRef = useRef<{ x: number; y: number } | null>(null);
   const isSpacePanningRef = useRef<boolean>(false);
+
+  // Image Element & Selection / Drag state
+  const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const draggingImageRef = useRef<{
+    imageId: string;
+    startWorld: CanvasPoint;
+    imgStartPos: { x: number; y: number };
+  } | null>(null);
 
   // Lasso / Box selection points
   const lassoPointsRef = useRef<CanvasPoint[]>([]);
 
-  // Snap feedback state (for animation ripple)
+  // Snap feedback state (for animation ripple / gesture toast)
   const [snapEffect, setSnapEffect] = useState<{ x: number; y: number; text: string } | null>(null);
 
-  // Convert Screen Coordinates (pixel relative to canvas) to World Coordinates
+  // Preload Image Elements
+  useEffect(() => {
+    if (!project.images) return;
+    for (const item of project.images) {
+      if (!imageCacheRef.current.has(item.id)) {
+        const img = new Image();
+        img.src = item.src;
+        img.onload = () => {
+          imageCacheRef.current.set(item.id, img);
+        };
+      }
+    }
+  }, [project.images]);
+
+  // Convert Screen Coordinates to World Coordinates
   const screenToWorld = useCallback((screenX: number, screenY: number): CanvasPoint => {
     const cam = project.camera;
     return {
       x: (screenX - cam.x) / cam.zoom,
       y: (screenY - cam.y) / cam.zoom
-    };
-  }, [project.camera]);
-
-  // Convert World Coordinates to Screen Coordinates
-  const worldToScreen = useCallback((worldX: number, worldY: number): { x: number; y: number } => {
-    const cam = project.camera;
-    return {
-      x: worldX * cam.zoom + cam.x,
-      y: worldY * cam.zoom + cam.y
     };
   }, [project.camera]);
 
@@ -104,8 +145,8 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     const height = canvas.height;
     const cam = project.camera;
 
-    // 1. Clear background
-    ctx.fillStyle = project.backgroundColor || '#0c1015';
+    // 1. Clear background (Studio Desk)
+    ctx.fillStyle = project.aspectRatio !== 'infinite' ? '#080c10' : (project.backgroundColor || '#0c1015');
     ctx.fillRect(0, 0, width, height);
 
     // 2. Viewport Coordinate Transform
@@ -119,12 +160,68 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     const viewMaxX = (width - cam.x) / cam.zoom;
     const viewMaxY = (height - cam.y) / cam.zoom;
 
-    // 3. Render Dynamic Adaptive Grid
+    // 3. Render Sheets if Aspect Ratio Constraint is active
+    if (project.aspectRatio !== 'infinite' && project.sheets && project.sheets.length > 0) {
+      project.sheets.forEach((sheet, sIdx) => {
+        const isActiveSheet = sIdx === project.activeSheetIndex;
+
+        // Paper Drop Shadow
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+        ctx.shadowBlur = 32 / cam.zoom;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 12 / cam.zoom;
+
+        // Paper Sheet Body
+        ctx.fillStyle = project.backgroundColor || '#0f172a';
+        ctx.fillRect(sheet.x, sheet.y, sheet.width, sheet.height);
+        ctx.restore();
+
+        // Sheet Border Outline
+        ctx.save();
+        ctx.strokeStyle = isActiveSheet ? '#06b6d4' : '#334155';
+        ctx.lineWidth = (isActiveSheet ? 2.5 : 1) / cam.zoom;
+        ctx.strokeRect(sheet.x, sheet.y, sheet.width, sheet.height);
+
+        // Sheet Label Header (Page N Badge)
+        ctx.fillStyle = isActiveSheet ? '#06b6d4' : '#64748b';
+        ctx.font = `bold ${Math.max(12, 14 / cam.zoom)}px Inter, sans-serif`;
+        ctx.fillText(
+          `${sheet.name} • ${sheet.aspectRatio.toUpperCase()} (${sheet.width} × ${sheet.height})`,
+          sheet.x + 8,
+          sheet.y - 12 / cam.zoom
+        );
+        ctx.restore();
+      });
+    }
+
+    // 4. Render Dynamic Adaptive Grid
     if (project.grid && project.grid.type !== 'none') {
       drawAdaptiveGrid(ctx, viewMinX, viewMinY, viewMaxX, viewMaxY, project.grid, cam.zoom);
     }
 
-    // 4. Render Visible Layers and Strokes with Viewport Culling
+    // 5. Render Placed Images
+    if (project.images && project.images.length > 0) {
+      for (const imgItem of project.images) {
+        const cached = imageCacheRef.current.get(imgItem.id);
+        if (cached && cached.complete) {
+          ctx.save();
+          ctx.globalAlpha = imgItem.opacity ?? 1;
+          ctx.drawImage(cached, imgItem.x, imgItem.y, imgItem.width, imgItem.height);
+
+          // Selection border on image
+          if (selectedStrokeIds.includes(imgItem.id)) {
+            ctx.strokeStyle = '#06b6d4';
+            ctx.lineWidth = 2 / cam.zoom;
+            ctx.setLineDash([4 / cam.zoom, 4 / cam.zoom]);
+            ctx.strokeRect(imgItem.x - 2, imgItem.y - 2, imgItem.width + 4, imgItem.height + 4);
+          }
+          ctx.restore();
+        }
+      }
+    }
+
+    // 6. Render Visible Layers and Strokes with Viewport Culling
     for (const layer of project.layers) {
       if (!layer.visible) continue;
 
@@ -134,7 +231,6 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       const layerStrokes = project.strokes.filter(s => s.layerId === layer.id);
 
       for (const stroke of layerStrokes) {
-        // Viewport Culling Check: Ignore strokes outside camera viewport
         const b = stroke.bounds;
         if (
           b.maxX < viewMinX ||
@@ -160,7 +256,6 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
         ctx.lineJoin = stroke.join || 'round';
         ctx.lineWidth = stroke.width;
 
-        // Draw Bézier segments
         if (stroke.segments.length > 0) {
           ctx.beginPath();
           const first = stroke.segments[0];
@@ -180,18 +275,15 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
           ctx.stroke();
         }
 
-        // Selection highlight ring & bounding box
         if (isSelected) {
           ctx.restore();
           ctx.save();
-          ctx.strokeStyle = '#06b6d4'; // Cyan highlight
+          ctx.strokeStyle = '#06b6d4';
           ctx.lineWidth = Math.max(1.5 / cam.zoom, 1.2);
           ctx.setLineDash([4 / cam.zoom, 4 / cam.zoom]);
 
-          // Stroke bounding box
           ctx.strokeRect(b.minX - 4, b.minY - 4, b.width + 8, b.height + 8);
 
-          // Draw node anchors on selected stroke
           for (const node of stroke.nodes) {
             ctx.fillStyle = '#06b6d4';
             const nodeRadius = 3.5 / cam.zoom;
@@ -207,9 +299,8 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       ctx.restore();
     }
 
-    // 5. Render Active Live Drawing Stroke / Shape Preview
+    // 7. Render Active Live Drawing Stroke / Shape Preview
     if (activeShapePreviewRef.current) {
-      // Draw Smart Shape preview snap
       const shape = activeShapePreviewRef.current;
       ctx.save();
       ctx.strokeStyle = currentColor;
@@ -228,7 +319,6 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       ctx.stroke();
       ctx.restore();
     } else if (rawPointsRef.current.length > 0 && currentTool === 'draw') {
-      // Draw live smoothed trail
       const points = rawPointsRef.current;
       ctx.save();
       ctx.strokeStyle = currentColor;
@@ -257,7 +347,7 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       ctx.restore();
     }
 
-    // 6. Render Lasso Selection Outline
+    // 8. Render Lasso Selection Outline
     if (lassoPointsRef.current.length > 1 && (currentTool === 'lasso' || currentTool === 'select')) {
       ctx.save();
       ctx.strokeStyle = '#38bdf8';
@@ -288,7 +378,7 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     selectedStrokeIds
   ]);
 
-  // Request Animation Frame Render Loop
+  // Request Animation Frame Loop
   useEffect(() => {
     let animationFrameId: number;
     const loop = () => {
@@ -299,7 +389,7 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     return () => cancelAnimationFrame(animationFrameId);
   }, [renderCanvas]);
 
-  // Handle Canvas Resize (Responsive with Device Pixel Ratio)
+  // Resize Listener
   useEffect(() => {
     const handleResize = () => {
       const container = containerRef.current;
@@ -348,6 +438,60 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     };
   }, []);
 
+  // CLIPBOARD PASTE IMAGE HANDLER (Ctrl+V Image stamping)
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const src = event.target?.result as string;
+              const img = new Image();
+              img.src = src;
+              img.onload = () => {
+                const centerWorld = screenToWorld(
+                  (canvasRef.current?.width || 800) / 4,
+                  (canvasRef.current?.height || 600) / 4
+                );
+                const maxDim = 500;
+                let w = img.width;
+                let h = img.height;
+                if (w > maxDim || h > maxDim) {
+                  const r = Math.min(maxDim / w, maxDim / h);
+                  w = Math.round(w * r);
+                  h = Math.round(h * r);
+                }
+
+                const newImg: CanvasImageItem = {
+                  id: `img_${Date.now()}`,
+                  layerId: activeLayerId,
+                  src,
+                  name: file.name || 'Pasted Image',
+                  x: centerWorld.x - w / 2,
+                  y: centerWorld.y - h / 2,
+                  width: w,
+                  height: h,
+                  opacity: 1,
+                  createdAt: Date.now()
+                };
+                if (onImageAdded) onImageAdded(newImg);
+              };
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [activeLayerId, onImageAdded, screenToWorld]);
+
   // POINTER DOWN HANDLER
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -363,14 +507,35 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     worldPt.tiltY = e.tiltY;
     worldPt.time = Date.now();
 
-    // Multi-touch tracking for pinch-to-zoom
-    touchesRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    // Register active touch point
+    touchesRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY, time: Date.now() });
 
-    if (touchesRef.current.size === 2) {
-      // Initiate 2-finger pinch
+    // DUAL TOUCH INITIATION (Pan & Pinch Zoom)
+    if (touchesRef.current.size >= 2) {
       const touchArr = Array.from(touchesRef.current.values());
-      initialPinchDistRef.current = Math.hypot(touchArr[0].x - touchArr[1].x, touchArr[0].y - touchArr[1].y);
-      initialZoomRef.current = project.camera.zoom;
+      const dist = Math.hypot(touchArr[0].x - touchArr[1].x, touchArr[0].y - touchArr[1].y);
+      const mid = {
+        x: (touchArr[0].x + touchArr[1].x) / 2,
+        y: (touchArr[0].y + touchArr[1].y) / 2
+      };
+
+      twoTouchStateRef.current = {
+        isActive: true,
+        startTime: Date.now(),
+        startDist: Math.max(dist, 1),
+        startZoom: project.camera.zoom,
+        startCam: { ...project.camera },
+        startCenter: mid,
+        lastCenter: mid,
+        movedDist: 0
+      };
+
+      // Discard any accidental single-finger stroke
+      rawPointsRef.current = [];
+      activeShapePreviewRef.current = null;
+      if (smartShapeTimerRef.current) {
+        clearTimeout(smartShapeTimerRef.current);
+      }
       return;
     }
 
@@ -379,20 +544,37 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       return;
     }
 
+    // Check if clicking on an image in select mode
+    if (currentTool === 'select' && project.images) {
+      const clickedImg = [...project.images].reverse().find(
+        (img) =>
+          worldPt.x >= img.x &&
+          worldPt.x <= img.x + img.width &&
+          worldPt.y >= img.y &&
+          worldPt.y <= img.y + img.height
+      );
+      if (clickedImg) {
+        onSelectionChanged([clickedImg.id]);
+        draggingImageRef.current = {
+          imageId: clickedImg.id,
+          startWorld: worldPt,
+          imgStartPos: { x: clickedImg.x, y: clickedImg.y }
+        };
+        return;
+      }
+    }
+
     if (currentTool === 'draw') {
       rawPointsRef.current = [worldPt];
       lastSampleTimeRef.current = Date.now();
       activeShapePreviewRef.current = null;
     } else if (currentTool === 'eraser') {
-      // Immediately test erase at tap location
       eraseAtPoint(worldPt);
     } else if (currentTool === 'select' || currentTool === 'lasso') {
-      // Check if clicking existing stroke
-      const clickedStroke = [...project.strokes].reverse().find(s => isPointNearStroke(worldPt, s, 12));
+      const clickedStroke = [...project.strokes].reverse().find((s) => isPointNearStroke(worldPt, s, 12));
       if (clickedStroke) {
         onSelectionChanged([clickedStroke.id]);
       } else {
-        // Start lasso / marquee selection
         lassoPointsRef.current = [worldPt];
         onSelectionChanged([]);
       }
@@ -403,26 +585,47 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (!isPointerDownRef.current) return;
 
-    touchesRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    touchesRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY, time: Date.now() });
 
-    // Multi-touch Pinch & Pan handling
-    if (touchesRef.current.size === 2 && initialPinchDistRef.current) {
+    // DUAL TOUCH PAN & PINCH ZOOM PROCESSING
+    if (touchesRef.current.size >= 2 && twoTouchStateRef.current.isActive) {
       const touchArr = Array.from(touchesRef.current.values());
       const currentDist = Math.hypot(touchArr[0].x - touchArr[1].x, touchArr[0].y - touchArr[1].y);
-      const scaleDelta = currentDist / initialPinchDistRef.current;
-      const targetZoom = Math.max(0.05, Math.min(32, initialZoomRef.current * scaleDelta));
+      const currentCenter = {
+        x: (touchArr[0].x + touchArr[1].x) / 2,
+        y: (touchArr[0].y + touchArr[1].y) / 2
+      };
 
-      const midX = (touchArr[0].x + touchArr[1].x) / 2;
-      const midY = (touchArr[0].y + touchArr[1].y) / 2;
+      const { startDist, startZoom, startCam, startCenter, lastCenter } = twoTouchStateRef.current;
+      const scaleDelta = currentDist / Math.max(1, startDist);
+      const targetZoom = Math.max(0.05, Math.min(32, startZoom * scaleDelta));
+
+      // Calculate center pan movement
+      const panDeltaX = currentCenter.x - startCenter.x;
+      const panDeltaY = currentCenter.y - startCenter.y;
+
+      const stepDist = Math.hypot(currentCenter.x - lastCenter.x, currentCenter.y - lastCenter.y);
+      twoTouchStateRef.current.movedDist += stepDist;
+      twoTouchStateRef.current.lastCenter = currentCenter;
+
+      // Screen to world center conversion
+      const worldCenter = {
+        x: (startCenter.x - startCam.x) / startCam.zoom,
+        y: (startCenter.y - startCam.y) / startCam.zoom
+      };
+
+      const newCamX = currentCenter.x - worldCenter.x * targetZoom;
+      const newCamY = currentCenter.y - worldCenter.y * targetZoom;
 
       onCameraChanged({
-        ...project.camera,
+        x: newCamX,
+        y: newCamY,
         zoom: targetZoom
       });
       return;
     }
 
-    // Pan canvas
+    // Spacebar / Pan tool single finger drag
     if (isSpacePanningRef.current || currentTool === 'pan' || lastPanPointRef.current) {
       if (lastPanPointRef.current) {
         const dx = e.clientX - lastPanPointRef.current.x;
@@ -447,21 +650,35 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     worldPt.tiltY = e.tiltY;
     worldPt.time = Date.now();
 
+    // Drag placed image item
+    if (draggingImageRef.current && project.images) {
+      const { imageId, startWorld, imgStartPos } = draggingImageRef.current;
+      const dx = worldPt.x - startWorld.x;
+      const dy = worldPt.y - startWorld.y;
+      const targetImg = project.images.find((im) => im.id === imageId);
+      if (targetImg && onImageUpdated) {
+        onImageUpdated({
+          ...targetImg,
+          x: imgStartPos.x + dx,
+          y: imgStartPos.y + dy
+        });
+      }
+      return;
+    }
+
     if (currentTool === 'draw') {
       rawPointsRef.current.push(worldPt);
 
-      // Reset / Setup Smart Shape 400ms hold timer
       if (smartShapeTimerRef.current) {
         clearTimeout(smartShapeTimerRef.current);
       }
 
       if (smartShapeEnabled && rawPointsRef.current.length > 8) {
         smartShapeTimerRef.current = setTimeout(() => {
-          if (isPointerDownRef.current) {
+          if (isPointerDownRef.current && touchesRef.current.size < 2) {
             const detected = recognizeSmartShape(rawPointsRef.current, currentWidth, currentBrush);
             if (detected) {
               activeShapePreviewRef.current = detected;
-              // Trigger haptic feedback if available
               if (typeof navigator !== 'undefined' && navigator.vibrate) {
                 navigator.vibrate(25);
               }
@@ -484,12 +701,17 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
 
   // POINTER UP / END HANDLER
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const wasDualTouch = twoTouchStateRef.current.isActive;
+    const dualStartTime = twoTouchStateRef.current.startTime;
+    const dualMoved = twoTouchStateRef.current.movedDist;
+
     touchesRef.current.delete(e.pointerId);
+
     if (touchesRef.current.size === 0) {
       isPointerDownRef.current = false;
       activePointerIdRef.current = null;
       lastPanPointRef.current = null;
-      initialPinchDistRef.current = null;
+      draggingImageRef.current = null;
     }
 
     if (smartShapeTimerRef.current) {
@@ -497,27 +719,45 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       smartShapeTimerRef.current = null;
     }
 
+    // TWO-FINGER QUICK TAP GESTURE -> UNDO!
+    if (wasDualTouch) {
+      const elapsed = Date.now() - dualStartTime;
+      if (elapsed < 320 && dualMoved < 18) {
+        onUndo();
+        const rect = e.currentTarget.getBoundingClientRect();
+        setSnapEffect({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          text: 'Undo ↺'
+        });
+        setTimeout(() => setSnapEffect(null), 1000);
+      }
+      twoTouchStateRef.current.isActive = false;
+      rawPointsRef.current = [];
+      activeShapePreviewRef.current = null;
+      return;
+    }
+
     if (currentTool === 'draw' && rawPointsRef.current.length > 0) {
       finalizeStroke();
     } else if (lassoPointsRef.current.length > 2) {
-      // Find all strokes contained inside lasso selection
-      const enclosed = project.strokes.filter(s => isStrokeInLasso(s, lassoPointsRef.current));
-      onSelectionChanged(enclosed.map(s => s.id));
+      const enclosed = project.strokes.filter((s) => isStrokeInLasso(s, lassoPointsRef.current));
+      onSelectionChanged(enclosed.map((s) => s.id));
       lassoPointsRef.current = [];
     } else {
       lassoPointsRef.current = [];
     }
   };
 
-  // Helper: Erase stroke at point
+  // Erase Stroke at Point
   const eraseAtPoint = (point: CanvasPoint) => {
-    const hits = project.strokes.filter(s => isPointNearStroke(point, s, currentWidth * 1.5));
+    const hits = project.strokes.filter((s) => isPointNearStroke(point, s, currentWidth * 1.5));
     if (hits.length > 0) {
-      onStrokesDeleted(hits.map(s => s.id));
+      onStrokesDeleted(hits.map((s) => s.id));
     }
   };
 
-  // Helper: Finalize stroke creation
+  // Finalize Stroke
   const finalizeStroke = () => {
     const raw = rawPointsRef.current;
     if (raw.length === 0) return;
@@ -527,14 +767,12 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     let isClosed = false;
     let shapeKind: RecognizedShape['kind'] | undefined = undefined;
 
-    // Check if smart shape was recognized during hold or immediately recognizable
     if (activeShapePreviewRef.current) {
       finalSegments = activeShapePreviewRef.current.segments;
       finalNodes = activeShapePreviewRef.current.nodes;
       isClosed = activeShapePreviewRef.current.isClosed;
       shapeKind = activeShapePreviewRef.current.kind;
     } else {
-      // Smooth raw points via RDP simplification and Catmull-Rom spline synthesis
       const simplified = simplifyPointsRDP(raw, 1.2);
       const computed = pointsToBezierSegments(simplified, currentWidth, currentBrush);
       finalSegments = computed.segments;
@@ -563,13 +801,11 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     };
 
     onStrokeCompleted(newStroke);
-
-    // Clean live state
     rawPointsRef.current = [];
     activeShapePreviewRef.current = null;
   };
 
-  // Wheel Zoom Listener (Smooth trackpad pinch & Ctrl+Wheel)
+  // Wheel Zoom Listener
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     const rect = e.currentTarget.getBoundingClientRect();
@@ -581,7 +817,6 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     const delta = -e.deltaY * zoomFactor;
     const newZoom = Math.max(0.05, Math.min(32, cam.zoom * (1 + delta)));
 
-    // Zoom centered on cursor position
     const worldBefore = {
       x: (mouseX - cam.x) / cam.zoom,
       y: (mouseY - cam.y) / cam.zoom
@@ -597,29 +832,123 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     });
   };
 
+  // Drag & Drop File Upload Handler
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const dropWorld = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const src = event.target?.result as string;
+          const img = new Image();
+          img.src = src;
+          img.onload = () => {
+            const maxDim = 600;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              const r = Math.min(maxDim / w, maxDim / h);
+              w = Math.round(w * r);
+              h = Math.round(h * r);
+            }
+            const newImage: CanvasImageItem = {
+              id: `img_${Date.now()}_${i}`,
+              layerId: activeLayerId,
+              src,
+              name: file.name,
+              x: dropWorld.x - w / 2,
+              y: dropWorld.y - h / 2,
+              width: w,
+              height: h,
+              opacity: 1,
+              createdAt: Date.now()
+            };
+            if (onImageAdded) onImageAdded(newImage);
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  // Prevent Native Browser Context Menu (Save image, Inspect, etc.) on multi-touch / right-click
+  useEffect(() => {
+    const container = containerRef.current;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
+
+    const preventMenu = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    container.addEventListener('contextmenu', preventMenu, { capture: true });
+    canvas.addEventListener('contextmenu', preventMenu, { capture: true });
+
+    return () => {
+      container.removeEventListener('contextmenu', preventMenu, { capture: true });
+      canvas.removeEventListener('contextmenu', preventMenu, { capture: true });
+    };
+  }, []);
+
   return (
     <div
       ref={containerRef}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       className="relative w-full h-full select-none overflow-hidden touch-none"
-      style={{ cursor: isSpacePanningRef.current || currentTool === 'pan' ? 'grab' : 'crosshair' }}
+      style={{
+        cursor: isSpacePanningRef.current || currentTool === 'pan' ? 'grab' : 'crosshair',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        userSelect: 'none',
+        touchAction: 'none'
+      }}
     >
       <canvas
         ref={canvasRef}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         onWheel={handleWheel}
         className="absolute inset-0 block w-full h-full"
+        style={{
+          WebkitTouchCallout: 'none',
+          WebkitUserSelect: 'none',
+          userSelect: 'none',
+          touchAction: 'none'
+        }}
       />
 
-      {/* Smart Shape Snap Pill Alert */}
+      {/* Dynamic Feedback Toast (Smart Shape & 2-Finger Undo) */}
       {snapEffect && (
         <div
-          className="absolute z-20 pointer-events-none transform -translate-x-1/2 -translate-y-full px-3 py-1.5 rounded-full bg-cyan-600/90 text-white font-bold text-xs shadow-lg shadow-cyan-600/40 backdrop-blur-md animate-bounce"
+          className="absolute z-20 pointer-events-none transform -translate-x-1/2 -translate-y-full px-3.5 py-1.5 rounded-full bg-cyan-600/95 text-white font-black text-xs shadow-xl shadow-cyan-600/40 backdrop-blur-md animate-in fade-in zoom-in duration-200"
           style={{ left: snapEffect.x, top: snapEffect.y - 12 }}
         >
-          ✨ {snapEffect.text}
+          {snapEffect.text}
         </div>
       )}
     </div>
@@ -637,7 +966,6 @@ function drawAdaptiveGrid(
   zoom: number
 ) {
   let step = grid.size || 28;
-  // Adaptive subdivision so grid doesn't overcrowd or vanish at extreme zoom
   while (step * zoom < 14) step *= 2;
   while (step * zoom > 80) step /= 2;
 

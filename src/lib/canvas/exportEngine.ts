@@ -131,10 +131,33 @@ export function exportToSvg(project: CanvasProject, settings: Partial<ExportSett
  */
 export async function exportToRaster(
   project: CanvasProject,
-  settings: ExportSettings
+  settings: Partial<ExportSettings> = {}
 ): Promise<Blob> {
-  const bounds = getProjectContentBounds(project, settings.padding);
   const scale = settings.scale || 2;
+  const padding = settings.padding ?? 40;
+
+  // Determine export bounds: Active sheet, all sheets, or content bounds
+  let bounds: { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number };
+
+  if (
+    settings.exportTarget === 'active-sheet' &&
+    project.aspectRatio !== 'infinite' &&
+    project.sheets &&
+    project.sheets[project.activeSheetIndex]
+  ) {
+    const sheet = project.sheets[project.activeSheetIndex];
+    bounds = {
+      minX: sheet.x,
+      minY: sheet.y,
+      maxX: sheet.x + sheet.width,
+      maxY: sheet.y + sheet.height,
+      width: sheet.width,
+      height: sheet.height
+    };
+  } else {
+    bounds = getProjectContentBounds(project, padding);
+  }
+
   const canvasWidth = Math.round(bounds.width * scale);
   const canvasHeight = Math.round(bounds.height * scale);
 
@@ -146,7 +169,7 @@ export async function exportToRaster(
   if (!ctx) throw new Error('Could not get 2D canvas context');
 
   // Background
-  if (settings.includeBackground && project.backgroundColor) {
+  if (settings.includeBackground !== false && project.backgroundColor) {
     ctx.fillStyle = project.backgroundColor;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   } else {
@@ -160,6 +183,22 @@ export async function exportToRaster(
   // Optional Grid
   if (settings.includeGrid && project.grid.type !== 'none') {
     drawGridOnContext(ctx, bounds, project.grid);
+  }
+
+  // Render placed images
+  if (project.images && project.images.length > 0) {
+    for (const imgItem of project.images) {
+      try {
+        const img = new Image();
+        img.src = imgItem.src;
+        if (img.complete) {
+          ctx.save();
+          ctx.globalAlpha = imgItem.opacity ?? 1;
+          ctx.drawImage(img, imgItem.x, imgItem.y, imgItem.width, imgItem.height);
+          ctx.restore();
+        }
+      } catch (e) {}
+    }
   }
 
   // Render visible layers
@@ -210,7 +249,10 @@ export async function exportToRaster(
     ctx.restore();
   }
 
-  const mimeType = settings.format === 'webp' ? 'image/webp' : 'image/png';
+  let mimeType = 'image/png';
+  if (settings.format === 'webp') mimeType = 'image/webp';
+  else if (settings.format === 'jpeg' || (settings.format as any) === 'jpg') mimeType = 'image/jpeg';
+
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       blob => {
@@ -222,6 +264,8 @@ export async function exportToRaster(
     );
   });
 }
+
+export const exportProjectToRaster = exportToRaster;
 
 /**
  * Exports project as a print-ready vector PDF document using pdf-lib.
@@ -308,6 +352,10 @@ export function parseGSCanvasProject(jsonString: string): CanvasProject {
     version: projectData.version || '1.0',
     createdAt: projectData.createdAt || Date.now(),
     updatedAt: projectData.updatedAt || Date.now(),
+    aspectRatio: projectData.aspectRatio || 'infinite',
+    activeSheetIndex: projectData.activeSheetIndex || 0,
+    sheets: projectData.sheets || [],
+    images: projectData.images || [],
     camera: projectData.camera || { x: 0, y: 0, zoom: 1 },
     grid: projectData.grid || { type: 'dot', size: 24, opacity: 0.25, color: '#94a3b8' },
     layers: projectData.layers,

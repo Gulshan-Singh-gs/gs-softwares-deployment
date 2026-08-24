@@ -13,6 +13,8 @@ import {
   Palette,
   Undo2,
   Redo2,
+  Camera,
+  Image as ImageIcon,
   Menu
 } from 'lucide-react';
 import { ToolMode, BrushType } from '../../lib/canvas/types';
@@ -30,6 +32,8 @@ interface RadialToolMenuProps {
   onOpenPalette: () => void;
   onUndo: () => void;
   onRedo: () => void;
+  onSnapshot?: () => void;
+  onUploadImage?: () => void;
 }
 
 export const RadialToolMenu: React.FC<RadialToolMenuProps> = ({
@@ -44,7 +48,9 @@ export const RadialToolMenu: React.FC<RadialToolMenuProps> = ({
   onOpenLayers,
   onOpenPalette,
   onUndo,
-  onRedo
+  onRedo,
+  onSnapshot,
+  onUploadImage
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -256,6 +262,26 @@ export const RadialToolMenu: React.FC<RadialToolMenuProps> = ({
         >
           <Layers className="w-4 h-4 text-indigo-400" />
         </button>
+
+        {onUploadImage && (
+          <button
+            onClick={onUploadImage}
+            className="p-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs"
+            title="Upload File / Image onto Canvas"
+          >
+            <ImageIcon className="w-4 h-4 text-emerald-400" />
+          </button>
+        )}
+
+        {onSnapshot && (
+          <button
+            onClick={onSnapshot}
+            className="p-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30"
+            title="Take Snapshot / Share Studio"
+          >
+            <Camera className="w-4 h-4 text-cyan-400" />
+          </button>
+        )}
       </div>
     </div>
   );

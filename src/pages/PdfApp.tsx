@@ -1170,22 +1170,22 @@ export const PdfApp: React.FC = () => {
               {pdfFiles.map((item, index) => (
                 <div
                   key={item.id}
-                  className="glass-panel rounded-xl p-4 flex items-center justify-between border-slate-800 hover:border-slate-700 transition-all"
+                  className="glass-panel rounded-xl p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4 border-slate-800 hover:border-slate-700 transition-all min-w-0 overflow-hidden"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 font-bold text-xs">
+                  <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 font-bold text-xs shrink-0">
                       {index + 1}
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-white truncate max-w-[260px] sm:max-w-md">{item.name}</p>
-                      <p className="text-[11px] text-slate-400">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-white truncate" title={item.name}>{item.name}</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">
                         {formatBytes(item.size)} • {item.pageCount || 1} pages
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 mr-1">
+                  <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                    <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5 mr-0.5 sm:mr-1 shrink-0">
                       <button
                         onClick={() => handleMoveFile(index, 'up')}
                         disabled={index === 0}
@@ -1209,10 +1209,11 @@ export const PdfApp: React.FC = () => {
                         setPdfFiles((prev) => prev.filter((p) => p.id !== item.id));
                         deleteWorkspaceFile(item.id);
                       }}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all"
+                      className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all shrink-0"
+                      title="Remove document"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Remove</span>
+                      <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                      <span className="hidden sm:inline">Remove</span>
                     </button>
                   </div>
                 </div>

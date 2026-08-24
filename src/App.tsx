@@ -43,153 +43,157 @@ export function App() {
       <main className="flex-1">
         {currentApp === 'home' && <Home onSelectApp={(app) => setCurrentApp(app)} />}
         {currentApp === 'pixels' && <PixelsApp />}
-        {currentApp === 'canvas' && <CanvasApp />}
+        {currentApp === 'canvas' && <CanvasApp onNavigate={(app) => setCurrentApp(app)} />}
         {currentApp === 'pdf' && <PdfApp />}
         {currentApp === 'video' && <VideoApp />}
         {currentApp === 'audio' && <AudioApp />}
         {currentApp === 'text' && <TextApp />}
       </main>
 
-      {/* Rich Footer */}
-      <footer className="border-t border-slate-500/20 mt-8">
-        {/* Main Footer Grid */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-center lg:text-left lg:justify-items-center">
-            
-            {/* Col 1: Logo + Tagline + About Us */}
-            <div className="space-y-4 sm:col-span-2 lg:col-span-1 flex flex-col items-center lg:items-start">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/favicon.png"
-                  alt="GS Softwares Logo"
-                  className="w-12 h-12 rounded-2xl shadow-lg shadow-cyan-500/20 object-cover"
-                />
-                <div>
-                  <p className="text-sm font-extrabold tracking-tight">GS Softwares</p>
-                  <p className="text-[11px] text-cyan-500 font-semibold">Your 100% private suite</p>
+      {/* Rich Footer (Hidden in GS-Canvas for maximum creative real estate) */}
+      {currentApp !== 'canvas' && (
+        <footer className="border-t border-slate-500/20 mt-8">
+          {/* Main Footer Grid */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-center lg:text-left lg:justify-items-center">
+              
+              {/* Col 1: Logo + Tagline + About Us */}
+              <div className="space-y-4 sm:col-span-2 lg:col-span-1 flex flex-col items-center lg:items-start">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/favicon.png"
+                    alt="GS Softwares Logo"
+                    className="w-12 h-12 rounded-2xl shadow-lg shadow-cyan-500/20 object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-extrabold tracking-tight">GS Softwares</p>
+                    <p className="text-[11px] text-cyan-500 font-semibold">Your 100% private suite</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs font-bold opacity-80">About Us</p>
+                  <p className="text-xs opacity-60 leading-relaxed max-w-xs">
+                    GS Softwares is a 100% client-side Progressive Web App — your files never leave your device. 
+                    Powered by WebAssembly &amp; Web Workers, it delivers professional-grade image, PDF, video, audio 
+                    and text tools that run entirely in your browser, fully offline, with zero server uploads.
+                  </p>
                 </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-xs font-bold opacity-80">About Us</p>
+
+              {/* Col 2: Information */}
+              <div className="space-y-4 flex flex-col items-center lg:items-start">
+                <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Information</p>
+                <ul className="space-y-3">
+                  <li>
+                    <button
+                      onClick={() => setAboutModalOpen(true)}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
+                    >
+                      <Info className="w-4 h-4 shrink-0" />
+                      About Us
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => setShowPwaLoader(true)}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
+                    >
+                      <FileQuestion className="w-4 h-4 shrink-0" />
+                      About this PWA
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Col 3: Helpful Links / Quick Actions */}
+              <div className="space-y-4 flex flex-col items-center lg:items-start">
+                <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Helpful Links</p>
+                <ul className="space-y-3">
+                  <li>
+                    <a
+                      href="https://gulshan-singh-gs.github.io/Feedback/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
+                    >
+                      <MessageSquare className="w-4 h-4 shrink-0" />
+                      Send Feedback
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://github.com/Gulshan-Singh-gs/gs-softwares"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
+                    >
+                      <Code2 className="w-4 h-4 shrink-0" />
+                      Source Code
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Col 4: Feedback CTA */}
+              <div className="space-y-4 flex flex-col items-center lg:items-start">
+                <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Feedback</p>
                 <p className="text-xs opacity-60 leading-relaxed max-w-xs">
-                  GS Softwares is a 100% client-side Progressive Web App — your files never leave your device. 
-                  Powered by WebAssembly &amp; Web Workers, it delivers professional-grade image, PDF, video, audio 
-                  and text tools that run entirely in your browser, fully offline, with zero server uploads.
+                  Help us improve! Share your thoughts, report bugs, or suggest new features.
                 </p>
+                <a
+                  href="https://gulshan-singh-gs.github.io/Feedback/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="footer-feedback-btn"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 transition-all hover:scale-105"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Give Feedback
+                </a>
               </div>
             </div>
+          </div>
 
-            {/* Col 2: Information */}
-            <div className="space-y-4 flex flex-col items-center lg:items-start">
-              <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Information</p>
-              <ul className="space-y-3">
-                <li>
-                  <button
-                    onClick={() => setAboutModalOpen(true)}
-                    className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
-                  >
-                    <Info className="w-4 h-4 shrink-0" />
-                    About Us
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setShowPwaLoader(true)}
-                    className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
-                  >
-                    <FileQuestion className="w-4 h-4 shrink-0" />
-                    About this PWA
-                  </button>
-                </li>
-              </ul>
-            </div>
+          {/* Divider */}
+          <div className="border-t border-slate-500/15" />
 
-            {/* Col 3: Helpful Links / Quick Actions */}
-            <div className="space-y-4 flex flex-col items-center lg:items-start">
-              <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Helpful Links</p>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="https://gulshan-singh-gs.github.io/Feedback/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
-                  >
-                    <MessageSquare className="w-4 h-4 shrink-0" />
-                    Send Feedback
-                  </a>
-                </li>
-                <li>
-                  <button
-                    onClick={() => setShowPwaLoader(true)}
-                    className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
-                  >
-                    <Shield className="w-4 h-4 shrink-0 text-emerald-500" />
-                    PWA Engine Status
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* Col 4: Feedback CTA */}
-            <div className="space-y-4 flex flex-col items-center lg:items-start">
-              <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Feedback</p>
-              <p className="text-xs opacity-60 leading-relaxed max-w-xs">
-                Help us improve! Share your thoughts, report bugs, or suggest new features.
-              </p>
+          {/* Bottom Bar */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
+            {/* Social / Tech Icons */}
+            <div className="flex items-center gap-4">
+              <a
+                href="https://github.com/gulshan-singh-gs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-cyan-500 transition-colors opacity-70 hover:opacity-100"
+                title="GitHub"
+              >
+                <Code2 className="w-4 h-4" />
+              </a>
               <a
                 href="https://gulshan-singh-gs.github.io/Feedback/"
                 target="_blank"
                 rel="noopener noreferrer"
-                id="footer-feedback-btn"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 transition-all hover:scale-105"
+                className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-cyan-500 transition-colors opacity-70 hover:opacity-100"
+                title="Feedback"
               >
                 <MessageSquare className="w-4 h-4" />
-                Give Feedback
               </a>
+              <button
+                onClick={() => setShowPwaLoader(true)}
+                className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-emerald-500 transition-colors opacity-70 hover:opacity-100"
+                title="PWA Engine Status"
+              >
+                <Shield className="w-4 h-4" />
+              </button>
             </div>
+
+            <p className="text-xs opacity-50">
+              © 2026 GS Softwares. Engineered for privacy, speed &amp; offline workflows. Zero server uploads.
+            </p>
           </div>
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-slate-500/15" />
-
-        {/* Bottom Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center">
-          {/* Social / Tech Icons */}
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/gulshan-singh-gs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-cyan-500 transition-colors opacity-70 hover:opacity-100"
-              title="GitHub"
-            >
-              <Code2 className="w-4 h-4" />
-            </a>
-            <a
-              href="https://gulshan-singh-gs.github.io/Feedback/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-cyan-500 transition-colors opacity-70 hover:opacity-100"
-              title="Feedback"
-            >
-              <MessageSquare className="w-4 h-4" />
-            </a>
-            <button
-              onClick={() => setShowPwaLoader(true)}
-              className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-emerald-500 transition-colors opacity-70 hover:opacity-100"
-              title="PWA Engine Status"
-            >
-              <Shield className="w-4 h-4" />
-            </button>
-          </div>
-
-          <p className="text-xs opacity-50">
-            © 2026 GS Softwares. Engineered for privacy, speed &amp; offline workflows. Zero server uploads.
-          </p>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       {/* About & Privacy Modal */}
       {aboutModalOpen && (

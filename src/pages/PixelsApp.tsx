@@ -1788,10 +1788,10 @@ export const PixelsApp: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2 min-w-0">
                         <div className="space-y-0.5 min-w-0 flex-1">
-                          <p className="text-xs font-bold text-white truncate">{item.name}</p>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                          <p className="text-xs font-bold text-white truncate" title={item.name}>{item.name}</p>
+                          <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] text-slate-400 truncate">
                             <span>{item.width}x{item.height}px</span>
                             <span>•</span>
                             <span>{formatBytes(item.originalSize)}</span>
@@ -1811,11 +1811,11 @@ export const PixelsApp: React.FC = () => {
                             e.stopPropagation();
                             deleteImage(item.id);
                           }}
-                          className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl transition-all"
+                          className="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 text-xs font-bold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-xl transition-all shrink-0"
                           title="Remove image from suite"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>Remove</span>
+                          <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                          <span className="hidden sm:inline">Remove</span>
                         </button>
                       </div>
 

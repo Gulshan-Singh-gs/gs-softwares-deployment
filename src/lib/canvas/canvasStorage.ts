@@ -1,19 +1,66 @@
-import { CanvasProject } from './types';
+import { CanvasProject, AspectRatioPreset, CanvasSheet } from './types';
 import { saveWorkspaceFile, getWorkspaceFilesByApp, deleteWorkspaceFile } from '../db';
 
 const ACTIVE_CANVAS_PROJECT_KEY = 'gs_canvas_active_project_id';
 
 /**
- * Creates a default blank Canvas project.
+ * Dimensions in world coordinate points for standard sheet presets.
  */
-export function createDefaultProject(name: string = 'Untitled Sketchbook'): CanvasProject {
+export function getSheetDimensions(preset: AspectRatioPreset): { width: number; height: number } {
+  switch (preset) {
+    case 'a4-portrait':
+      return { width: 1240, height: 1754 };
+    case 'a4-landscape':
+      return { width: 1754, height: 1240 };
+    case 'letter-portrait':
+      return { width: 1275, height: 1650 };
+    case 'letter-landscape':
+      return { width: 1650, height: 1275 };
+    case '16:9':
+      return { width: 1920, height: 1080 };
+    case '9:16':
+      return { width: 1080, height: 1920 };
+    case '1:1':
+      return { width: 1200, height: 1200 };
+    case '4:3':
+      return { width: 1600, height: 1200 };
+    case 'infinite':
+    default:
+      return { width: 0, height: 0 };
+  }
+}
+
+/**
+ * Creates a default blank Canvas project with multi-sheet support.
+ */
+export function createDefaultProject(
+  name: string = 'Untitled Sketchbook',
+  aspectRatio: AspectRatioPreset = 'infinite'
+): CanvasProject {
   const layer1Id = `layer_${Date.now()}`;
+  const sheet1Id = `sheet_${Date.now()}`;
+  const dims = getSheetDimensions(aspectRatio);
+
+  const initialSheet: CanvasSheet = {
+    id: sheet1Id,
+    pageNumber: 1,
+    name: 'Sheet 1',
+    aspectRatio,
+    width: dims.width,
+    height: dims.height,
+    x: 0,
+    y: 0
+  };
+
   return {
     id: `canvas_proj_${Date.now()}`,
     name,
     version: '1.0',
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    aspectRatio,
+    activeSheetIndex: 0,
+    sheets: [initialSheet],
     camera: {
       x: 0,
       y: 0,
@@ -37,6 +84,7 @@ export function createDefaultProject(name: string = 'Untitled Sketchbook'): Canv
       }
     ],
     strokes: [],
+    images: [],
     backgroundColor: '#0c1015'
   };
 }

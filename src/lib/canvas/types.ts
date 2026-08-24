@@ -79,6 +79,43 @@ export interface CanvasLayer {
   createdAt: number;
 }
 
+export type AspectRatioPreset =
+  | 'infinite'
+  | 'a4-portrait'
+  | 'a4-landscape'
+  | 'letter-portrait'
+  | 'letter-landscape'
+  | '16:9'
+  | '9:16'
+  | '1:1'
+  | '4:3';
+
+export interface CanvasSheet {
+  id: string;
+  pageNumber: number;
+  name: string;
+  aspectRatio: AspectRatioPreset;
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
+
+export interface CanvasImageItem {
+  id: string;
+  layerId: string;
+  sheetId?: string;
+  src: string; // Data URL or Object URL
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation?: number; // radians
+  opacity?: number;
+  createdAt: number;
+}
+
 export interface CameraViewport {
   x: number; // Pan X in world units
   y: number; // Pan Y in world units
@@ -91,6 +128,9 @@ export interface CanvasProject {
   version: string;
   createdAt: number;
   updatedAt: number;
+  aspectRatio: AspectRatioPreset;
+  activeSheetIndex: number;
+  sheets: CanvasSheet[];
   camera: CameraViewport;
   grid: {
     type: GridType;
@@ -100,6 +140,7 @@ export interface CanvasProject {
   };
   layers: CanvasLayer[];
   strokes: VectorStroke[];
+  images?: CanvasImageItem[];
   backgroundColor: string; // Hex, e.g. '#121820' or '#f8fafc'
 }
 
@@ -107,15 +148,18 @@ export interface HistoryEntry {
   description: string;
   strokes: VectorStroke[];
   layers: CanvasLayer[];
+  sheets?: CanvasSheet[];
+  images?: CanvasImageItem[];
   selectedStrokeIds: string[];
 }
 
 export interface ExportSettings {
-  format: 'svg' | 'png' | 'webp' | 'pdf' | 'gscanvas';
+  format: 'svg' | 'png' | 'webp' | 'pdf' | 'gscanvas' | 'jpeg';
   scale: 1 | 2 | 4;
   includeBackground: boolean;
   includeGrid: boolean;
   quality: number; // 0.1 - 1.0 for raster
   cropToContent: boolean;
   padding: number;
+  exportTarget?: 'active-sheet' | 'all-sheets' | 'full-viewport';
 }
