@@ -16,8 +16,10 @@ import {
   Menu,
   X,
   Zap,
-  Download
+  Download,
+  Sliders
 } from 'lucide-react';
+import { usePerformanceTier } from '../context/PerformanceContext';
 
 export type ThemeMode = 'light' | 'semi' | 'dark';
 
@@ -25,14 +27,24 @@ interface HeaderProps {
   currentApp: string;
   onNavigate: (app: string) => void;
   onOpenAbout: () => void;
+  onOpenSettings?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAbout }) => {
+export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAbout, onOpenSettings }) => {
+  const { tier, setIsSettingsOpen } = usePerformanceTier();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>(() => {
     return (localStorage.getItem('gs_theme_mode') as ThemeMode) || 'dark';
   });
+
+  const handleOpenSettingsModal = () => {
+    if (onOpenSettings) {
+      onOpenSettings();
+    } else {
+      setIsSettingsOpen(true);
+    }
+  };
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState<boolean>(() => {
@@ -206,6 +218,24 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
               </button>
             )}
 
+            {/* Settings & Performance Action Button */}
+            <button
+              onClick={handleOpenSettingsModal}
+              className="p-1.5 sm:p-2 neu-btn rounded-xl transition-colors relative group"
+              title="Settings & Performance Mode"
+            >
+              <Sliders className="w-4 h-4 text-cyan-400 group-hover:rotate-45 transition-transform duration-200" />
+              <span
+                className={`absolute top-1 right-1 w-2 h-2 rounded-full ring-2 ring-slate-900 ${
+                  tier === 'eco'
+                    ? 'bg-emerald-400'
+                    : tier === 'balanced'
+                    ? 'bg-amber-400'
+                    : 'bg-rose-400'
+                }`}
+              />
+            </button>
+
             {/* Privacy Guarantee Icon */}
             <button
               onClick={onOpenAbout}
@@ -230,6 +260,29 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden neu-flat px-4 pt-3 pb-5 space-y-2 border-t border-slate-500/20">
+          {/* Settings & Performance Tier button in Mobile Drawer */}
+          <button
+            onClick={() => {
+              handleOpenSettingsModal();
+              setMobileMenuOpen(false);
+            }}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold neu-inset transition-all mb-2 border border-slate-500/20"
+          >
+            <div className="flex items-center gap-3">
+              <Sliders className="w-4 h-4 text-cyan-400" />
+              <span>Settings &amp; Performance</span>
+            </div>
+            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
+              tier === 'eco'
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                : tier === 'balanced'
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+            }`}>
+              {tier}
+            </span>
+          </button>
+
           {/* Install PWA Mobile Action Button */}
           {!isInstalled && (
             <button

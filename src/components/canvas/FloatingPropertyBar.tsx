@@ -65,11 +65,11 @@ export const FloatingPropertyBar: React.FC<FloatingPropertyBarProps> = ({
   const hasSelection = selectedStrokes.length > 0;
 
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 max-w-[95vw] overflow-x-auto p-2 rounded-2xl neu-card shadow-2xl backdrop-blur-xl border border-slate-700/30">
+    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 max-w-[95vw] overflow-x-auto p-2 rounded-2xl canvas-studio-panel shadow-2xl backdrop-blur-xl border border-slate-700/60">
       {/* SELECTION CONTEXTUAL ACTIONS */}
       {hasSelection ? (
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-cyan-400 px-2 py-1 rounded-lg neu-inset whitespace-nowrap">
+          <span className="text-[11px] font-bold text-cyan-400 px-2 py-1 rounded-lg canvas-studio-inset whitespace-nowrap">
             {selectedStrokes.length} selected
           </span>
 
@@ -79,7 +79,7 @@ export const FloatingPropertyBar: React.FC<FloatingPropertyBarProps> = ({
             className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               isNodeEditMode
                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
-                : 'neu-btn text-slate-300 hover:text-white'
+                : 'canvas-studio-btn text-slate-300 hover:text-white'
             }`}
             title="Edit Bézier Nodes (Reshape Path)"
           >
@@ -90,7 +90,7 @@ export const FloatingPropertyBar: React.FC<FloatingPropertyBarProps> = ({
           {/* Duplicate Button */}
           <button
             onClick={onDuplicateSelected}
-            className="p-1.5 rounded-xl neu-btn text-slate-300 hover:text-white"
+            className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white"
             title="Duplicate Stroke(s)"
           >
             <Copy className="w-4 h-4" />
@@ -99,7 +99,7 @@ export const FloatingPropertyBar: React.FC<FloatingPropertyBarProps> = ({
           {/* Delete Button */}
           <button
             onClick={onDeleteSelected}
-            className="p-1.5 rounded-xl neu-btn text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
+            className="p-1.5 rounded-xl canvas-studio-btn text-rose-400 hover:text-rose-300 hover:bg-rose-500/20"
             title="Delete Stroke(s)"
           >
             <Trash2 className="w-4 h-4" />
@@ -115,7 +115,7 @@ export const FloatingPropertyBar: React.FC<FloatingPropertyBarProps> = ({
           {/* Main Color Pill Trigger */}
           <button
             onClick={onOpenColorPicker}
-            className="flex items-center gap-1.5 p-1 rounded-xl neu-inset hover:scale-105 transition-transform"
+            className="flex items-center gap-1.5 p-1 rounded-xl canvas-studio-inset hover:scale-105 transition-transform"
             title="Open HSL Color Wheel & Pro Marker Palettes"
           >
             <div
@@ -174,7 +174,7 @@ export const FloatingPropertyBar: React.FC<FloatingPropertyBarProps> = ({
               className={`px-1.5 py-0.5 rounded-lg text-[10px] font-mono font-bold transition-all ${
                 currentWidth === w
                   ? 'bg-cyan-500 text-white shadow'
-                  : 'neu-inset text-slate-400 hover:text-white'
+                  : 'canvas-studio-inset text-slate-400 hover:text-white'
               }`}
             >
               {w}

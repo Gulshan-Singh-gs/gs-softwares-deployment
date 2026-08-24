@@ -320,19 +320,19 @@ export const TextApp: React.FC = () => {
           {activeCategory === 'markdown' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300">Find & Replace</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Find & Replace</label>
                 <input
                   type="text"
                   value={findQuery}
                   onChange={(e) => setFindQuery(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-white"
+                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-slate-900 dark:text-white placeholder:text-slate-400"
                   placeholder="Find pattern / string..."
                 />
                 <input
                   type="text"
                   value={replaceQuery}
                   onChange={(e) => setReplaceQuery(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-white"
+                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-slate-900 dark:text-white placeholder:text-slate-400"
                   placeholder="Replace with..."
                 />
               </div>
@@ -359,7 +359,7 @@ export const TextApp: React.FC = () => {
               </button>
 
               {jsonError && (
-                <div className="p-3 neu-inset border border-rose-500/30 rounded-2xl text-xs text-rose-300">
+                <div className="p-3 neu-inset border border-rose-500/30 rounded-2xl text-xs text-rose-600 dark:text-rose-300">
                   {jsonError}
                 </div>
               )}
@@ -370,29 +370,29 @@ export const TextApp: React.FC = () => {
           {activeCategory === 'developer' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300">Input String</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Input String</label>
                 <input
                   type="text"
                   value={devInput}
                   onChange={(e) => setDevInput(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-white"
+                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-slate-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => handleDevConvert('base64')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300">
+                <button onClick={() => handleDevConvert('base64')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-700 dark:text-slate-300">
                   Base64
                 </button>
-                <button onClick={() => handleDevConvert('url')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300">
+                <button onClick={() => handleDevConvert('url')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-700 dark:text-slate-300">
                   URL Enc
                 </button>
-                <button onClick={() => handleDevConvert('hash')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300">
+                <button onClick={() => handleDevConvert('hash')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-700 dark:text-slate-300">
                   SHA-256
                 </button>
               </div>
 
               {devOutput && (
-                <div className="p-3 neu-inset rounded-2xl text-[10px] font-mono text-emerald-400 break-all">
+                <div className="p-3 neu-inset rounded-2xl text-[10px] font-mono text-emerald-600 dark:text-emerald-400 break-all">
                   {devOutput}
                 </div>
               )}
@@ -403,12 +403,12 @@ export const TextApp: React.FC = () => {
           {activeCategory === 'ai' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300">AI Prompt / Rewrite Topic</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">AI Prompt / Rewrite Topic</label>
                 <input
                   type="text"
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-white"
+                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs text-slate-900 dark:text-white"
                 />
               </div>
 
@@ -475,20 +475,20 @@ export const TextApp: React.FC = () => {
           {activeCategory === 'diff' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="neu-card p-4 rounded-3xl space-y-2">
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider">Original Text / Code</h3>
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Original Text / Code</h3>
                 <textarea
                   value={diffOriginal}
                   onChange={(e) => setDiffOriginal(e.target.value)}
-                  className="w-full min-h-[360px] p-3 neu-inset rounded-2xl text-xs font-mono text-slate-300 resize-none focus:outline-none"
+                  className="w-full min-h-[360px] p-3 neu-inset rounded-2xl text-xs font-mono text-slate-900 dark:text-slate-300 resize-none focus:outline-none"
                 />
               </div>
 
               <div className="neu-card p-4 rounded-3xl space-y-2">
-                <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Modified Text / Code</h3>
+                <h3 className="text-xs font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider">Modified Text / Code</h3>
                 <textarea
                   value={diffModified}
                   onChange={(e) => setDiffModified(e.target.value)}
-                  className="w-full min-h-[360px] p-3 neu-inset rounded-2xl text-xs font-mono text-slate-300 resize-none focus:outline-none"
+                  className="w-full min-h-[360px] p-3 neu-inset rounded-2xl text-xs font-mono text-slate-900 dark:text-slate-300 resize-none focus:outline-none"
                 />
               </div>
             </div>
@@ -527,24 +527,24 @@ export const TextApp: React.FC = () => {
             /* DUAL PANE MARKDOWN / CODE EDITOR */
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="neu-card p-4 rounded-3xl space-y-3 flex flex-col">
-                <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-white uppercase tracking-wider">Source Editor</span>
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <span className="font-bold text-slate-900 dark:text-white uppercase tracking-wider">Source Editor</span>
                   <span>{wordCount} words • {charCount} chars</span>
                 </div>
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="w-full flex-1 min-h-[420px] bg-transparent text-sm font-mono text-slate-200 resize-none focus:outline-none leading-relaxed"
+                  className="w-full flex-1 min-h-[420px] bg-transparent text-sm font-mono text-slate-900 dark:text-slate-200 resize-none focus:outline-none leading-relaxed placeholder:text-slate-400"
                   placeholder="Type your document content here..."
                 />
               </div>
 
               <div className="neu-card p-4 rounded-3xl space-y-3 flex flex-col">
-                <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
-                  <span className="font-bold text-amber-400 uppercase tracking-wider">Live Rendered View</span>
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <span className="font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider">Live Rendered View</span>
                 </div>
-                <div className="prose prose-invert max-w-none text-sm text-slate-300 font-sans space-y-3 overflow-auto min-h-[420px]">
-                  <pre className="p-4 neu-inset rounded-2xl text-xs font-mono text-slate-200 overflow-x-auto whitespace-pre-wrap">
+                <div className="prose max-w-none text-sm text-slate-900 dark:text-slate-300 font-sans space-y-3 overflow-auto min-h-[420px]">
+                  <pre className="p-4 neu-inset rounded-2xl text-xs font-mono text-slate-900 dark:text-slate-200 overflow-x-auto whitespace-pre-wrap">
                     {content}
                   </pre>
                 </div>

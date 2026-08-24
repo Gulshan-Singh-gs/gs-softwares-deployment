@@ -15,8 +15,8 @@ export default defineConfig({
         name: 'GS Softwares Suite',
         short_name: 'GS Suite',
         description: 'High-performance 100% Client-Side WebAssembly PWA Tools for Images, PDFs, Video, Audio, and Text.',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#000000',
+        background_color: '#000000',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

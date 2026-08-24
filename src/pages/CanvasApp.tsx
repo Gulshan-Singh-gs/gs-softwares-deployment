@@ -21,6 +21,7 @@ import {
   FilePlus,
   FolderOpen,
   Eye,
+  EyeOff,
   Shapes,
   Camera,
   Image as ImageIcon,
@@ -273,7 +274,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
       } else if (cmdOrCtrl && (e.key === 'e' || e.key === 'E')) {
         e.preventDefault();
         setShowExportModal(true);
-      } else if (e.key === 'Tab') {
+      } else if (e.key === 'Tab' || ((e.key === 'u' || e.key === 'U') && !cmdOrCtrl)) {
         e.preventDefault();
         setIsZenMode(prev => !prev);
       } else if (e.key === 'f' || e.key === 'F') {
@@ -894,7 +895,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
         e.preventDefault();
         e.stopPropagation();
       }}
-      className={`relative w-full overflow-hidden bg-slate-950 select-none ${
+      className={`canvas-app-root relative w-full overflow-hidden bg-slate-950 select-none ${
         isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen' : 'h-[calc(100vh-4rem)]'
       }`}
     >
@@ -914,11 +915,11 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
         className="hidden"
       />
 
-      {/* TOP HEADER CONTROLS BAR (Hidden in Zen Mode) */}
+      {/* TOP HEADER CONTROLS BAR (Hidden in Hide UI Mode) */}
       {!isZenMode && (
         <header className="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none gap-2 flex-wrap sm:flex-nowrap">
           {/* Left: Project Name & Quick Tools */}
-          <div className="flex items-center gap-2 pointer-events-auto neu-card px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur-md border border-slate-700/30">
+          <div className="flex items-center gap-2 pointer-events-auto canvas-studio-panel px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur-xl border border-slate-700/60">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-md">
               <Sparkles className="w-4 h-4" />
             </div>
@@ -936,12 +937,12 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
               </p>
             </div>
 
-            <div className="w-px h-6 bg-slate-700/50 mx-0.5" />
+            <div className="w-px h-6 bg-slate-700/60 mx-0.5" />
 
             {/* Aspect Ratio Constraint Selector */}
             <button
               onClick={() => setShowAspectRatioModal(true)}
-              className="px-2.5 py-1.5 rounded-xl neu-btn text-cyan-300 hover:text-white flex items-center gap-1.5 text-xs font-bold"
+              className="px-2.5 py-1.5 rounded-xl canvas-studio-btn text-cyan-300 hover:text-white flex items-center gap-1.5 text-xs font-bold"
               title="Canvas Aspect Ratio & Sheet Preset (A4, 16:9, etc.)"
             >
               <RectangleHorizontal className="w-4 h-4 text-cyan-400" />
@@ -953,7 +954,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* Insert Image Button */}
             <button
               onClick={() => imageFileInputRef.current?.click()}
-              className="p-1.5 rounded-xl neu-btn text-emerald-400 hover:text-emerald-300"
+              className="p-1.5 rounded-xl canvas-studio-btn text-emerald-400 hover:text-emerald-300"
               title="Upload File / Image to Canvas"
             >
               <ImageIcon className="w-4 h-4" />
@@ -962,7 +963,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* Grid Toggle */}
             <button
               onClick={handleToggleGrid}
-              className="p-1.5 rounded-xl neu-btn text-slate-300 hover:text-white"
+              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white"
               title={`Grid: ${project.grid.type.toUpperCase()}`}
             >
               <Grid className="w-4 h-4 text-cyan-400" />
@@ -971,7 +972,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* New Sketch */}
             <button
               onClick={handleNewSketch}
-              className="p-1.5 rounded-xl neu-btn text-slate-300 hover:text-white hidden sm:inline-flex"
+              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white hidden sm:inline-flex"
               title="New Blank Sketchbook"
             >
               <FilePlus className="w-4 h-4" />
@@ -980,19 +981,19 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* Open .gscanvas */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 rounded-xl neu-btn text-slate-300 hover:text-white hidden sm:inline-flex"
+              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white hidden sm:inline-flex"
               title="Open .gscanvas Project File"
             >
               <FolderOpen className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Right: Snapshot, Fullscreen, Zen & Export */}
+          {/* Right: Snapshot, Fullscreen, Hide UI & Export */}
           <div className="flex items-center gap-2 pointer-events-auto ml-auto">
             {/* Snapshot Camera Button */}
             <button
               onClick={() => setShowSnapshotModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl neu-card text-xs font-bold text-cyan-300 hover:text-white shadow-xl backdrop-blur-md border border-cyan-500/30 hover:scale-105 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-cyan-300 hover:text-white shadow-xl backdrop-blur-xl border border-cyan-500/30 hover:scale-105 transition-all"
               title="Take Canvas Snapshot & Share (Press S)"
             >
               <Camera className="w-4 h-4 text-cyan-400" />
@@ -1002,21 +1003,22 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* Fullscreen Canvas Toggle */}
             <button
               onClick={handleToggleFullscreen}
-              className={`p-2.5 rounded-2xl neu-card transition-all shadow-xl backdrop-blur-md ${
-                isFullscreen ? 'text-cyan-400 neu-inset' : 'text-slate-300 hover:text-white'
+              className={`p-2.5 rounded-2xl canvas-studio-panel transition-all shadow-xl backdrop-blur-xl ${
+                isFullscreen ? 'text-cyan-400 canvas-studio-inset' : 'text-slate-300 hover:text-white'
               }`}
               title={isFullscreen ? 'Exit Full Screen (Press F)' : 'Full Screen Canvas (Press F)'}
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </button>
 
-            {/* Zen Distraction-Free Toggle */}
+            {/* Hide UI (Tools Only) Toggle */}
             <button
               onClick={() => setIsZenMode(true)}
-              className="p-2.5 rounded-2xl neu-card text-slate-300 hover:text-white shadow-xl backdrop-blur-md hidden sm:block"
-              title="Distraction-Free Zen Mode (Press Tab)"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-slate-300 hover:text-white shadow-xl backdrop-blur-xl hover:scale-105 transition-all"
+              title="Hide UI - Tools Only (Press Tab or U)"
             >
-              <Maximize2 className="w-4 h-4" />
+              <EyeOff className="w-4 h-4 text-cyan-400" />
+              <span className="hidden sm:inline">Hide UI</span>
             </button>
 
             {/* Main Export Button */}
@@ -1033,12 +1035,12 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
 
       {/* MULTI-SHEET PAGINATION BAR (When Constrained Aspect Ratio like A4 is active) */}
       {!isZenMode && project.aspectRatio !== 'infinite' && project.sheets && project.sheets.length > 0 && (
-        <div className="absolute top-18 sm:top-18 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-2 neu-card px-3 py-1.5 rounded-2xl shadow-2xl backdrop-blur-md border border-cyan-500/30 animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-18 sm:top-18 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-2 canvas-studio-panel px-3 py-1.5 rounded-2xl shadow-2xl backdrop-blur-xl border border-cyan-500/30 animate-in fade-in slide-in-from-top-2">
           {/* Previous Sheet */}
           <button
             onClick={() => handleSelectSheet(Math.max(0, project.activeSheetIndex - 1))}
             disabled={project.activeSheetIndex === 0}
-            className="p-1 rounded-lg neu-btn text-slate-300 disabled:opacity-30"
+            className="p-1 rounded-lg canvas-studio-btn text-slate-300 disabled:opacity-30"
             title="Previous Sheet"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -1053,7 +1055,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
           <button
             onClick={() => handleSelectSheet(Math.min(project.sheets.length - 1, project.activeSheetIndex + 1))}
             disabled={project.activeSheetIndex >= project.sheets.length - 1}
-            className="p-1 rounded-lg neu-btn text-slate-300 disabled:opacity-30"
+            className="p-1 rounded-lg canvas-studio-btn text-slate-300 disabled:opacity-30"
             title="Next Sheet"
           >
             <ChevronRight className="w-4 h-4" />
@@ -1075,7 +1077,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
           {project.sheets.length > 1 && (
             <button
               onClick={() => handleDeleteSheet(project.activeSheetIndex)}
-              className="p-1 rounded-lg neu-btn text-rose-400 hover:text-rose-300"
+              className="p-1 rounded-lg canvas-studio-btn text-rose-400 hover:text-rose-300"
               title="Delete Active Sheet"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -1084,13 +1086,13 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
         </div>
       )}
 
-      {/* ZEN MODE FLOATING RESTORE BUTTON */}
+      {/* HIDE UI MODE: FLOATING RESTORE BUTTON */}
       {isZenMode && (
         <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
           <button
             onClick={handleToggleFullscreen}
-            className={`p-2.5 rounded-2xl neu-card shadow-2xl backdrop-blur-md hover:scale-105 transition-all ${
-              isFullscreen ? 'text-cyan-400 neu-inset' : 'text-slate-300 hover:text-white'
+            className={`p-2.5 rounded-2xl canvas-studio-panel shadow-2xl backdrop-blur-xl hover:scale-105 transition-all ${
+              isFullscreen ? 'text-cyan-400 canvas-studio-inset' : 'text-slate-300 hover:text-white'
             }`}
             title={isFullscreen ? 'Exit Full Screen (Press F)' : 'Full Screen Canvas (Press F)'}
           >
@@ -1099,11 +1101,11 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
 
           <button
             onClick={() => setIsZenMode(false)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl neu-card text-xs font-bold text-cyan-300 shadow-2xl backdrop-blur-md hover:scale-105"
-            title="Exit Zen Mode (Press Tab)"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-cyan-300 shadow-2xl backdrop-blur-xl border border-cyan-500/40 hover:scale-105 transition-all"
+            title="Show Full UI (Press Tab or U)"
           >
-            <Minimize2 className="w-4 h-4" />
-            <span>Exit Zen Mode</span>
+            <Eye className="w-4 h-4" />
+            <span>Show UI</span>
           </button>
         </div>
       )}

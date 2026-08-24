@@ -166,16 +166,16 @@ export const RadialToolMenu: React.FC<RadialToolMenuProps> = ({
                 >
                   <button
                     onClick={t.action}
-                    className={`w-12 h-12 rounded-2xl flex flex-col items-center justify-center neu-btn shadow-xl transition-transform hover:scale-115 active:scale-95 group relative ${
+                    className={`w-13 h-13 rounded-2xl flex flex-col items-center justify-center shadow-xl transition-all hover:scale-115 active:scale-95 group relative ${
                       t.isActive
-                        ? `bg-gradient-to-tr ${t.color} text-white ring-2 ring-cyan-400 ring-offset-2 ring-offset-slate-900`
-                        : 'text-slate-300 hover:text-white'
+                        ? `bg-gradient-to-tr ${t.color} text-white ring-2 ring-cyan-400 ring-offset-2 ring-offset-black shadow-cyan-500/50`
+                        : 'bg-slate-900/95 hover:bg-slate-800 border-2 border-slate-600/80 hover:border-cyan-400 text-slate-100 hover:text-white shadow-black/80'
                     }`}
                     title={`${t.label} (${t.shortcut})`}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-5 h-5 stroke-[2.2]" />
                     {/* Tooltip Badge */}
-                    <span className="absolute -top-7 px-2 py-0.5 rounded-lg bg-slate-900/90 text-cyan-300 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg border border-slate-700">
+                    <span className="absolute -top-8 px-2 py-0.5 rounded-lg bg-slate-900 text-cyan-300 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl border border-slate-600">
                       {t.label}
                     </span>
                   </button>
@@ -188,98 +188,102 @@ export const RadialToolMenu: React.FC<RadialToolMenuProps> = ({
         {/* Central Radial Trigger FAB */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-15 h-15 rounded-3xl neu-card flex items-center justify-center shadow-2xl transition-all duration-300 group ${
+          className={`w-15 h-15 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-300 group cursor-pointer ${
             isOpen
-              ? 'bg-gradient-to-tr from-cyan-600 via-teal-600 to-emerald-500 text-white rotate-45 scale-105'
-              : 'hover:scale-105 active:scale-95 text-cyan-400'
+              ? 'bg-gradient-to-tr from-cyan-500 via-teal-500 to-emerald-500 text-slate-950 font-black rotate-45 scale-105 border-2 border-white/80 shadow-cyan-500/40'
+              : 'bg-slate-900/95 hover:bg-slate-850 text-cyan-400 hover:text-cyan-300 border-2 border-cyan-500/60 hover:border-cyan-400 shadow-xl shadow-cyan-950/50 hover:scale-105 active:scale-95'
           }`}
           title="Toggle Radial Tool Menu"
         >
           {isOpen ? (
-            <span className="text-2xl font-bold leading-none">＋</span>
+            <span className="text-3xl font-black leading-none select-none text-slate-950">＋</span>
           ) : (
             <div className="flex flex-col items-center justify-center gap-0.5">
-              <PenTool className="w-6 h-6" />
-              <span className="text-[8px] uppercase tracking-wider font-extrabold text-cyan-400">Tools</span>
+              <PenTool className="w-6 h-6 stroke-[2.2]" />
+              <span className="text-[8px] uppercase tracking-wider font-black text-cyan-400">Tools</span>
             </div>
           )}
         </button>
       </div>
 
       {/* Floating Auxiliary Quick Bar (Undo, Redo, Palette, Layers, Smart Shape) */}
-      <div className="mt-3 flex items-center gap-1.5 neu-card p-1.5 rounded-2xl shadow-xl backdrop-blur-md">
+      <div className="mt-3 flex items-center gap-1.5 bg-slate-900/95 backdrop-blur-2xl p-1.5 rounded-2xl shadow-2xl border-2 border-slate-700/80">
         <button
           onClick={onUndo}
           disabled={!canUndo}
-          className={`p-2 rounded-xl neu-btn text-xs ${
-            canUndo ? 'text-slate-300 hover:text-white' : 'opacity-40 cursor-not-allowed'
+          className={`p-2 rounded-xl text-xs transition-all ${
+            canUndo
+              ? 'bg-slate-800/90 hover:bg-slate-700 text-slate-100 hover:text-white border border-slate-600/70 shadow-sm cursor-pointer'
+              : 'bg-slate-950/50 text-slate-600 border border-slate-800/40 cursor-not-allowed'
           }`}
           title="Undo (Ctrl+Z)"
         >
-          <Undo2 className="w-4 h-4" />
+          <Undo2 className="w-4 h-4 stroke-[2.2]" />
         </button>
 
         <button
           onClick={onRedo}
           disabled={!canRedo}
-          className={`p-2 rounded-xl neu-btn text-xs ${
-            canRedo ? 'text-slate-300 hover:text-white' : 'opacity-40 cursor-not-allowed'
+          className={`p-2 rounded-xl text-xs transition-all ${
+            canRedo
+              ? 'bg-slate-800/90 hover:bg-slate-700 text-slate-100 hover:text-white border border-slate-600/70 shadow-sm cursor-pointer'
+              : 'bg-slate-950/50 text-slate-600 border border-slate-800/40 cursor-not-allowed'
           }`}
           title="Redo (Ctrl+Y)"
         >
-          <Redo2 className="w-4 h-4" />
+          <Redo2 className="w-4 h-4 stroke-[2.2]" />
         </button>
 
-        <div className="w-px h-5 bg-slate-500/20 mx-0.5" />
+        <div className="w-px h-5 bg-slate-600/50 mx-0.5" />
 
         {/* Smart Shape Toggle */}
         <button
           onClick={onToggleSmartShape}
-          className={`p-2 rounded-xl neu-btn text-xs transition-colors ${
+          className={`p-2 rounded-xl text-xs transition-all ${
             smartShapeEnabled
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md ring-2 ring-amber-400/50'
+              : 'bg-slate-800/90 hover:bg-slate-700 text-amber-400 hover:text-amber-300 border border-slate-600/70'
           }`}
           title="Toggle Smart Shapes (Hold 400ms to Snap)"
         >
-          <Shapes className="w-4 h-4" />
+          <Shapes className="w-4 h-4 stroke-[2.2]" />
         </button>
 
         {/* Color Palette Popover Trigger */}
         <button
           onClick={onOpenPalette}
-          className="p-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs"
+          className="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-cyan-400 hover:text-cyan-300 border border-slate-600/70 text-xs transition-all shadow-sm cursor-pointer"
           title="Color & Marker Palettes"
         >
-          <Palette className="w-4 h-4 text-cyan-400" />
+          <Palette className="w-4 h-4 stroke-[2.2]" />
         </button>
 
         {/* Layers Stack Trigger */}
         <button
           onClick={onOpenLayers}
-          className="p-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs"
+          className="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 border border-slate-600/70 text-xs transition-all shadow-sm cursor-pointer"
           title="Manage Layers"
         >
-          <Layers className="w-4 h-4 text-indigo-400" />
+          <Layers className="w-4 h-4 stroke-[2.2]" />
         </button>
 
         {onUploadImage && (
           <button
             onClick={onUploadImage}
-            className="p-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs"
+            className="p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 border border-slate-600/70 text-xs transition-all shadow-sm cursor-pointer"
             title="Upload File / Image onto Canvas"
           >
-            <ImageIcon className="w-4 h-4 text-emerald-400" />
+            <ImageIcon className="w-4 h-4 stroke-[2.2]" />
           </button>
         )}
 
         {onSnapshot && (
           <button
             onClick={onSnapshot}
-            className="p-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30"
+            className="p-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 hover:text-white text-xs border border-cyan-500/50 transition-all shadow-md cursor-pointer"
             title="Take Snapshot / Share Studio"
           >
-            <Camera className="w-4 h-4 text-cyan-400" />
+            <Camera className="w-4 h-4 stroke-[2.2]" />
           </button>
         )}
       </div>

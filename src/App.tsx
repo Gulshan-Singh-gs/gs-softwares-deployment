@@ -8,11 +8,15 @@ import { VideoApp } from './pages/VideoApp';
 import { AudioApp } from './pages/AudioApp';
 import { TextApp } from './pages/TextApp';
 import { PWALoadingScreen } from './components/PWALoadingScreen';
-import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion } from 'lucide-react';
+import { SettingsModal } from './components/settings/SettingsModal';
+import { PerformanceToast } from './components/settings/PerformanceToast';
+import { PerformanceProvider, usePerformanceTier } from './context/PerformanceContext';
+import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap } from 'lucide-react';
 
-export function App() {
+function AppContent() {
   const [currentApp, setCurrentApp] = useState<string>('home');
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
+  const { isSettingsOpen, setIsSettingsOpen, tier, config } = usePerformanceTier();
   const [showPwaLoader, setShowPwaLoader] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       return !sessionStorage.getItem('gs_pwa_loaded_session');
@@ -37,6 +41,7 @@ export function App() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onOpenAbout={() => setAboutModalOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -49,6 +54,15 @@ export function App() {
         {currentApp === 'audio' && <AudioApp />}
         {currentApp === 'text' && <TextApp />}
       </main>
+
+      {/* Global Performance Toast Notification */}
+      <PerformanceToast />
+
+      {/* Global Settings & Performance Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
 
       {/* Rich Footer (Hidden in GS-Canvas for maximum creative real estate) */}
       {currentApp !== 'canvas' && (
@@ -95,6 +109,15 @@ export function App() {
                   </li>
                   <li>
                     <button
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
+                    >
+                      <Sliders className="w-4 h-4 shrink-0 text-cyan-400" />
+                      Settings &amp; Performance
+                    </button>
+                  </li>
+                  <li>
+                    <button
                       onClick={() => setShowPwaLoader(true)}
                       className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
                     >
@@ -130,6 +153,15 @@ export function App() {
                       <Code2 className="w-4 h-4 shrink-0" />
                       Source Code
                     </a>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => setIsSettingsOpen(true)}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
+                    >
+                      <Zap className="w-4 h-4 shrink-0 text-amber-400" />
+                      Tier: {config.label.split(' / ')[0]}
+                    </button>
                   </li>
                 </ul>
               </div>
@@ -179,6 +211,13 @@ export function App() {
               >
                 <MessageSquare className="w-4 h-4" />
               </a>
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-cyan-400 transition-colors opacity-70 hover:opacity-100"
+                title="Performance Settings"
+              >
+                <Sliders className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => setShowPwaLoader(true)}
                 className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-emerald-500 transition-colors opacity-70 hover:opacity-100"
@@ -237,6 +276,14 @@ export function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <PerformanceProvider>
+      <AppContent />
+    </PerformanceProvider>
   );
 }
 

@@ -132,8 +132,8 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
   };
 
   return (
-    <div className="fixed bottom-8 left-8 z-20 hidden md:flex flex-col gap-2 neu-card p-2 rounded-2xl shadow-xl backdrop-blur-md border border-slate-700/30 select-none">
-      <div className="relative rounded-xl overflow-hidden neu-inset border border-slate-700/40">
+    <div className="fixed bottom-8 left-8 z-20 hidden md:flex flex-col gap-2 canvas-studio-panel p-2 rounded-2xl shadow-xl backdrop-blur-xl border border-slate-700/60 select-none">
+      <div className="relative rounded-xl overflow-hidden canvas-studio-inset border border-slate-700/50">
         <canvas
           ref={minimapCanvasRef}
           width={MINIMAP_WIDTH}
@@ -143,7 +143,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
           onPointerUp={handlePointerUp}
           className="block cursor-pointer"
         />
-        <div className="absolute top-1 left-1.5 px-1.5 py-0.5 rounded bg-black/60 text-[9px] font-mono text-cyan-400 font-bold backdrop-blur-sm">
+        <div className="absolute top-1 left-1.5 px-1.5 py-0.5 rounded bg-black/70 text-[9px] font-mono text-cyan-400 font-bold backdrop-blur-sm">
           {Math.round(project.camera.zoom * 100)}%
         </div>
       </div>
@@ -157,7 +157,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
               zoom: Math.min(32, project.camera.zoom * 1.3)
             })
           }
-          className="p-1 rounded-lg neu-btn text-slate-300 hover:text-white"
+          className="p-1 rounded-lg canvas-studio-btn text-slate-300 hover:text-white"
           title="Zoom In (+)"
         >
           <ZoomIn className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
               zoom: Math.max(0.05, project.camera.zoom / 1.3)
             })
           }
-          className="p-1 rounded-lg neu-btn text-slate-300 hover:text-white"
+          className="p-1 rounded-lg canvas-studio-btn text-slate-300 hover:text-white"
           title="Zoom Out (-)"
         >
           <ZoomOut className="w-3.5 h-3.5" />
@@ -178,7 +178,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
 
         <button
           onClick={onFitToScreen}
-          className="p-1 rounded-lg neu-btn text-slate-300 hover:text-white"
+          className="p-1 rounded-lg canvas-studio-btn text-slate-300 hover:text-white"
           title="Fit All Content to Screen"
         >
           <Maximize className="w-3.5 h-3.5" />
@@ -186,7 +186,7 @@ export const CanvasMinimap: React.FC<CanvasMinimapProps> = ({
 
         <button
           onClick={onResetZoom}
-          className="p-1 rounded-lg neu-btn text-slate-300 hover:text-white"
+          className="p-1 rounded-lg canvas-studio-btn text-slate-300 hover:text-white"
           title="Reset Zoom to 100%"
         >
           <RotateCcw className="w-3.5 h-3.5" />

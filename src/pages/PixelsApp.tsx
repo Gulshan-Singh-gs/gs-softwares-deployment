@@ -28,7 +28,11 @@ import {
   Redo2,
   ChevronDown,
   FileJson,
-  Move
+  Move,
+  Pipette,
+  Clipboard,
+  Filter,
+  Share2
 } from 'lucide-react';
 import JSZip from 'jszip';
 import confetti from 'canvas-confetti';
@@ -44,6 +48,15 @@ type PixelSubTool =
   | 'metadata' 
   | 'palette' 
   | 'base64';
+
+export interface ExtractedColorItem {
+  hex: string;
+  rgb: { r: number; g: number; b: number };
+  hsl: { h: number; s: number; l: number };
+  percentage: number;
+  name: string;
+  category: 'all' | 'dominant' | 'vibrant' | 'light' | 'dark' | 'muted' | 'accent';
+}
 
 interface ImageItem {
   id: string;
@@ -81,7 +94,14 @@ export const PixelsApp: React.FC = () => {
   const [watermarkText, setWatermarkText] = useState<string>('GS Softwares');
   const [watermarkOpacity, setWatermarkOpacity] = useState<number>(40);
   const [base64Output, setBase64Output] = useState<string>('');
+  
+  // Advanced Palette Extractor State
   const [extractedPalette, setExtractedPalette] = useState<string[]>([]);
+  const [detailedColors, setDetailedColors] = useState<ExtractedColorItem[]>([]);
+  const [paletteFilter, setPaletteFilter] = useState<'all' | 'dominant' | 'vibrant' | 'light' | 'dark' | 'muted' | 'accent'>('all');
+  const [paletteCountLimit, setPaletteCountLimit] = useState<number>(32);
+  const [pickedEyedropperColor, setPickedEyedropperColor] = useState<string | null>(null);
+
   const [paletteMenuOpen, setPaletteMenuOpen] = useState<boolean>(false);
   const [paletteToast, setPaletteToast] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
@@ -410,65 +430,367 @@ export const PixelsApp: React.FC = () => {
     };
   };
 
+  // GLOBAL CLIPBOARD PASTE LISTENER (Ctrl + V anywhere)
+  useEffect(() => {
+    const handleGlobalPaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      const pastedFiles: File[] = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) pastedFiles.push(file);
+        }
+      }
+
+      if (pastedFiles.length > 0) {
+        handleFiles(pastedFiles as any);
+        setPaletteToast(`Pasted ${pastedFiles.length} image(s) from clipboard!`);
+        setTimeout(() => setPaletteToast(null), 2500);
+      }
+    };
+
+    window.addEventListener('paste', handleGlobalPaste);
+    return () => window.removeEventListener('paste', handleGlobalPaste);
+  }, []);
+
+  // One-Click Mobile / Button Clipboard Paste
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.read) {
+        const clipboardItems = await navigator.clipboard.read();
+        const files: File[] = [];
+        for (const item of clipboardItems) {
+          for (const type of item.types) {
+            if (type.startsWith('image/')) {
+              const blob = await item.getType(type);
+              const ext = type.split('/')[1] || 'png';
+              files.push(new File([blob], `pasted-${Date.now()}.${ext}`, { type }));
+            }
+          }
+        }
+        if (files.length > 0) {
+          handleFiles(files as any);
+          setPaletteToast(`Pasted ${files.length} image(s) from clipboard!`);
+          setTimeout(() => setPaletteToast(null), 2500);
+          return;
+        }
+      }
+      setPaletteToast('Please press Ctrl+V to paste your image.');
+      setTimeout(() => setPaletteToast(null), 2500);
+    } catch (err) {
+      setPaletteToast('Press Ctrl+V to paste your image from clipboard.');
+      setTimeout(() => setPaletteToast(null), 2500);
+    }
+  };
+
+  // Live Eyedropper Tool
+  const handlePickEyedropper = async () => {
+    if (typeof window !== 'undefined' && 'EyeDropper' in window) {
+      try {
+        const eyeDropper = new (window as any).EyeDropper();
+        const res = await eyeDropper.open();
+        if (res && res.sRGBHex) {
+          const hex = res.sRGBHex.toUpperCase();
+          setPickedEyedropperColor(hex);
+          navigator.clipboard.writeText(hex);
+          setPaletteToast(`Sampled & Copied ${hex}!`);
+          setTimeout(() => setPaletteToast(null), 2500);
+        }
+      } catch (e) {}
+    } else {
+      setPaletteToast('Click any swatch card below to copy its color.');
+      setTimeout(() => setPaletteToast(null), 2500);
+    }
+  };
+
+  // Color Utility Helpers
+  const rgbToHsl = (r: number, g: number, b: number) => {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+  };
+
+  const getColorName = (h: number, s: number, l: number): string => {
+    if (l > 92) return 'Pure White';
+    if (l < 9) return 'Midnight Black';
+    if (s < 12) {
+      if (l < 30) return 'Charcoal Grey';
+      if (l < 65) return 'Slate Grey';
+      return 'Silver Mist';
+    }
+    if (h >= 345 || h < 15) return l > 65 ? 'Pastel Rose' : l < 35 ? 'Deep Crimson' : 'Vibrant Red';
+    if (h >= 15 && h < 45) return l > 65 ? 'Peach Coral' : l < 35 ? 'Burnt Sienna' : 'Sunset Orange';
+    if (h >= 45 && h < 70) return l > 65 ? 'Cream Gold' : l < 35 ? 'Bronze Olive' : 'Amber Gold';
+    if (h >= 70 && h < 150) return l > 65 ? 'Lime Mint' : l < 35 ? 'Forest Emerald' : 'Emerald Green';
+    if (h >= 150 && h < 195) return l > 65 ? 'Ice Cyan' : l < 35 ? 'Deep Teal' : 'Electric Cyan';
+    if (h >= 195 && h < 255) return l > 65 ? 'Sky Azure' : l < 35 ? 'Navy Midnight' : 'Electric Blue';
+    if (h >= 255 && h < 290) return l > 65 ? 'Lavender' : l < 35 ? 'Deep Indigo' : 'Royal Indigo';
+    if (h >= 290 && h < 345) return l > 65 ? 'Blush Violet' : l < 35 ? 'Dark Plum' : 'Magenta Purple';
+    return 'Vibrant Shade';
+  };
+
+  const categorizeColor = (h: number, s: number, l: number, percentage: number): ExtractedColorItem['category'] => {
+    if (percentage >= 14) return 'dominant';
+    if (s >= 55 && l >= 35 && l <= 72) return 'vibrant';
+    if (l >= 72) return 'light';
+    if (l <= 25) return 'dark';
+    if (s < 30) return 'muted';
+    return 'accent';
+  };
+
+  // FULL COMPREHENSIVE PALETTE EXTRACTOR ENGINE
   const extractColors = (img: HTMLImageElement) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = Math.min(img.width || 200, 200);
-    const height = Math.min(img.height || 200, 200);
+    // High sample fidelity
+    const width = Math.min(img.width || 320, 320);
+    const height = Math.min(img.height || 320, 320);
     canvas.width = width;
     canvas.height = height;
     ctx.drawImage(img, 0, 0, width, height);
 
     const imgData = ctx.getImageData(0, 0, width, height).data;
     const colorCounts: Record<string, { count: number; r: number; g: number; b: number }> = {};
+    let totalValidPixels = 0;
 
-    const binStep = 24;
+    // Fine-grained quantization bin step
+    const binStep = 12;
     for (let i = 0; i < imgData.length; i += 4) {
       const a = imgData[i + 3];
-      if (a < 128) continue; // Skip transparent pixels
+      if (a < 128) continue;
 
-      const r = Math.round(imgData[i] / binStep) * binStep;
-      const g = Math.round(imgData[i + 1] / binStep) * binStep;
-      const b = Math.round(imgData[i + 2] / binStep) * binStep;
+      totalValidPixels++;
+      const r = Math.min(255, Math.max(0, Math.round(imgData[i] / binStep) * binStep));
+      const g = Math.min(255, Math.max(0, Math.round(imgData[i + 1] / binStep) * binStep));
+      const b = Math.min(255, Math.max(0, Math.round(imgData[i + 2] / binStep) * binStep));
 
-      const cr = Math.min(255, Math.max(0, r));
-      const cg = Math.min(255, Math.max(0, g));
-      const cb = Math.min(255, Math.max(0, b));
-
-      const hex = `#${cr.toString(16).padStart(2, '0')}${cg.toString(16).padStart(2, '0')}${cb.toString(16).padStart(2, '0')}`;
+      const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
       if (!colorCounts[hex]) {
-        colorCounts[hex] = { count: 0, r: cr, g: cg, b: cb };
+        colorCounts[hex] = { count: 0, r, g, b };
       }
       colorCounts[hex].count++;
     }
 
+    if (totalValidPixels === 0) return;
+
     const sorted = Object.entries(colorCounts).sort((a, b) => b[1].count - a[1].count);
 
-    const distinctColors: string[] = [];
-    const colorDistance = (c1: string, c2: string) => {
-      const r1 = parseInt(c1.slice(1, 3), 16), g1 = parseInt(c1.slice(3, 5), 16), b1 = parseInt(c1.slice(5, 7), 16);
-      const r2 = parseInt(c2.slice(1, 3), 16), g2 = parseInt(c2.slice(3, 5), 16), b2 = parseInt(c2.slice(5, 7), 16);
-      return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2));
+    // Delta-E / Euclidean distance clustering
+    const colorDistance = (r1: number, g1: number, b1: number, r2: number, g2: number, b2: number) => {
+      return Math.sqrt(Math.pow(r1 - r2, 2) * 0.3 + Math.pow(g1 - g2, 2) * 0.59 + Math.pow(b1 - b2, 2) * 0.11);
     };
 
-    for (const [hex] of sorted) {
-      const isFarEnough = distinctColors.every((c) => colorDistance(c, hex) > 30);
+    const distinctList: ExtractedColorItem[] = [];
+    const minThreshold = 18;
+
+    for (const [hex, data] of sorted) {
+      const isFarEnough = distinctList.every(
+        (c) => colorDistance(c.rgb.r, c.rgb.g, c.rgb.b, data.r, data.g, data.b) > minThreshold
+      );
+
       if (isFarEnough) {
-        distinctColors.push(hex);
+        const hsl = rgbToHsl(data.r, data.g, data.b);
+        const percentage = Math.max(0.1, Math.round((data.count / totalValidPixels) * 1000) / 10);
+        const name = getColorName(hsl.h, hsl.s, hsl.l);
+        const category = categorizeColor(hsl.h, hsl.s, hsl.l, percentage);
+
+        distinctList.push({
+          hex,
+          rgb: { r: data.r, g: data.g, b: data.b },
+          hsl,
+          percentage,
+          name,
+          category
+        });
       }
-      if (distinctColors.length >= 6) break;
+
+      if (distinctList.length >= 48) break;
     }
 
-    if (distinctColors.length < 6) {
-      for (const [hex] of sorted) {
-        if (!distinctColors.includes(hex)) distinctColors.push(hex);
-        if (distinctColors.length >= 6) break;
+    // Fallback fill if image has very few colors
+    if (distinctList.length < 12) {
+      for (const [hex, data] of sorted) {
+        if (!distinctList.some((c) => c.hex === hex)) {
+          const hsl = rgbToHsl(data.r, data.g, data.b);
+          const percentage = Math.max(0.1, Math.round((data.count / totalValidPixels) * 1000) / 10);
+          const name = getColorName(hsl.h, hsl.s, hsl.l);
+          const category = categorizeColor(hsl.h, hsl.s, hsl.l, percentage);
+
+          distinctList.push({
+            hex,
+            rgb: { r: data.r, g: data.g, b: data.b },
+            hsl,
+            percentage,
+            name,
+            category
+          });
+        }
+        if (distinctList.length >= 32) break;
       }
     }
 
-    setExtractedPalette(distinctColors);
+    setDetailedColors(distinctList);
+    setExtractedPalette(distinctList.map((c) => c.hex));
+  };
+
+  // Export Palette as PNG Swatch Card
+  const handleExportPaletteImage = () => {
+    if (detailedColors.length === 0) return;
+    const canvas = document.createElement('canvas');
+    const cols = Math.min(detailedColors.length, 6);
+    const rows = Math.ceil(detailedColors.length / cols);
+    const cellW = 140;
+    const cellH = 150;
+    canvas.width = cols * cellW + 40;
+    canvas.height = rows * cellH + 110;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background
+    ctx.fillStyle = '#0a0f18';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Header Title
+    ctx.fillStyle = '#06b6d4';
+    ctx.font = 'bold 22px Inter, sans-serif';
+    ctx.fillText('GS-Pixels Color Palette', 24, 44);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px Inter, sans-serif';
+    ctx.fillText(`${detailedColors.length} Extracted Swatches • ${images[0]?.name || 'Artwork'}`, 24, 68);
+
+    // Render Swatches
+    detailedColors.forEach((color, idx) => {
+      const colIdx = idx % cols;
+      const rowIdx = Math.floor(idx / cols);
+      const x = 20 + colIdx * cellW;
+      const y = 86 + rowIdx * cellH;
+
+      // Swatch Rect
+      ctx.fillStyle = color.hex;
+      ctx.beginPath();
+      if ((ctx as any).roundRect) {
+        (ctx as any).roundRect(x + 6, y + 6, cellW - 12, cellH - 52, 12);
+      } else {
+        ctx.rect(x + 6, y + 6, cellW - 12, cellH - 52);
+      }
+      ctx.fill();
+
+      // HEX Code
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px monospace';
+      ctx.fillText(color.hex, x + 10, y + cellH - 24);
+
+      // Percentage & Name
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillText(`${color.percentage}% • ${color.name}`, x + 10, y + cellH - 10);
+    });
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `palette-${(images[0]?.name || 'swatches').replace(/[^a-z0-9]/gi, '-')}.png`;
+    a.click();
+    setPaletteToast('Downloaded PNG Palette Card!');
+    setTimeout(() => setPaletteToast(null), 2500);
+  };
+
+  // Contextual Tool Paste & Dropzone Definitions
+  const getToolPasteContext = () => {
+    switch (activeTool) {
+      case 'palette':
+        return {
+          badge: 'Color Extractor Studio',
+          title: 'Paste or Drop Image to Extract Full Color Spectrum',
+          desc: 'Extracts 32+ dominant, vibrant, light, and pastel color swatches with HEX, RGB, HSL, CSS & Tailwind export',
+          icon: Palette,
+          gradient: 'from-cyan-600 to-blue-600'
+        };
+      case 'crop':
+        return {
+          badge: 'Crop Studio',
+          title: 'Paste or Drop Image for Aspect-Ratio Framing',
+          desc: 'Supports 16:9, 1:1, 4:3, 9:16, Freeform framing, and pixel-perfect cropping',
+          icon: Crop,
+          gradient: 'from-purple-600 to-indigo-600'
+        };
+      case 'watermark':
+        return {
+          badge: 'Watermark Studio',
+          title: 'Paste or Drop Image to Stamp Custom Watermarks',
+          desc: 'Add custom brand typography, background badges, and drag-and-drop overlays',
+          icon: Stamp,
+          gradient: 'from-amber-600 to-orange-600'
+        };
+      case 'compress':
+        return {
+          badge: 'Compress & Convert',
+          title: 'Paste or Drop Image to Compress & Convert Format',
+          desc: 'Lossless & lossy compression across WebP, JPEG, PNG with live size savings',
+          icon: Sliders,
+          gradient: 'from-emerald-600 to-teal-600'
+        };
+      case 'resize':
+        return {
+          badge: 'Resize & Fit',
+          title: 'Paste or Drop Image to Scale & Resize Dimensions',
+          desc: 'Exact width/height scaling with aspect-ratio lock and batch processing',
+          icon: Layers,
+          gradient: 'from-blue-600 to-cyan-600'
+        };
+      case 'rotate':
+        return {
+          badge: 'Rotate & Flip',
+          title: 'Paste or Drop Image to Rotate & Mirror',
+          desc: '90°/180°/270° orientation adjustments and horizontal/vertical flipping',
+          icon: RotateCw,
+          gradient: 'from-rose-600 to-pink-600'
+        };
+      case 'metadata':
+        return {
+          badge: 'EXIF Scrubber',
+          title: 'Paste or Drop Image to Wipe Privacy Metadata',
+          desc: 'Sanitize privacy metadata, GPS geolocation, device details, and timestamps',
+          icon: FileSearch,
+          gradient: 'from-teal-600 to-emerald-600'
+        };
+      case 'base64':
+        return {
+          badge: 'Base64 Encoder',
+          title: 'Paste or Drop Image for Data URI Conversion',
+          desc: 'Instant Data URI Base64 encoding with 1-click code copying',
+          icon: Code,
+          gradient: 'from-cyan-600 to-indigo-600'
+        };
+      case 'studio':
+      default:
+        return {
+          badge: 'Photo Studio',
+          title: 'Paste or Drop Image for All-in-One FX & Overlays',
+          desc: 'Multi-layer contrast, brightness, sepia, invert, blur, and live studio canvas',
+          icon: Wand2,
+          gradient: 'from-cyan-600 via-teal-500 to-emerald-500'
+        };
+    }
   };
 
   useEffect(() => {
@@ -1425,92 +1747,147 @@ export const PixelsApp: React.FC = () => {
           {/* PALETTE EXTRACTOR */}
           {activeTool === 'palette' && (
             <div className="space-y-4 relative">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                  Dominant Palette Extracted
-                </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    Extracted Palette ({detailedColors.length})
+                  </label>
+                  {pickedEyedropperColor && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono font-bold">
+                      Picked: {pickedEyedropperColor}
+                    </span>
+                  )}
+                </div>
 
-                {/* Neumorphic Copy & Download Dropdown Menu */}
-                {extractedPalette.length > 0 && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setPaletteMenuOpen(!paletteMenuOpen)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white shadow-md transition-all"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Export Palette</span>
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${paletteMenuOpen ? 'rotate-180' : ''}`} />
-                    </button>
+                <div className="flex items-center gap-1.5">
+                  {/* Eyedropper Button */}
+                  <button
+                    onClick={handlePickEyedropper}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 shadow transition-all"
+                    title="Sample pixel from screen with Eyedropper"
+                  >
+                    <Pipette className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Pick Color</span>
+                  </button>
 
-                    {paletteMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-56 neu-card border border-slate-700/60 rounded-2xl shadow-2xl p-2 z-50 space-y-1 bg-slate-900/95 backdrop-blur-xl">
-                        <button
-                          onClick={() => {
-                            const text = extractedPalette.join(', ');
-                            navigator.clipboard.writeText(text);
-                            setPaletteToast('Copied HEX list to clipboard!');
-                            setPaletteMenuOpen(false);
-                            setTimeout(() => setPaletteToast(null), 2500);
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
-                        >
-                          <Copy className="w-4 h-4 text-cyan-400" />
-                          <span>Copy HEX List</span>
-                        </button>
+                  {/* Neumorphic Copy & Download Dropdown Menu */}
+                  {detailedColors.length > 0 && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setPaletteMenuOpen(!paletteMenuOpen)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white shadow-md transition-all"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Export</span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${paletteMenuOpen ? 'rotate-180' : ''}`} />
+                      </button>
 
-                        <button
-                          onClick={() => {
-                            const jsonStr = JSON.stringify({ palette: extractedPalette }, null, 2);
-                            navigator.clipboard.writeText(jsonStr);
-                            setPaletteToast('Copied Palette JSON to clipboard!');
-                            setPaletteMenuOpen(false);
-                            setTimeout(() => setPaletteToast(null), 2500);
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
-                        >
-                          <FileJson className="w-4 h-4 text-emerald-400" />
-                          <span>Copy JSON Object</span>
-                        </button>
+                      {paletteMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-60 neu-card border border-slate-700/60 rounded-2xl shadow-2xl p-2 z-50 space-y-1 bg-slate-900/95 backdrop-blur-xl">
+                          <button
+                            onClick={() => {
+                              const text = detailedColors.map((c) => c.hex).join(', ');
+                              navigator.clipboard.writeText(text);
+                              setPaletteToast('Copied HEX list to clipboard!');
+                              setPaletteMenuOpen(false);
+                              setTimeout(() => setPaletteToast(null), 2500);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
+                          >
+                            <Copy className="w-4 h-4 text-cyan-400" />
+                            <span>Copy All HEX Codes</span>
+                          </button>
 
-                        <button
-                          onClick={() => {
-                            const cssStr = extractedPalette.map((c, i) => `--color-${i + 1}: ${c};`).join('\n');
-                            navigator.clipboard.writeText(cssStr);
-                            setPaletteToast('Copied CSS Variables to clipboard!');
-                            setPaletteMenuOpen(false);
-                            setTimeout(() => setPaletteToast(null), 2500);
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
-                        >
-                          <Code className="w-4 h-4 text-amber-400" />
-                          <span>Copy CSS Variables</span>
-                        </button>
+                          <button
+                            onClick={() => {
+                              const cssStr = detailedColors.map((c, i) => `  --color-${i + 1}: ${c.hex}; /* ${c.name} (${c.percentage}%) */`).join('\n');
+                              navigator.clipboard.writeText(`:root {\n${cssStr}\n}`);
+                              setPaletteToast('Copied CSS Variables to clipboard!');
+                              setPaletteMenuOpen(false);
+                              setTimeout(() => setPaletteToast(null), 2500);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
+                          >
+                            <Code className="w-4 h-4 text-amber-400" />
+                            <span>Copy CSS Variables (:root)</span>
+                          </button>
 
-                        <div className="border-t border-slate-800 my-1"></div>
+                          <button
+                            onClick={() => {
+                              const twObj = detailedColors.reduce((acc, c, i) => {
+                                acc[`palette-${i + 1}`] = c.hex;
+                                return acc;
+                              }, {} as Record<string, string>);
+                              const twStr = `colors: ${JSON.stringify(twObj, null, 2)}`;
+                              navigator.clipboard.writeText(twStr);
+                              setPaletteToast('Copied Tailwind Config to clipboard!');
+                              setPaletteMenuOpen(false);
+                              setTimeout(() => setPaletteToast(null), 2500);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
+                          >
+                            <Sparkles className="w-4 h-4 text-sky-400" />
+                            <span>Copy Tailwind Config</span>
+                          </button>
 
-                        <button
-                          onClick={() => {
-                            const jsonStr = JSON.stringify({ palette: extractedPalette }, null, 2);
-                            const blob = new Blob([jsonStr], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'palette.json';
-                            a.click();
-                            URL.revokeObjectURL(url);
-                            setPaletteToast('Downloaded palette.json!');
-                            setPaletteMenuOpen(false);
-                            setTimeout(() => setPaletteToast(null), 2500);
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 transition-all text-left"
-                        >
-                          <Download className="w-4 h-4 text-cyan-400" />
-                          <span>Download JSON File</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                          <button
+                            onClick={() => {
+                              const jsonStr = JSON.stringify({
+                                totalColors: detailedColors.length,
+                                palette: detailedColors
+                              }, null, 2);
+                              navigator.clipboard.writeText(jsonStr);
+                              setPaletteToast('Copied Full Palette JSON to clipboard!');
+                              setPaletteMenuOpen(false);
+                              setTimeout(() => setPaletteToast(null), 2500);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
+                          >
+                            <FileJson className="w-4 h-4 text-emerald-400" />
+                            <span>Copy Full Palette JSON</span>
+                          </button>
+
+                          <div className="border-t border-slate-800 my-1"></div>
+
+                          <button
+                            onClick={() => {
+                              handleExportPaletteImage();
+                              setPaletteMenuOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 transition-all text-left shadow-sm"
+                          >
+                            <ImageIcon className="w-4 h-4 text-white" />
+                            <span>Download PNG Swatch Card</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              const jsonStr = JSON.stringify({
+                                image: images[0]?.name || 'image',
+                                total: detailedColors.length,
+                                palette: detailedColors
+                              }, null, 2);
+                              const blob = new Blob([jsonStr], { type: 'application/json' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `palette-${(images[0]?.name || 'colors').replace(/[^a-z0-9]/gi, '-')}.json`;
+                              a.click();
+                              URL.revokeObjectURL(url);
+                              setPaletteToast('Downloaded palette.json!');
+                              setPaletteMenuOpen(false);
+                              setTimeout(() => setPaletteToast(null), 2500);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-slate-800 transition-all text-left"
+                          >
+                            <Download className="w-4 h-4 text-cyan-400" />
+                            <span>Download JSON File</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {paletteToast && (
@@ -1520,38 +1897,107 @@ export const PixelsApp: React.FC = () => {
                 </div>
               )}
 
-              {extractedPalette.length > 0 ? (
-                <div className="grid grid-cols-3 gap-3">
-                  {extractedPalette.map((hex, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        navigator.clipboard.writeText(hex);
-                        setPaletteToast(`Copied ${hex} to clipboard!`);
-                        setTimeout(() => setPaletteToast(null), 2000);
-                      }}
-                      className="space-y-2 p-2.5 rounded-2xl bg-black border border-white/10 hover:border-cyan-500/60 hover:scale-105 active:scale-95 transition-all text-center group cursor-pointer"
-                      title={`Click to copy ${hex}`}
-                    >
-                      <div
-                        className="h-12 rounded-xl shadow-lg border border-white/20 relative overflow-hidden"
-                        style={{ backgroundColor: hex }}
-                      >
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                          <Copy className="w-4 h-4 text-white drop-shadow-md" />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-center gap-1">
-                        <span className="text-xs font-mono font-bold text-slate-200 group-hover:text-cyan-400 transition-colors">
-                          {hex}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+              {/* Tonal Category Filters */}
+              {detailedColors.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-glow text-[11px]">
+                    {[
+                      { id: 'all', label: `All (${detailedColors.length})` },
+                      { id: 'dominant', label: '🌟 Dominant' },
+                      { id: 'vibrant', label: '⚡ Vibrant' },
+                      { id: 'light', label: '☀️ Light' },
+                      { id: 'dark', label: '🌙 Dark' },
+                      { id: 'accent', label: '💎 Accents' },
+                    ].map((cat) => {
+                      const count = cat.id === 'all'
+                        ? detailedColors.length
+                        : detailedColors.filter((c) => cat.id === 'all' || c.category === cat.id).length;
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => setPaletteFilter(cat.id as any)}
+                          className={`px-2.5 py-1 rounded-lg font-bold whitespace-nowrap border transition-all ${
+                            paletteFilter === cat.id
+                              ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
+                              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          {cat.label} {cat.id !== 'all' ? `(${count})` : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Swatch Display Grid */}
+                  <div className="max-h-[380px] overflow-y-auto pr-1 space-y-2 scrollbar-glow">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                      {detailedColors
+                        .filter((c) => paletteFilter === 'all' || c.category === paletteFilter)
+                        .map((color, i) => (
+                          <div
+                            key={i}
+                            className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-1.5 group relative"
+                          >
+                            {/* Color Bar Swatch with Hover Copy */}
+                            <div
+                              onClick={() => {
+                                navigator.clipboard.writeText(color.hex);
+                                setPaletteToast(`Copied ${color.hex} to clipboard!`);
+                                setTimeout(() => setPaletteToast(null), 2000);
+                              }}
+                              className="h-10 rounded-lg shadow border border-white/10 relative overflow-hidden cursor-pointer flex items-center justify-center transition-transform group-hover:scale-[1.02]"
+                              style={{ backgroundColor: color.hex }}
+                              title={`Click to copy HEX ${color.hex}`}
+                            >
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                <Copy className="w-3.5 h-3.5 text-white drop-shadow" />
+                              </div>
+                            </div>
+
+                            {/* Color Meta */}
+                            <div className="space-y-0.5">
+                              <div className="flex items-center justify-between">
+                                <span
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(color.hex);
+                                    setPaletteToast(`Copied ${color.hex}!`);
+                                    setTimeout(() => setPaletteToast(null), 2000);
+                                  }}
+                                  className="text-[11px] font-mono font-bold text-white group-hover:text-cyan-400 transition-colors cursor-pointer"
+                                >
+                                  {color.hex}
+                                </span>
+                                <span className="text-[10px] font-semibold text-cyan-400 bg-cyan-950/60 px-1 rounded">
+                                  {color.percentage}%
+                                </span>
+                              </div>
+
+                              <div className="flex items-center justify-between text-[10px] text-slate-400">
+                                <span className="truncate pr-1" title={color.name}>{color.name}</span>
+                                <button
+                                  onClick={() => {
+                                    const rgbStr = `rgb(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b})`;
+                                    navigator.clipboard.writeText(rgbStr);
+                                    setPaletteToast(`Copied ${rgbStr}!`);
+                                    setTimeout(() => setPaletteToast(null), 2000);
+                                  }}
+                                  className="text-[9px] hover:text-cyan-300 font-mono text-slate-500 underline decoration-slate-700"
+                                  title="Copy RGB"
+                                >
+                                  RGB
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
                 </div>
-              ) : (
+              )}
+
+              {detailedColors.length === 0 && (
                 <p className="text-xs text-slate-400 italic bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-center">
-                  Upload an image to extract HEX color swatches.
+                  Paste (Ctrl+V) or upload an image to extract full color spectrum and swatches.
                 </p>
               )}
             </div>
@@ -1605,46 +2051,116 @@ export const PixelsApp: React.FC = () => {
 
         </div>
 
-        {/* Gallery / Image Grid */}
+        {/* Gallery / Image Grid & Contextual Drop / Paste Placeholder */}
         <div className="lg:col-span-2 space-y-4">
           {images.length === 0 ? (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragging(true);
-              }}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDragging(false);
-                handleFiles(e.dataTransfer.files);
-              }}
-              className={`border-2 border-dashed rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4 cursor-pointer glass-panel transition-all min-h-[420px] ${
-                isDragging ? 'border-cyan-400 bg-cyan-500/10 scale-[1.01]' : 'border-white/10 hover:border-cyan-500/50'
-              }`}
-            >
-              <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-                <Upload className="w-8 h-8" />
-              </div>
-              <div className="space-y-1.5">
-                <p className="text-base font-bold text-white">Drag & Drop multiple images or click to browse</p>
-                <p className="text-xs text-slate-400">Supports PNG, JPG, WebP, AVIF, GIF • Infinite batch processing</p>
-              </div>
-            </div>
+            (() => {
+              const pasteCtx = getToolPasteContext();
+              const ToolIcon = pasteCtx.icon;
+
+              return (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    handleFiles(e.dataTransfer.files);
+                  }}
+                  className={`border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center flex flex-col items-center justify-center gap-6 glass-panel transition-all min-h-[460px] relative overflow-hidden ${
+                    isDragging ? 'border-cyan-400 bg-cyan-500/10 scale-[1.01]' : 'border-slate-800 hover:border-cyan-500/50'
+                  }`}
+                >
+                  {/* Subtle Background Glow Accent */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 via-transparent to-transparent pointer-events-none" />
+
+                  {/* Tool Badge Header */}
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold shadow-inner">
+                    <ToolIcon className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>{pasteCtx.badge}</span>
+                  </div>
+
+                  {/* Center Hero Icon */}
+                  <div className={`w-20 h-20 rounded-3xl bg-gradient-to-tr ${pasteCtx.gradient} flex items-center justify-center text-white shadow-xl shadow-cyan-600/20 transform hover:scale-105 transition-transform`}>
+                    <ToolIcon className="w-10 h-10 drop-shadow-md" />
+                  </div>
+
+                  {/* Title & Tool Guidance Description */}
+                  <div className="space-y-2 max-w-md">
+                    <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                      {pasteCtx.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                      {pasteCtx.desc}
+                    </p>
+                  </div>
+
+                  {/* Dedicated Call-To-Action Paste & Upload Buttons */}
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button
+                      onClick={handlePasteFromClipboard}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-600/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <Clipboard className="w-4 h-4" />
+                      <span>Paste from Clipboard (Ctrl + V)</span>
+                    </button>
+
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <Upload className="w-4 h-4 text-cyan-400" />
+                      <span>Browse Local Files</span>
+                    </button>
+                  </div>
+
+                  {/* Footer Hint */}
+                  <div className="text-[11px] text-slate-500 flex items-center gap-2 pt-2 border-t border-white/5 w-full justify-center">
+                    <span>Supports PNG, JPG, WebP, AVIF, GIF, SVG</span>
+                    <span>•</span>
+                    <span className="text-cyan-400 font-medium">Or Drag &amp; Drop Anywhere</span>
+                  </div>
+                </div>
+              );
+            })()
           ) : (
             <div className="space-y-4">
-              {/* Batch Queue Status Header */}
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Active Image Queue ({images.length})
-                </span>
-                {isProcessing && (
-                  <span className="text-xs font-semibold text-amber-400 flex items-center gap-1.5 animate-pulse">
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Processing Batch...</span>
+              {/* Batch Queue Status Header + Quick Paste Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Active Image Queue ({images.length})
                   </span>
-                )}
+                  {isProcessing && (
+                    <span className="text-xs font-semibold text-amber-400 flex items-center gap-1.5 animate-pulse">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Processing Batch...</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Quick In-Queue Paste & Add Actions */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handlePasteFromClipboard}
+                    className="flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 transition-all"
+                    title="Paste another image from clipboard (Ctrl+V)"
+                  >
+                    <Clipboard className="w-3.5 h-3.5" />
+                    <span>Paste (Ctrl+V)</span>
+                  </button>
+
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/40 text-cyan-200 transition-all"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>+ Add More</span>
+                  </button>
+                </div>
               </div>
 
               {/* Multi-Image Cards Grid */}
