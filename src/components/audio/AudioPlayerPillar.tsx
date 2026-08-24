@@ -41,8 +41,7 @@ import {
   LyricLine,
   parseLrcLyrics,
   generateStudioDemoTrack,
-  audioBufferToWavBlob,
-  decodeArrayBuffer
+  audioBufferToWavBlob
 } from '../../lib/audioEngine';
 
 export interface PlayerTrack {
@@ -85,7 +84,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('all');
   const [isShuffle, setIsShuffle] = useState<boolean>(false);
-  const [crossfadeSec, setCrossfadeSec] = useState<number>(0);
 
   // Audio Enhancement & EQ
   const [selectedEqPreset, setSelectedEqPreset] = useState<string>('flat');
@@ -103,16 +101,15 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
   // References
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const folderInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
 
   // Sample Lofi LRC Lyrics
   const sampleLyrics = `[00:00.00] GS-Audio • The Three Pillars Master Suite
-[00:03.00] 100% Client-Side Web Audio Processing
-[00:06.00] Zero Cloud Uploads • True Audio Ownership
-[00:09.00] Parametric EQ, LUFS Normalization & Pure Fidelity
-[00:12.00] Enjoy the lossless playback on your device`;
+[00:01.00] 100% Client-Side Web Audio Processing
+[00:02.00] Zero Cloud Uploads • True Audio Ownership
+[00:03.00] Parametric EQ, LUFS Normalization & Pure Fidelity
+[00:04.00] Enjoy the lossless playback on your device`;
 
   const [parsedLyrics, setParsedLyrics] = useState<LyricLine[]>(parseLrcLyrics(sampleLyrics));
 
@@ -134,9 +131,9 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
     }
   }, [sharedTracks]);
 
-  const loadStudioDemo = async () => {
+  const loadStudioDemo = () => {
     try {
-      const demoBuffer = generateStudioDemoTrack(15.0);
+      const demoBuffer = generateStudioDemoTrack(4.0);
       const blob = audioBufferToWavBlob(demoBuffer, 16);
       const url = URL.createObjectURL(blob);
 
@@ -145,7 +142,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
         name: 'Late Night Chillwave (Studio Master)',
         artist: 'GS Studio Band',
         album: 'Zero-Upload Sessions',
-        duration: 15.0,
+        duration: 4.0,
         url,
         blob,
         size: blob.size,
@@ -159,7 +156,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
       setLibrary([demoTrack]);
       setCurrentTrackIndex(0);
     } catch (e) {
-      console.error('Demo load error:', e);
+      console.warn('Demo load error:', e);
     }
   };
 
@@ -185,19 +182,12 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
       const color = colors[i % colors.length];
       const cleanTitle = file.name.replace(/\.[^/.]+$/, '');
 
-      // Retrieve duration
-      const tempAudio = new Audio(url);
-      await new Promise((res) => {
-        tempAudio.onloadedmetadata = () => res(true);
-        tempAudio.onerror = () => res(false);
-      });
-
       newTracks.push({
         id: `track_${Date.now()}_${i}`,
         name: cleanTitle,
         artist: 'Local Artist',
         album: 'My Device Audio',
-        duration: tempAudio.duration || 180,
+        duration: 180,
         url,
         blob: file,
         size: file.size,
@@ -216,25 +206,27 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
     }
   };
 
-  // Media Session API for native hardware keys & lockscreen
+  // Safe Media Session API integration
   useEffect(() => {
-    if ('mediaSession' in navigator && currentTrack) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentTrack.name,
-        artist: currentTrack.artist,
-        album: currentTrack.album,
-      });
+    if (typeof navigator !== 'undefined' && 'mediaSession' in navigator && currentTrack) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentTrack.name,
+          artist: currentTrack.artist,
+          album: currentTrack.album,
+        });
+      } catch (e) {}
 
-      navigator.mediaSession.setActionHandler('play', () => togglePlay());
-      navigator.mediaSession.setActionHandler('pause', () => togglePlay());
-      navigator.mediaSession.setActionHandler('previoustrack', () => handlePrev());
-      navigator.mediaSession.setActionHandler('nexttrack', () => handleNext());
-      navigator.mediaSession.setActionHandler('seekto', (details) => {
-        if (details.seekTime !== undefined && audioRef.current) {
-          audioRef.current.currentTime = details.seekTime;
-          setCurrentTime(details.seekTime);
-        }
-      });
+      const safeSet = (action: MediaSessionAction, fn: () => void) => {
+        try {
+          navigator.mediaSession.setActionHandler(action, fn);
+        } catch (e) {}
+      };
+
+      safeSet('play', () => togglePlay());
+      safeSet('pause', () => togglePlay());
+      safeSet('previoustrack', () => handlePrev());
+      safeSet('nexttrack', () => handleNext());
     }
   }, [currentTrack, isPlaying]);
 
@@ -302,7 +294,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
     if (repeatMode === 'one') {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
-        audioRef.current.play();
+        audioRef.current.play().catch(() => {});
       }
     } else if (repeatMode === 'all' || isShuffle) {
       handleNext();
@@ -357,7 +349,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
     }
   };
 
-  // Canvas Audio Visualizer Loop
+  // Canvas Audio Visualizer Loop with Safe Drawing
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -372,14 +364,12 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
       const height = canvas.height;
 
       if (!isPlaying) {
-        // Idle ambient line
         ctx.strokeStyle = '#475569';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, height / 2);
         ctx.lineTo(width, height / 2);
         ctx.stroke();
-        animationFrameRef.current = requestAnimationFrame(render);
         return;
       }
 
@@ -402,7 +392,12 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
 
           ctx.fillStyle = grad;
           ctx.beginPath();
-          ctx.roundRect(x, y, barWidth, barHeight, 4);
+          // Safe rounded rectangle fallback
+          if (typeof (ctx as any).roundRect === 'function') {
+            (ctx as any).roundRect(x, y, barWidth, barHeight, 4);
+          } else {
+            ctx.rect(x, y, barWidth, barHeight);
+          }
           ctx.fill();
         }
       } else if (visualizerMode === 'wave') {
@@ -487,7 +482,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
       <div className="neu-card p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-pink-600 flex items-center justify-center text-white shadow-xl shadow-cyan-600/20 neu-flat">
-            <Disc className="w-7 h-7 animate-spin-slow" />
+            <Disc className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -574,20 +569,20 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
       {/* Main Workspace Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Left 2 Columns: Active View (Now Playing / EQ / Lyrics / Library) */}
+        {/* Left 2 Columns: Active View */}
         <div className="lg:col-span-2 space-y-6">
           
           {/* VIEW 1: NOW PLAYING DECK */}
           {activeView === 'nowPlaying' && (
             <div className="neu-card p-6 md:p-8 rounded-3xl space-y-6 relative overflow-hidden">
               
-              {/* Visualizer Canvas & Artwork Header */}
-              <div className="relative rounded-2xl p-6 neu-inset flex flex-col items-center justify-center min-h-[220px] overflow-hidden">
+              {/* Visualizer Canvas Header */}
+              <div className="relative rounded-2xl p-6 neu-inset flex flex-col items-center justify-center min-h-[200px] overflow-hidden">
                 <canvas
                   ref={canvasRef}
                   width={560}
-                  height={150}
-                  className="w-full h-36 z-10"
+                  height={140}
+                  className="w-full h-32 z-10"
                 />
 
                 {/* Visualizer Mode Switcher */}
@@ -654,7 +649,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
 
               {/* Master Transport Controls */}
               <div className="flex items-center justify-between pt-2">
-                {/* Shuffle Button */}
                 <button
                   onClick={() => setIsShuffle(!isShuffle)}
                   className={`p-3 rounded-2xl transition-all ${
@@ -665,7 +659,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                   <Shuffle className="w-4 h-4" />
                 </button>
 
-                {/* Main Transport Group */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={handlePrev}
@@ -692,7 +685,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                   </button>
                 </div>
 
-                {/* Repeat Button */}
                 <button
                   onClick={() => {
                     const modes: ('off' | 'all' | 'one')[] = ['off', 'all', 'one'];
@@ -708,9 +700,8 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                 </button>
               </div>
 
-              {/* Pitch-Preserved Speed & Volume Row */}
+              {/* Speed & Volume Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-800">
-                {/* Playback Rate / Speed Selector */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-slate-300 font-semibold">
                     <span>Speed (Pitch-Preserved)</span>
@@ -733,7 +724,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                   </div>
                 </div>
 
-                {/* Volume Slider */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-slate-300 font-semibold">
                     <span>Master Output Volume</span>
@@ -765,7 +755,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
             </div>
           )}
 
-          {/* VIEW 2: 10-BAND GRAPHIC EQUALIZER & ENHANCEMENT */}
+          {/* VIEW 2: 10-BAND GRAPHIC EQUALIZER */}
           {activeView === 'equalizer' && (
             <div className="neu-card p-6 rounded-3xl space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
@@ -777,7 +767,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                   <p className="text-xs text-slate-400">Web Audio Biquad Filter Array • Zero Phase Distortion</p>
                 </div>
 
-                {/* Preset Selector */}
                 <select
                   value={selectedEqPreset}
                   onChange={(e) => handleEqPresetSelect(e.target.value)}
@@ -792,7 +781,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                 </select>
               </div>
 
-              {/* 10 Interactive Faders */}
               <div className="grid grid-cols-10 gap-2 h-56 pt-2">
                 {ISO_10_BAND_FREQUENCIES.map((freq, idx) => {
                   const gain = eqGains[idx] || 0;
@@ -816,7 +804,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                 })}
               </div>
 
-              {/* Audio Enhancement Switches */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-800">
                 <button
                   onClick={() => setIsLufsNormalized(!isLufsNormalized)}
@@ -901,7 +888,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
           {activeView === 'library' && (
             <div className="neu-card p-6 rounded-3xl space-y-4">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                {/* Search Bar */}
                 <div className="relative w-full sm:w-64">
                   <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-500" />
                   <input
@@ -913,7 +899,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                   />
                 </div>
 
-                {/* Playlist Tabs */}
                 <div className="flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
                   <button
                     onClick={() => setActivePlaylist('all')}
@@ -934,9 +919,8 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                 </div>
               </div>
 
-              {/* Tracks List */}
               <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1 scrollbar-glow">
-                {filteredTracks.map((track, idx) => {
+                {filteredTracks.map((track) => {
                   const isCurrent = library[currentTrackIndex]?.id === track.id;
                   return (
                     <div
@@ -988,9 +972,8 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
           )}
         </div>
 
-        {/* Right 1 Column: Mini Control Hub & Virtual Shelves */}
+        {/* Right 1 Column */}
         <div className="space-y-6">
-          {/* Virtual Shelves Card */}
           <div className="neu-card p-6 rounded-3xl space-y-4">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Layers className="w-4 h-4 text-cyan-400" />
@@ -1026,7 +1009,6 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
             </div>
           </div>
 
-          {/* Sleep Timer & Utilities Card */}
           <div className="neu-card p-6 rounded-3xl space-y-4">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Clock className="w-4 h-4 text-cyan-400" />

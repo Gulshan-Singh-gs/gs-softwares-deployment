@@ -134,6 +134,24 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
   const playbackOffsetRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (playbackSourceRef.current) {
+        try {
+          playbackSourceRef.current.stop();
+          playbackSourceRef.current.disconnect();
+        } catch (e) {}
+      }
+      if (playbackContextRef.current) {
+        playbackContextRef.current.close().catch(() => {});
+      }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
   // Initialize with Studio Sample or initial take
   useEffect(() => {
     if (initialTake) {
@@ -169,9 +187,9 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
     }
   };
 
-  const loadStudioTemplate = async () => {
+  const loadStudioTemplate = () => {
     try {
-      const demoBuffer = generateStudioDemoTrack(12.0);
+      const demoBuffer = generateStudioDemoTrack(4.0);
       const demoTrack: TrackClip = {
         id: 'track_master_demo',
         name: 'Vocal & Acoustic Master',
@@ -191,7 +209,7 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
       setSelectionEnd(demoBuffer.duration);
       updateAnalysisMetrics(demoBuffer);
     } catch (e) {
-      console.error('Demo template load error:', e);
+      console.warn('Demo template load error:', e);
     }
   };
 
@@ -741,15 +759,16 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
       ctx.textAlign = 'left';
       ctx.fillText(`Track ${tIdx + 1}: ${track.name}`, 8, yOffset + 14);
 
-      // Draw Waveform
+      // Draw Waveform with fast stride
       ctx.fillStyle = track.color;
+      const stride = Math.max(1, Math.floor(step / 16)); // Subsample for fast 60fps rendering
       for (let i = 0; i < width; i++) {
         let min = 1.0;
         let max = -1.0;
         const startSample = Math.floor((i / width) * channelData.length);
         const endSample = Math.min(channelData.length, startSample + step);
 
-        for (let j = startSample; j < endSample; j++) {
+        for (let j = startSample; j < endSample; j += stride) {
           const val = channelData[j];
           if (val < min) min = val;
           if (val > max) max = val;

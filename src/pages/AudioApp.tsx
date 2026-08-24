@@ -49,17 +49,24 @@ export const AudioApp: React.FC = () => {
     const restoreTakes = async () => {
       try {
         const stored = await getWorkspaceFilesByApp('audio');
-        if (stored.length > 0) {
-          const restored = stored.map((rec) => {
-            const blob = new Blob([rec.data as ArrayBuffer], { type: rec.type });
-            return {
-              id: rec.id,
-              name: rec.name,
-              duration: (rec.metadata?.duration as number) || 15,
-              timestamp: rec.timestamp,
-              blob,
-            };
-          });
+        if (stored && stored.length > 0) {
+          const restored: { id: string; name: string; duration: number; timestamp: number; blob: Blob }[] = [];
+          for (const rec of stored) {
+            try {
+              if (rec && rec.data) {
+                const blob = new Blob([rec.data], { type: rec.type || 'audio/wav' });
+                restored.push({
+                  id: rec.id,
+                  name: rec.name || 'Audio Take',
+                  duration: (rec.metadata?.duration as number) || 15,
+                  timestamp: rec.timestamp || Date.now(),
+                  blob,
+                });
+              }
+            } catch (err) {
+              console.warn('Skipping unreadable take record:', err);
+            }
+          }
           setRecentTakes(restored);
         }
       } catch (e) {

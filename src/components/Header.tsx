@@ -6,6 +6,7 @@ import {
   Video, 
   Music, 
   FileCode, 
+  PenTool,
   Sun, 
   Moon, 
   CloudSun,
@@ -96,6 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
   const navItems = [
     { id: 'home', label: 'Suite Hub', icon: Sparkles },
     { id: 'pixels', label: 'GS-Pixels', icon: Image, badge: 'Image Studio' },
+    { id: 'canvas', label: 'GS-Canvas', icon: PenTool, badge: 'Vector Canvas' },
     { id: 'pdf', label: 'GS-PDF', icon: FileText, badge: 'PDF Tools' },
     { id: 'video', label: 'GS-Video', icon: Video, badge: 'WASM Video' },
     { id: 'audio', label: 'GS-Audio', icon: Music, badge: 'WebAudio' },

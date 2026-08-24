@@ -5,7 +5,7 @@ const STORE_NAME = 'workspace_files';
 
 export interface StoredFileRecord {
   id: string;
-  app: 'pdf' | 'pixels' | 'audio' | 'video' | 'text';
+  app: 'pdf' | 'pixels' | 'audio' | 'video' | 'text' | 'canvas';
   name: string;
   type: string;
   size: number;
@@ -49,7 +49,7 @@ export const saveWorkspaceFile = async (record: StoredFileRecord): Promise<void>
 };
 
 export const getWorkspaceFilesByApp = async (
-  app: 'pdf' | 'pixels' | 'audio' | 'video' | 'text'
+  app: 'pdf' | 'pixels' | 'audio' | 'video' | 'text' | 'canvas'
 ): Promise<StoredFileRecord[]> => {
   try {
     const db = await openDB();
@@ -83,7 +83,7 @@ export const deleteWorkspaceFile = async (id: string): Promise<void> => {
 };
 
 export const clearWorkspaceAppFiles = async (
-  app: 'pdf' | 'pixels' | 'audio' | 'video' | 'text'
+  app: 'pdf' | 'pixels' | 'audio' | 'video' | 'text' | 'canvas'
 ): Promise<void> => {
   try {
     const files = await getWorkspaceFilesByApp(app);

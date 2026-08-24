@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { Home } from './pages/Home';
 import { PixelsApp } from './pages/PixelsApp';
+import { CanvasApp } from './pages/CanvasApp';
 import { PdfApp } from './pages/PdfApp';
 import { VideoApp } from './pages/VideoApp';
 import { AudioApp } from './pages/AudioApp';
@@ -42,6 +43,7 @@ export function App() {
       <main className="flex-1">
         {currentApp === 'home' && <Home onSelectApp={(app) => setCurrentApp(app)} />}
         {currentApp === 'pixels' && <PixelsApp />}
+        {currentApp === 'canvas' && <CanvasApp />}
         {currentApp === 'pdf' && <PdfApp />}
         {currentApp === 'video' && <VideoApp />}
         {currentApp === 'audio' && <AudioApp />}

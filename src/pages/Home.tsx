@@ -6,6 +6,8 @@ import {
   Video, 
   Music, 
   FileCode, 
+  PenTool,
+  Shapes,
   Zap, 
   Cpu, 
   Lock, 
@@ -41,8 +43,22 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
   const [activePersonaTab, setActivePersonaTab] = useState<'photographers' | 'developers' | 'social' | 'students'>('photographers');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // 12 Tools grid
+  // Studio Tools grid
   const tools = [
+    {
+      id: 'canvas',
+      title: 'Infinite Vector Canvas',
+      desc: 'Infinite Bézier sketchbook with pressure-sensitive strokes & node editing',
+      icon: PenTool,
+      subTool: 'infinite'
+    },
+    {
+      id: 'canvas',
+      title: 'Smart Shape Studio',
+      desc: '400ms dwell-time snapping to perfect circles, boxes, triangles & lines',
+      icon: Shapes,
+      subTool: 'shapes'
+    },
     {
       id: 'pixels',
       title: 'Photo Studio',
@@ -108,15 +124,8 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
     },
     {
       id: 'pixels',
-      title: 'Image to Base64',
-      desc: 'Convert images to inline Data URIs, HTML img tags & CSS',
-      icon: Code,
-      subTool: 'base64'
-    },
-    {
-      id: 'pixels',
       title: 'Palette Extractor',
-      desc: 'Extract dominant color palettes, HEX, RGB & CSS vars',
+      desc: 'Extract dominant color palettes, HEX, RGB & Pro Marker sets',
       icon: Palette,
       subTool: 'palette'
     },
