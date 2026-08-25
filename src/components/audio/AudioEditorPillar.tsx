@@ -840,20 +840,20 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
         </button>
       </div>
       {/* Editor Header Banner */}
-      <div className="neu-card p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-cyan-600/20 neu-flat">
-            <Scissors className="w-7 h-7" />
+      <div className="neu-card p-5 sm:p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-cyan-600/20 neu-flat shrink-0">
+            <Scissors className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white tracking-tight">GS-Audio Audacity-Class Editor</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">Audio Editor</h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                Pillar 3 • Non-Destructive Multitrack
+                Multi-Track
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Sample-Accurate Trimming • LUFS Loudness Normalization • Deep Undo Journal • Zero Uploads
+            <p className="text-xs text-slate-300 mt-0.5">
+              Cut, trim, balance volume levels, and clean noise with unlimited undo and redo.
             </p>
           </div>
         </div>
@@ -1037,10 +1037,10 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
           </div>
 
           {/* Non-Destructive Edit Ops (Cut, Copy, Paste, Trim, Split, Silence) */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
             <button
               onClick={handleTrimToSelection}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-cyan-400"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-cyan-400 min-w-[54px]"
               title="Trim to Selection (Ctrl+T)"
             >
               <Scissors className="w-3.5 h-3.5" />
@@ -1049,7 +1049,7 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
 
             <button
               onClick={handleCutSelection}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-rose-400"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-rose-400 min-w-[54px]"
               title="Cut Selection (Ctrl+X)"
             >
               <span>Cut</span>
@@ -1057,7 +1057,7 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
 
             <button
               onClick={handleCopySelection}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-emerald-400"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-emerald-400 min-w-[54px]"
               title="Copy Selection (Ctrl+C)"
             >
               <span>Copy</span>
@@ -1066,7 +1066,7 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
             <button
               onClick={handlePasteClipboard}
               disabled={!clipboardBuffer}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-indigo-400 disabled:opacity-40"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-indigo-400 disabled:opacity-40 min-w-[54px]"
               title="Paste at Cursor (Ctrl+V)"
             >
               <span>Paste</span>
@@ -1074,7 +1074,7 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
 
             <button
               onClick={handleSplitAtCursor}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-amber-400"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-amber-400 min-w-[54px]"
               title="Split at Playhead (S)"
             >
               <SplitSquareHorizontal className="w-3.5 h-3.5" />
@@ -1083,14 +1083,14 @@ export const AudioEditorPillar: React.FC<AudioEditorPillarProps> = ({
 
             <button
               onClick={() => handleInsertSilence(1.0)}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-cyan-400"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-cyan-400 min-w-[64px]"
             >
               <span>+Silence</span>
             </button>
 
             <button
               onClick={handleReverse}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-200 hover:text-pink-400"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl neu-btn text-[11px] sm:text-xs font-bold text-slate-200 hover:text-pink-400 min-w-[64px]"
             >
               <span>Reverse</span>
             </button>

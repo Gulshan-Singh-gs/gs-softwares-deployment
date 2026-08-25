@@ -226,19 +226,29 @@ export const AudioRecorderPillar: React.FC<AudioRecorderPillarProps> = ({
 
       recorder.onstop = async () => {
         const finalWebmBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        let calculatedDuration = elapsedSec;
         try {
           // Decode to AudioBuffer and encode as clean 16-bit WAV if requested
           if (targetFormat === 'wav') {
             const decoded = await decodeAudioFile(finalWebmBlob);
+            if (decoded && isFinite(decoded.duration) && decoded.duration > 0) {
+              calculatedDuration = decoded.duration;
+            }
             const wavBlob = audioBufferToWavBlob(decoded, 16);
             setRecordedBlob(wavBlob);
           } else {
+            try {
+              const decoded = await decodeAudioFile(finalWebmBlob);
+              if (decoded && isFinite(decoded.duration) && decoded.duration > 0) {
+                calculatedDuration = decoded.duration;
+              }
+            } catch (e) {}
             setRecordedBlob(finalWebmBlob);
           }
         } catch (err) {
           setRecordedBlob(finalWebmBlob);
         }
-        setTakeDuration(elapsedSec);
+        setTakeDuration(calculatedDuration > 0 ? calculatedDuration : elapsedSec);
         clearTakeJournal(takeIdRef.current);
       };
 
@@ -367,6 +377,7 @@ export const AudioRecorderPillar: React.FC<AudioRecorderPillarProps> = ({
   };
 
   const formatTime = (secs: number) => {
+    if (!isFinite(secs) || isNaN(secs) || secs < 0) return '00:00';
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
@@ -395,29 +406,29 @@ export const AudioRecorderPillar: React.FC<AudioRecorderPillarProps> = ({
   return (
     <div className="space-y-6">
       {/* Voice Recorder Header Banner */}
-      <div className="neu-card p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-rose-600/20 neu-flat">
-            <Mic className={`w-7 h-7 ${isRecording && !isPaused ? 'animate-pulse text-rose-300' : ''}`} />
+      <div className="neu-card p-5 sm:p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-rose-600/20 neu-flat shrink-0">
+            <Mic className={`w-6 h-6 sm:w-7 sm:h-7 ${isRecording && !isPaused ? 'animate-pulse text-rose-300' : ''}`} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white tracking-tight">GS-Audio Studio Recorder</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">Voice Recorder</h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                Pillar 2 • Zero Upload
+                100% Private
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Speech-Optimized &amp; Environmental Capture • Crash-Safe Journal • Instant Handoff
+            <p className="text-xs text-slate-300 mt-0.5">
+              Record voice notes, speech, and live audio with automatic backup so you never lose a take.
             </p>
           </div>
         </div>
 
         {/* Live Status Indicators */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start md:self-auto">
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl neu-inset">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-bold text-slate-300">Crash-Safe OPFS Journal</span>
+            <span className="text-xs font-bold text-slate-300">Auto-Saved Take Backup</span>
           </div>
         </div>
       </div>

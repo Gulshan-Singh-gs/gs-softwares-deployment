@@ -144,28 +144,28 @@ export const AudioApp: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Studio Header & The Three Pillars Switcher */}
-      <div className="neu-card p-6 md:p-8 rounded-3xl border-slate-800 space-y-6">
+      <div className="neu-card p-5 sm:p-7 md:p-8 rounded-3xl border-slate-800 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-pink-600 to-rose-600 flex items-center justify-center shadow-xl shadow-cyan-600/20 neu-flat text-white">
-              <Music className="w-7 h-7" />
+          <div className="flex items-center gap-3.5 sm:gap-4">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-pink-600 to-rose-600 flex items-center justify-center shadow-xl shadow-cyan-600/20 neu-flat text-white shrink-0">
+              <Music className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
                   GS-Audio Studio
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full neu-inset text-cyan-300 border border-cyan-500/30">
-                  The Three Pillars
+                  100% Private
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                100% Client-Side Web Audio • Zero Uploads • Music Player · Voice Recorder · Audacity-Class Editor
+              <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
+                Play, record, and edit audio directly in your browser. Fast, simple, and completely private.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-start md:self-auto">
             <button
               onClick={() => setShowShortcutsModal(true)}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl neu-btn text-xs font-semibold text-slate-300 hover:text-white"
@@ -182,19 +182,19 @@ export const AudioApp: React.FC = () => {
             {
               id: 'player',
               title: '🎧 Music Player',
-              subtitle: 'Hi-Fi Local Player · 10-Band EQ · ReplayGain · Synced Lyrics',
+              subtitle: 'Clear sound, custom sound profiles, and live song lyrics.',
               color: 'from-cyan-600 to-indigo-600',
             },
             {
               id: 'recorder',
               title: '🎙 Voice Recorder',
-              subtitle: 'Voice & Ambient Capture · Live Waveform & Meters · Crash-Safe',
+              subtitle: 'Record voice notes and interviews with automatic backup.',
               color: 'from-rose-600 to-pink-600',
             },
             {
               id: 'editor',
               title: '🎚 Audio Editor',
-              subtitle: 'Audacity-Class Multitrack · LUFS Normalization · Deep Undo',
+              subtitle: 'Cut, trim, and balance sound on multiple tracks with unlimited undo.',
               color: 'from-pink-600 to-purple-600',
             },
           ].map((tab) => {
@@ -210,7 +210,7 @@ export const AudioApp: React.FC = () => {
                 }`}
               >
                 <p className="text-sm font-black tracking-tight">{tab.title}</p>
-                <p className="text-[11px] opacity-80 mt-1 leading-snug">{tab.subtitle}</p>
+                <p className="text-[11px] sm:text-xs opacity-85 mt-1 leading-snug">{tab.subtitle}</p>
               </button>
             );
           })}

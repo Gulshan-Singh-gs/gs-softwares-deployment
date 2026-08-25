@@ -41,7 +41,8 @@ import {
   LyricLine,
   parseLrcLyrics,
   generateStudioDemoTrack,
-  audioBufferToWavBlob
+  audioBufferToWavBlob,
+  decodeAudioFile
 } from '../../lib/audioEngine';
 
 export interface PlayerTrack {
@@ -181,13 +182,21 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
       const url = URL.createObjectURL(file);
       const color = colors[i % colors.length];
       const cleanTitle = file.name.replace(/\.[^/.]+$/, '');
+      let trackDuration = 180;
+
+      try {
+        const decoded = await decodeAudioFile(file);
+        if (decoded && isFinite(decoded.duration) && decoded.duration > 0) {
+          trackDuration = decoded.duration;
+        }
+      } catch (e) {}
 
       newTracks.push({
         id: `track_${Date.now()}_${i}`,
         name: cleanTitle,
         artist: 'Local Artist',
         album: 'My Device Audio',
-        duration: 180,
+        duration: trackDuration,
         url,
         blob: file,
         size: file.size,
@@ -446,7 +455,14 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
   }, [isPlaying, visualizerMode, playbackRate, eqGains]);
 
   const formatTime = (secs: number) => {
-    if (isNaN(secs) || secs < 0) return '00:00';
+    if (!isFinite(secs) || isNaN(secs) || secs < 0) {
+      if (currentTrack && isFinite(currentTrack.duration) && currentTrack.duration > 0) {
+        const m = Math.floor(currentTrack.duration / 60);
+        const s = Math.floor(currentTrack.duration % 60);
+        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
+      return '00:00';
+    }
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
@@ -469,30 +485,39 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
           ref={audioRef}
           src={currentTrack.url}
           onTimeUpdate={() => {
-            if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
+            if (audioRef.current && isFinite(audioRef.current.currentTime)) {
+              setCurrentTime(audioRef.current.currentTime);
+            }
           }}
           onLoadedMetadata={() => {
-            if (audioRef.current) setDuration(audioRef.current.duration || currentTrack.duration);
+            if (audioRef.current) {
+              const elDuration = audioRef.current.duration;
+              if (isFinite(elDuration) && elDuration > 0) {
+                setDuration(elDuration);
+              } else if (currentTrack.duration && isFinite(currentTrack.duration) && currentTrack.duration > 0) {
+                setDuration(currentTrack.duration);
+              }
+            }
           }}
           onEnded={handleTrackEnded}
         />
       )}
 
       {/* Music Player Header Banner */}
-      <div className="neu-card p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-pink-600 flex items-center justify-center text-white shadow-xl shadow-cyan-600/20 neu-flat">
-            <Disc className="w-7 h-7" />
+      <div className="neu-card p-5 sm:p-6 rounded-3xl border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-pink-600 flex items-center justify-center text-white shadow-xl shadow-cyan-600/20 neu-flat shrink-0">
+            <Disc className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white tracking-tight">GS-Audio Music Player</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">Music Player</h2>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                Pillar 1 • Local-First
+                Offline Player
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Offline Hi-Fi Player • 10-Band EQ • ReplayGain Normalization • Gapless Engine
+            <p className="text-xs text-slate-300 mt-0.5">
+              Play music stored on your device with crystal clear sound and equalizer controls.
             </p>
           </div>
         </div>
@@ -648,10 +673,10 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
               </div>
 
               {/* Master Transport Controls */}
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center justify-between gap-1 sm:gap-4 pt-2 w-full box-border">
                 <button
                   onClick={() => setIsShuffle(!isShuffle)}
-                  className={`p-3 rounded-2xl transition-all ${
+                  className={`p-2.5 sm:p-3 rounded-2xl shrink-0 transition-all ${
                     isShuffle ? 'neu-inset text-cyan-400' : 'neu-btn text-slate-400 hover:text-white'
                   }`}
                   title="Toggle Shuffle"
@@ -659,29 +684,29 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                   <Shuffle className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5 sm:gap-4">
                   <button
                     onClick={handlePrev}
-                    className="p-3.5 rounded-2xl neu-btn text-slate-300 hover:text-white transition-all hover:scale-105"
+                    className="p-2.5 sm:p-3.5 rounded-2xl neu-btn text-slate-300 hover:text-white transition-all hover:scale-105 shrink-0"
                     title="Previous Track"
                   >
-                    <SkipBack className="w-5 h-5" />
+                    <SkipBack className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
 
                   <button
                     onClick={togglePlay}
-                    className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 text-white flex items-center justify-center shadow-xl shadow-cyan-600/30 transition-transform hover:scale-105"
+                    className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-cyan-600 via-indigo-600 to-pink-600 hover:from-cyan-500 hover:to-pink-500 text-white flex items-center justify-center shadow-xl shadow-cyan-600/30 transition-transform hover:scale-105 shrink-0"
                     title={isPlaying ? 'Pause' : 'Play'}
                   >
-                    {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
+                    {isPlaying ? <Pause className="w-5 h-5 sm:w-7 sm:h-7" /> : <Play className="w-5 h-5 sm:w-7 sm:h-7 ml-0.5" />}
                   </button>
 
                   <button
                     onClick={handleNext}
-                    className="p-3.5 rounded-2xl neu-btn text-slate-300 hover:text-white transition-all hover:scale-105"
+                    className="p-2.5 sm:p-3.5 rounded-2xl neu-btn text-slate-300 hover:text-white transition-all hover:scale-105 shrink-0"
                     title="Next Track"
                   >
-                    <SkipForward className="w-5 h-5" />
+                    <SkipForward className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
 
@@ -691,7 +716,7 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
                     const nextMode = modes[(modes.indexOf(repeatMode) + 1) % modes.length];
                     setRepeatMode(nextMode);
                   }}
-                  className={`p-3 rounded-2xl transition-all ${
+                  className={`p-2.5 sm:p-3 rounded-2xl shrink-0 transition-all ${
                     repeatMode !== 'off' ? 'neu-inset text-pink-400' : 'neu-btn text-slate-400 hover:text-white'
                   }`}
                   title={`Repeat: ${repeatMode}`}
