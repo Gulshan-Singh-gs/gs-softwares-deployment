@@ -11,10 +11,13 @@ import { PWALoadingScreen } from './components/PWALoadingScreen';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { PerformanceToast } from './components/settings/PerformanceToast';
 import { PerformanceProvider, usePerformanceTier } from './context/PerformanceContext';
+import { ToolLandingPage } from './components/ToolLandingPage';
+import { TOOLS_LANDING_DATA } from './lib/seoLandingData';
 import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap } from 'lucide-react';
 
 function AppContent() {
   const [currentApp, setCurrentApp] = useState<string>('home');
+  const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
   const { isSettingsOpen, setIsSettingsOpen, tier, config } = usePerformanceTier();
   const [showPwaLoader, setShowPwaLoader] = useState<boolean>(() => {
@@ -23,6 +26,12 @@ function AppContent() {
     }
     return true;
   });
+
+  const handleLaunchTool = (appId: string) => {
+    setLandingSlug(null);
+    setCurrentApp(appId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300 selection:bg-indigo-500/30 selection:text-indigo-500">
@@ -35,8 +44,9 @@ function AppContent() {
 
       {/* Global Navigation Header */}
       <Header
-        currentApp={currentApp}
+        currentApp={landingSlug ? '' : currentApp}
         onNavigate={(app) => {
+          setLandingSlug(null);
           setCurrentApp(app);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
@@ -46,13 +56,27 @@ function AppContent() {
 
       {/* Main Content Area */}
       <main className="flex-1">
-        {currentApp === 'home' && <Home onSelectApp={(app) => setCurrentApp(app)} />}
-        {currentApp === 'pixels' && <PixelsApp />}
-        {currentApp === 'canvas' && <CanvasApp onNavigate={(app) => setCurrentApp(app)} />}
-        {currentApp === 'pdf' && <PdfApp />}
-        {currentApp === 'video' && <VideoApp />}
-        {currentApp === 'audio' && <AudioApp />}
-        {currentApp === 'text' && <TextApp />}
+        {landingSlug && TOOLS_LANDING_DATA[landingSlug] ? (
+          <ToolLandingPage
+            content={TOOLS_LANDING_DATA[landingSlug]}
+            onLaunchTool={(toolId) => handleLaunchTool(toolId)}
+            onBackToHome={() => {
+              setLandingSlug(null);
+              setCurrentApp('home');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
+        ) : (
+          <>
+            {currentApp === 'home' && <Home onSelectApp={(app) => setCurrentApp(app)} onSelectLanding={(slug) => { setLandingSlug(slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
+            {currentApp === 'pixels' && <PixelsApp />}
+            {currentApp === 'canvas' && <CanvasApp onNavigate={(app) => setCurrentApp(app)} />}
+            {currentApp === 'pdf' && <PdfApp />}
+            {currentApp === 'video' && <VideoApp />}
+            {currentApp === 'audio' && <AudioApp />}
+            {currentApp === 'text' && <TextApp />}
+          </>
+        )}
       </main>
 
       {/* Global Performance Toast Notification */}
@@ -97,32 +121,62 @@ function AppContent() {
               {/* Col 2: Information */}
               <div className="space-y-4 flex flex-col items-center lg:items-start">
                 <p className="text-sm font-extrabold text-cyan-500 tracking-wide uppercase">Information</p>
-                <ul className="space-y-3">
+                <ul className="space-y-2.5">
                   <li>
+                    <button
+                      onClick={() => {
+                        setLandingSlug('metadata-scrubber');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
+                    >
+                      <Shield className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
+                      Metadata Scrubber (EXIF)
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setLandingSlug('pdf-merger');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
+                    >
+                      <FileQuestion className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
+                      Private PDF Merger
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setLandingSlug('image-compressor');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
+                      Local Image Compressor
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setLandingSlug('audio-trimmer');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
+                    >
+                      <Zap className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
+                      Audio Waveform Trimmer
+                    </button>
+                  </li>
+                  <li className="pt-1">
                     <button
                       onClick={() => setAboutModalOpen(true)}
                       className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
                     >
-                      <Info className="w-4 h-4 shrink-0" />
-                      About Us
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setIsSettingsOpen(true)}
-                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
-                    >
-                      <Sliders className="w-4 h-4 shrink-0 text-cyan-400" />
-                      Settings &amp; Performance
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => setShowPwaLoader(true)}
-                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium"
-                    >
-                      <FileQuestion className="w-4 h-4 shrink-0" />
-                      About this PWA
+                      <Info className="w-3.5 h-3.5 shrink-0" />
+                      About Us &amp; Mission
                     </button>
                   </li>
                 </ul>

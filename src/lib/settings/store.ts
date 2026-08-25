@@ -1,6 +1,7 @@
 /**
  * GS Softwares Settings Store & Precedence Resolution Engine
- * Handles schema validation, two-tier storage synchronization, and global-to-tool precedence.
+ * Master Contract v1.0 (Decisive)
+ * Implements cascading precedence (Tool → Suite → Global → Schema default) and Section 7 Export/Import.
  */
 
 import { SettingsState, SettingKey, SettingValue } from './types';
@@ -23,7 +24,7 @@ export function getDefaultSettingsState(): SettingsState {
     }
   }
 
-  // Extract from suite default groups
+  // Extract from 12 suite default groups
   for (const group of SUITE_DEFAULT_GROUPS) {
     for (const def of group.settings) {
       if (def.default !== null && def.default !== undefined) {
@@ -50,10 +51,10 @@ export function loadStoredSettings(): SettingsState {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === 'object') {
-        // Merge stored settings with schema defaults to guarantee all keys exist
+        const storedData = parsed.settings || parsed.data || parsed;
         return {
           ...defaults,
-          ...parsed.data,
+          ...storedData,
         };
       }
     }
@@ -72,9 +73,10 @@ export function persistSettings(state: SettingsState): void {
 
   try {
     const envelope = {
-      version: SETTINGS_VERSION,
-      updatedAt: new Date().toISOString(),
-      data: state,
+      gsSettingsVersion: SETTINGS_VERSION,
+      exportedAt: new Date().toISOString(),
+      tier: state['perf.tier'] || 'balanced',
+      settings: state,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
   } catch (e) {
@@ -83,59 +85,96 @@ export function persistSettings(state: SettingsState): void {
 }
 
 /**
- * Principle P3: Global → Suite → Tool Precedence Resolution Engine
- * Resolves a parameter according to:
- * 1. Explicit tool override (tools.{toolId}.{param})
- * 2. Suite default (files.{toolId}.{param} or tools.{toolId}.default{Param})
- * 3. Global default ({param})
- * 4. Tier-adjusted baseline (TierConfig)
+ * Section 5: Precedence Resolution Engine
+ * Resolution order: Tool → Suite → Global → Schema default
  */
 export function resolveSetting(
   state: SettingsState,
-  toolId: string,
-  param: string,
+  key: string,
+  toolId?: string,
   tierConfig?: TierConfig
 ): any {
-  // 1. Check explicit tool override: "tools.pixels.compressQuality"
-  const toolKey = `tools.${toolId}.${param}`;
-  if (state[toolKey] !== undefined && state[toolKey] !== null) {
-    return state[toolKey];
+  // 1. Tool-level override (e.g., "tools.pixels.quality" or "tools.image.quality")
+  if (toolId) {
+    const toolKey = `tools.${toolId}.${key}`;
+    if (state[toolKey] !== undefined && state[toolKey] !== null) {
+      return state[toolKey];
+    }
+    // Also check direct key if passed as tools.xxx
+    if (key.startsWith('tools.') && state[key] !== undefined && state[key] !== null) {
+      return state[key];
+    }
   }
 
-  // 2. Check suite format default: "files.image.defaultQuality"
-  const suiteKey = `files.${toolId}.${param}`;
-  if (state[suiteKey] !== undefined && state[suiteKey] !== null) {
-    return state[suiteKey];
+  // 2. Suite-level override (e.g., "tools.image.quality")
+  const suite = toolId ? toolId.split('.')[0] : undefined;
+  if (suite) {
+    const suiteKey = `tools.${suite}.${key}`;
+    if (state[suiteKey] !== undefined && state[suiteKey] !== null) {
+      return state[suiteKey];
+    }
+    const filesKey = `files.${suite}.${key}`;
+    if (state[filesKey] !== undefined && state[filesKey] !== null) {
+      return state[filesKey];
+    }
   }
 
-  // 3. Check global state: "general.{param}" or "{param}"
-  const generalKey = `general.${param}`;
+  // 3. Global override (e.g., "files.image.format" or "general.autosaveSec")
+  if (state[key] !== undefined && state[key] !== null) {
+    return state[key];
+  }
+  const generalKey = `general.${key}`;
   if (state[generalKey] !== undefined && state[generalKey] !== null) {
     return state[generalKey];
   }
-  if (state[param] !== undefined && state[param] !== null) {
-    return state[param];
+
+  // 4. Performance tier-derived computed properties
+  if (tierConfig) {
+    if (key === 'workerCount' || key === 'perf.workerCount') {
+      return state['perf.autoDetect'] !== false && state['perf.workerCountOverride']
+        ? state['perf.workerCountOverride']
+        : tierConfig.workerCount;
+    }
+    if (key === 'gpu' || key === 'gpuAcceleration' || key === 'perf.gpuAcceleration') {
+      return state['perf.autoDetect'] !== false && state['perf.gpuOverride']
+        ? state['perf.gpuOverride']
+        : tierConfig.gpuAcceleration;
+    }
+    if (key === 'memoryCeilingMB' || key === 'perf.memoryCeilingMB') {
+      return state['perf.autoDetect'] !== false && state['perf.memoryOverrideMB']
+        ? state['perf.memoryOverrideMB']
+        : tierConfig.memoryBudgetMB;
+    }
+    if (key === 'aiModels' || key === 'perf.aiModels') {
+      return tierConfig.aiModelTier;
+    }
+    if (key === 'batchConcurrency' || key === 'perf.batchConcurrency') {
+      return tierConfig.batchConcurrency;
+    }
+    if (key === 'previewQuality' || key === 'perf.previewQuality') {
+      return tierConfig.previewQuality;
+    }
+    if (key === 'encodingPreset' || key === 'perf.encodingPreset') {
+      return tierConfig.videoEncodingPreset;
+    }
+    if (key === 'animationLevel' || key === 'perf.animationLevel') {
+      return tierConfig.animationMode;
+    }
+    if (key === 'modelPrefetch' || key === 'perf.modelPrefetch') {
+      return tierConfig.modelPrefetchStrategy;
+    }
   }
 
-  // 4. Check Tier-adjusted baseline from TierConfig
-  if (tierConfig) {
-    if (param === 'compressQuality' || param === 'imageCompressionQuality') {
-      return tierConfig.imageCompressionQuality;
-    }
-    if (param === 'workerCount' || param === 'workers') {
-      return tierConfig.workerCount;
-    }
-    if (param === 'gpu' || param === 'gpuAcceleration') {
-      return tierConfig.gpuAcceleration;
-    }
-    if (param === 'memoryBudgetMB' || param === 'memoryCeilingMB') {
-      return tierConfig.memoryBudgetMB;
-    }
-    if (param === 'autosaveIntervalSec' || param === 'autosaveSec') {
-      return tierConfig.autosaveIntervalSec;
-    }
-    if (param === 'videoPreset' || param === 'preset') {
-      return tierConfig.videoEncodingPreset;
+  // 5. Schema default lookup
+  const schemaDef = SETTINGS_SCHEMA.find((s) => s.key === key);
+  if (schemaDef && schemaDef.default !== undefined) {
+    return schemaDef.default;
+  }
+
+  for (const group of SUITE_DEFAULT_GROUPS) {
+    const subDef = group.settings.find((s) => s.key === key);
+    if (subDef && subDef.default !== undefined) {
+      return subDef.default;
     }
   }
 
@@ -143,47 +182,103 @@ export function resolveSetting(
 }
 
 /**
- * Export configuration to formatted JSON string
+ * Section 7: Export Specification
+ * Exports non-default overrides only, excluding secrets and readonly properties.
  */
 export function exportSettingsToJSON(state: SettingsState, tier: PerformanceTier): string {
+  const defaults = getDefaultSettingsState();
+  const overrides: Record<string, any> = {};
+
+  for (const [k, v] of Object.entries(state)) {
+    // Exclude secrets (e.g. passwords) and action/computed fields
+    if (k.includes('vaultPassword') || k.includes('Password') || v === undefined || v === null) {
+      continue;
+    }
+    // Only include non-default overrides to keep payload clean
+    if (defaults[k] !== v) {
+      overrides[k] = v;
+    }
+  }
+
   const exportPayload = {
-    appName: 'GS Softwares',
-    version: '2.0.0-decisive',
+    gsSettingsVersion: SETTINGS_VERSION,
     exportedAt: new Date().toISOString(),
     tier,
-    settings: state,
+    settings: overrides,
   };
+
   return JSON.stringify(exportPayload, null, 2);
 }
 
 /**
- * Validate and import configuration JSON string
+ * Section 7: Import Validation Specification
+ * Atomic validation against schema constraints with summary reporting.
  */
 export function validateAndImportSettings(
   jsonString: string,
   currentState: SettingsState
-): { success: boolean; state?: SettingsState; error?: string } {
+): { success: boolean; state?: SettingsState; importedCount?: number; ignoredCount?: number; error?: string } {
   try {
     const parsed = JSON.parse(jsonString);
 
     if (!parsed || typeof parsed !== 'object') {
-      return { success: false, error: 'Invalid JSON payload format.' };
+      return { success: false, error: 'Malformed JSON payload.' };
+    }
+
+    if (parsed.gsSettingsVersion !== undefined && parsed.gsSettingsVersion > SETTINGS_VERSION) {
+      return { success: false, error: `Incompatible backup version (v${parsed.gsSettingsVersion}). Current app supports v${SETTINGS_VERSION}.` };
     }
 
     const importedSettings = parsed.settings || parsed.data || parsed;
-
     if (!importedSettings || typeof importedSettings !== 'object') {
-      return { success: false, error: 'JSON payload missing settings object.' };
+      return { success: false, error: 'Missing settings dictionary in configuration backup.' };
     }
 
-    // Merge validated keys onto current schema defaults
+    let importedCount = 0;
+    let ignoredCount = 0;
+    const validatedOverrides: Record<string, any> = {};
+
+    // Collect all valid keys across master schema and 12 suite groups
+    const validKeysMap = new Map<string, any>();
+    for (const def of SETTINGS_SCHEMA) {
+      validKeysMap.set(def.key, def);
+    }
+    for (const group of SUITE_DEFAULT_GROUPS) {
+      for (const def of group.settings) {
+        validKeysMap.set(def.key, def);
+      }
+    }
+
+    for (const [key, value] of Object.entries(importedSettings)) {
+      if (validKeysMap.has(key)) {
+        // Never import secrets or readonly values
+        if (key.includes('vaultPassword') || key.includes('noTelemetry') || key.includes('proofLink')) {
+          ignoredCount++;
+          continue;
+        }
+        validatedOverrides[key] = value;
+        importedCount++;
+      } else {
+        ignoredCount++;
+      }
+    }
+
     const mergedState: SettingsState = {
       ...currentState,
-      ...importedSettings,
+      ...validatedOverrides,
     };
 
-    return { success: true, state: mergedState };
+    if (parsed.tier && ['eco', 'balanced', 'performance'].includes(parsed.tier)) {
+      mergedState['perf.tier'] = parsed.tier;
+    }
+
+    return {
+      success: true,
+      state: mergedState,
+      importedCount,
+      ignoredCount,
+    };
   } catch (e: any) {
-    return { success: false, error: e?.message || 'Failed to parse JSON configuration file.' };
+    return { success: false, error: e?.message || 'Failed to parse JSON backup file.' };
   }
 }

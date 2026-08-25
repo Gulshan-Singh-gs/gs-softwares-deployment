@@ -24,8 +24,8 @@ import {
   Shield,
   AlertTriangle,
   Info,
-  Copy,
-  CheckCheck,
+  ExternalLink,
+  Lock,
 } from 'lucide-react';
 import { PerformanceTier } from '../../lib/performanceTier';
 
@@ -58,13 +58,24 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
   } = useSettings();
 
   const [revealedSecret, setRevealedSecret] = useState(false);
-  const [expandedSuite, setExpandedSuite] = useState<string | null>('pixels');
-  const [copiedDiag, setCopiedDiag] = useState(false);
+  const [expandedSuite, setExpandedSuite] = useState<string | null>('image');
 
   const currentValue = getSetting(definition.key);
-  const isDisabled = definition.dependsOn ? !getSetting(definition.dependsOn) : false;
 
-  // Handle tier selection
+  // Check dependencies
+  let isDisabled = false;
+  if (definition.dependsOn) {
+    if (definition.dependsOn === '!perf.autoDetect') {
+      isDisabled = Boolean(getSetting('perf.autoDetect'));
+    } else if (definition.dependsOn.startsWith('!')) {
+      const depKey = definition.dependsOn.slice(1);
+      isDisabled = Boolean(getSetting(depKey));
+    } else {
+      isDisabled = !Boolean(getSetting(definition.dependsOn));
+    }
+  }
+
+  // Handle tier selection with warning guard
   const handleSelectTier = (newTier: PerformanceTier) => {
     if (newTier === 'performance' && specs && (specs.cpuCores <= 4 || (specs.deviceMemoryGB !== null && specs.deviceMemoryGB <= 4))) {
       if (onOpenWarningModal) {
@@ -73,20 +84,6 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
       }
     }
     setSetting('perf.tier', newTier);
-  };
-
-  const handleCopyDiagnostics = () => {
-    const diag = {
-      timestamp: new Date().toISOString(),
-      tier,
-      isAutoDetected,
-      specs,
-      config,
-      userAgent: navigator.userAgent,
-    };
-    navigator.clipboard.writeText(JSON.stringify(diag, null, 2));
-    setCopiedDiag(true);
-    setTimeout(() => setCopiedDiag(false), 3000);
   };
 
   const formatBytes = (bytes: number) => {
@@ -105,7 +102,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
         <div className="neu-inset p-4 rounded-2xl border border-slate-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">Device Hardware Status</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">Device Performance Status</span>
               {isAutoDetected && (
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                   Auto-Optimized
@@ -113,12 +110,12 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
               )}
             </div>
             <p className="text-xs opacity-90 font-medium">
-              {specs?.cpuCores || 4} CPU Cores • {specs?.deviceMemoryGB ? `${specs.deviceMemoryGB} GB RAM` : 'RAM Undisclosed'} • {specs?.hasWebGPU ? 'WebGPU Accelerated' : specs?.hasWebGL2 ? 'WebGL 2' : 'Basic WebGL'}
+              Currently: <strong className="text-cyan-400 uppercase">{tier}</strong> ({isAutoDetected ? 'auto-detected' : 'custom override'}). Your device: {specs?.cpuCores || 4} cores · {specs?.deviceMemoryGB ? `${specs.deviceMemoryGB} GB RAM` : '4 GB RAM'}
             </p>
             <p className="text-[11px] opacity-70 italic">
-              {tier === 'eco' && '🟢 Eco mode uses less battery and processes faster, but heavy AI models are disabled and output presets are streamlined.'}
-              {tier === 'balanced' && '🟡 Balanced mode provides standard quality, lightweight AI models, and smooth Web Worker multitasking.'}
-              {tier === 'performance' && '🔴 Performance mode unlocks max parallel workers, full AI models, WebGPU compute, and 2-pass quality encoding.'}
+              {tier === 'eco' && 'Eco: Fast processing and lower battery use. Best for older devices and laptops.'}
+              {tier === 'balanced' && 'Balanced: Recommended for most devices. Smooth performance and high quality.'}
+              {tier === 'performance' && 'High Performance: Maximum processing power and highest quality output.'}
             </p>
           </div>
           {!isAutoDetected && (
@@ -175,7 +172,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
                   <div className="flex justify-between">
                     <span>GPU:</span>
                     <span className="font-bold">
-                      {opt.value === 'eco' ? 'Canvas 2D' : opt.value === 'balanced' ? 'WebGL Auto' : 'Forced WebGPU'}
+                      {opt.value === 'eco' ? 'Disabled' : opt.value === 'balanced' ? 'Auto (GPU)' : 'Forced WebGPU'}
                     </span>
                   </div>
                 </div>
@@ -189,9 +186,9 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
           <div className="space-y-0.5">
             <h4 className="text-xs font-extrabold flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-cyan-400" />
-              Hardware Benchmark Runner
+              Re-run Hardware Benchmark
             </h4>
-            <p className="text-[11px] opacity-60">Test floating-point CPU &amp; Canvas 2D rasterization speed</p>
+            <p className="text-[11px] opacity-60">Re-evaluates CPU floating-point &amp; Canvas 2D throughput without forcing a tier change</p>
           </div>
           <div className="flex items-center gap-3">
             {benchmarkScore && (
@@ -227,7 +224,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     return (
       <div className={`neu-card p-4 rounded-2xl border border-slate-500/20 flex items-center justify-between gap-4 ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
         <div className="space-y-0.5 flex-1 pr-2">
-          <label className="text-xs font-extrabold block cursor-pointer" onClick={() => setSetting(definition.key, !currentValue)}>
+          <label className="text-xs font-extrabold block cursor-pointer" onClick={() => !isDisabled && setSetting(definition.key, !currentValue)}>
             {definition.label}
           </label>
           <p className="text-[11px] opacity-60 leading-relaxed">{definition.description}</p>
@@ -253,44 +250,118 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     );
   }
 
-  // 3. ENUM RENDERER
-  if (definition.type === 'enum') {
+  // 3. READONLY RENDERER (Privacy Zero-Upload Attestation & Proof Link)
+  if (definition.type === 'readonly') {
     return (
-      <div className={`neu-card p-4 rounded-2xl border border-slate-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
-        <div className="space-y-0.5 flex-1">
-          <label className="text-xs font-extrabold">{definition.label}</label>
-          <p className="text-[11px] opacity-60 leading-relaxed">{definition.description}</p>
+      <div className="neu-card p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-0.5 flex-1 pr-2">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <h4 className="text-xs font-extrabold text-emerald-400">{definition.label}</h4>
+          </div>
+          <p className="text-[11px] opacity-80 leading-relaxed font-medium">{definition.description}</p>
         </div>
 
-        <select
-          value={currentValue ?? definition.default}
-          onChange={(e) => {
-            const val = isNaN(Number(e.target.value)) ? e.target.value : Number(e.target.value);
-            setSetting(definition.key, val);
-          }}
-          disabled={isDisabled}
-          className="px-3.5 py-2 rounded-xl text-xs neu-inset bg-transparent border border-slate-500/20 font-medium focus:outline-none focus:ring-1 focus:ring-cyan-500 shrink-0 sm:max-w-xs w-full sm:w-auto"
-        >
-          {(definition.options || []).map((opt) => (
-            <option key={String(opt.value)} value={String(opt.value)}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        {definition.url ? (
+          <a
+            href={definition.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-all flex items-center gap-1.5 shrink-0"
+          >
+            <span>{definition.badge || 'Verify'}</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        ) : (
+          <span className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+            {definition.badge || 'Active'}
+          </span>
+        )}
       </div>
     );
   }
 
-  // 4. NUMBER RENDERER (Slider + Counter)
+  // 4. ENUM RENDERER (Radio group for <= 4 options; Select dropdown for > 4 options)
+  if (definition.type === 'enum') {
+    const opts = definition.options || [];
+    const isRadioGroup = opts.length <= 4;
+
+    return (
+      <div className={`neu-card p-4 rounded-2xl border border-slate-500/20 space-y-2.5 ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-extrabold">{definition.label}</label>
+              {definition.inheritsKey && (
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 font-mono">
+                  inherits {definition.inheritsKey}
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] opacity-60 leading-relaxed">{definition.description}</p>
+          </div>
+        </div>
+
+        {isRadioGroup ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+            {opts.map((opt) => {
+              const isSelected = String(currentValue ?? definition.default) === String(opt.value);
+              return (
+                <button
+                  key={String(opt.value)}
+                  type="button"
+                  onClick={() => setSetting(definition.key, opt.value)}
+                  disabled={isDisabled}
+                  className={`p-2 rounded-xl text-xs font-medium text-left transition-all border ${
+                    isSelected
+                      ? 'bg-cyan-600/20 border-cyan-500 text-cyan-300 font-bold shadow-md'
+                      : 'neu-inset border-slate-500/20 opacity-70 hover:opacity-100'
+                  }`}
+                >
+                  <p className="truncate">{opt.label}</p>
+                  {opt.desc && <p className="text-[10px] opacity-60 truncate mt-0.5">{opt.desc}</p>}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <select
+            value={currentValue ?? definition.default}
+            onChange={(e) => {
+              const val = isNaN(Number(e.target.value)) ? e.target.value : Number(e.target.value);
+              setSetting(definition.key, val);
+            }}
+            disabled={isDisabled}
+            className="w-full px-3.5 py-2 rounded-xl text-xs neu-inset bg-transparent border border-slate-500/20 font-medium focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          >
+            {opts.map((opt) => (
+              <option key={String(opt.value)} value={String(opt.value)}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+    );
+  }
+
+  // 5. NUMBER RENDERER (Slider + Counter)
   if (definition.type === 'number') {
     return (
       <div className={`neu-card p-4 rounded-2xl border border-slate-500/20 space-y-2.5 ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}>
         <div className="flex items-center justify-between">
           <div>
-            <label className="text-xs font-extrabold">{definition.label}</label>
+            <div className="flex items-center gap-2">
+              <label className="text-xs font-extrabold">{definition.label}</label>
+              {definition.inheritsKey && (
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 font-mono">
+                  inherits {definition.inheritsKey}
+                </span>
+              )}
+            </div>
             <p className="text-[11px] opacity-60">{definition.description}</p>
           </div>
-          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-lg neu-inset text-cyan-400">
+          <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-lg neu-inset text-cyan-400">
             {currentValue ?? definition.default} {definition.unit || ''}
           </span>
         </div>
@@ -313,7 +384,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     );
   }
 
-  // 5. COLOR RENDERER
+  // 6. COLOR RENDERER
   if (definition.type === 'color') {
     return (
       <div className="neu-card p-4 rounded-2xl border border-slate-500/20 space-y-3">
@@ -341,7 +412,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
           })}
           <input
             type="color"
-            value={currentValue || '#0891b2'}
+            value={currentValue || '#0066FF'}
             onChange={(e) => setSetting(definition.key, e.target.value)}
             className="w-7 h-7 rounded-xl bg-transparent cursor-pointer border-0"
             title="Custom Hex Picker"
@@ -351,7 +422,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     );
   }
 
-  // 6. STRING RENDERER
+  // 7. STRING RENDERER
   if (definition.type === 'string') {
     return (
       <div className="neu-card p-4 rounded-2xl border border-slate-500/20 space-y-2">
@@ -370,12 +441,15 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     );
   }
 
-  // 7. SECRET RENDERER (Masked Password)
+  // 8. SECRET RENDERER (Encrypted Vault Password)
   if (definition.type === 'secret') {
     return (
       <div className="neu-card p-4 rounded-2xl border border-slate-500/20 space-y-2">
         <div>
-          <label className="text-xs font-extrabold">{definition.label}</label>
+          <div className="flex items-center gap-2">
+            <Lock className="w-3.5 h-3.5 text-cyan-400" />
+            <label className="text-xs font-extrabold">{definition.label}</label>
+          </div>
           <p className="text-[11px] opacity-60">{definition.description}</p>
         </div>
         <div className="relative">
@@ -398,7 +472,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     );
   }
 
-  // 8. SUITE-DEFAULTS RENDERER (Accordion per tool)
+  // 9. SUITE-DEFAULTS RENDERER (12 Tool Suites Accordion)
   if (definition.type === 'suite-defaults') {
     return (
       <div className="space-y-3">
@@ -438,9 +512,9 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
     );
   }
 
-  // 9. ACTION RENDERER
+  // 10. ACTION RENDERER
   if (definition.type === 'action') {
-    const isDanger = definition.actionId === 'clearAll' || definition.actionId === 'resetDefaults';
+    const isDanger = definition.actionId === 'clearAll' || definition.actionId === 'clearHistory' || definition.actionId === 'resetDefaults';
 
     return (
       <div className="neu-card p-4 rounded-2xl border border-slate-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -455,17 +529,19 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
             isDanger ? 'text-rose-400 hover:text-rose-300' : 'text-cyan-400 hover:text-cyan-300'
           }`}
         >
-          {definition.actionId === 'exportSettings' && <Download className="w-3.5 h-3.5" />}
-          {definition.actionId === 'importSettings' && <Upload className="w-3.5 h-3.5" />}
+          {definition.actionId === 'export' && <Download className="w-3.5 h-3.5" />}
+          {definition.actionId === 'import' && <Upload className="w-3.5 h-3.5" />}
           {definition.actionId === 'resetDefaults' && <RotateCcw className="w-3.5 h-3.5" />}
+          {definition.actionId === 'clearHistory' && <Trash2 className="w-3.5 h-3.5" />}
           {definition.actionId === 'clearAll' && <Trash2 className="w-3.5 h-3.5" />}
+          {definition.actionId === 'clearCache' && <Zap className="w-3.5 h-3.5" />}
           <span>{definition.label.split(' ')[0]}</span>
         </button>
       </div>
     );
   }
 
-  // 10. COMPUTED RENDERER (Storage / Diagnostics / Shortcuts)
+  // 11. COMPUTED RENDERER (Storage Bar, Diagnostics, Shortcuts)
   if (definition.type === 'computed') {
     if (definition.computedId === 'storageUsage') {
       const totalBytes = Object.values(storageBreakdown || {}).reduce((acc, v) => acc + v.totalBytes, 0);
@@ -476,21 +552,28 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
             <div className="space-y-0.5">
               <h4 className="text-xs font-extrabold flex items-center gap-2">
                 <HardDrive className="w-4 h-4 text-cyan-400" />
-                IndexedDB Workspace Allocation
+                Local Storage Used
               </h4>
-              <p className="text-[11px] opacity-60">Persistent offline assets saved in local browser storage</p>
+              <p className="text-[11px] opacity-60">Storage space used on your device by saved workspace items</p>
             </div>
             <span className="text-xs font-extrabold text-cyan-400">Total: {formatBytes(totalBytes)}</span>
           </div>
 
+          <div className="w-full h-2.5 rounded-full neu-inset overflow-hidden bg-slate-700 flex">
+            <div
+              className="h-full bg-cyan-500 rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, Math.max(5, (totalBytes / (500 * 1024 * 1024)) * 100))}%` }}
+            />
+          </div>
+
           <div className="divide-y divide-slate-500/10">
             {([
-              { id: 'pixels', label: 'GS-Pixels (Image Studio)' },
-              { id: 'canvas', label: 'GS-Canvas (Vector Studio)' },
-              { id: 'pdf', label: 'GS-PDF (Document Studio)' },
-              { id: 'video', label: 'GS-Video (WASM Transcoder)' },
-              { id: 'audio', label: 'GS-Audio (Master Suite)' },
-              { id: 'text', label: 'GS-Text (Diff & Code)' },
+              { id: 'pixels', label: 'Photo Studio' },
+              { id: 'canvas', label: 'Drawing Canvas' },
+              { id: 'pdf', label: 'PDF Studio' },
+              { id: 'video', label: 'Video Studio' },
+              { id: 'audio', label: 'Audio Studio' },
+              { id: 'text', label: 'Text Editor' },
             ] as const).map((tool) => {
               const data = (storageBreakdown && storageBreakdown[tool.id]) || { count: 0, totalBytes: 0 };
               return (
@@ -505,7 +588,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
                       <button
                         onClick={() => onClearAppStorage(tool.id)}
                         className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:text-rose-400 transition-colors"
-                        title="Purge files for this suite"
+                        title="Delete saved files for this tool"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -524,7 +607,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
         <div className="neu-card p-5 rounded-2xl border border-slate-500/20 space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <Keyboard className="w-4 h-4 text-cyan-400" />
-            <h4 className="text-xs font-extrabold">Factory Keyboard Bindings</h4>
+            <h4 className="text-xs font-extrabold">Keyboard Shortcuts</h4>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             {Object.entries(DEFAULT_KEYBINDINGS).map(([id, item]) => (
@@ -547,60 +630,33 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
             <div>
               <h4 className="text-xs font-extrabold flex items-center gap-2">
                 <Activity className="w-4 h-4 text-cyan-400" />
-                Browser &amp; Hardware Engine Diagnostics
+                Device &amp; App Information
               </h4>
-              <p className="text-[11px] opacity-60">Live inspection of low-level client APIs</p>
+              <p className="text-[11px] opacity-60">System information, offline availability, and privacy protection</p>
             </div>
-            <button
-              onClick={handleCopyDiagnostics}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold neu-btn text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-all"
-            >
-              {copiedDiag ? (
-                <>
-                  <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  Copy JSON
-                </>
-              )}
-            </button>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              Offline Ready
+            </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="neu-inset p-3 rounded-xl flex justify-between items-center">
-              <span className="opacity-70">CPU Logical Cores:</span>
-              <span className="font-bold">{specs?.cpuCores || 'Unavailable'}</span>
+              <span className="opacity-70">App Version:</span>
+              <span className="font-bold font-mono">v2.0.0</span>
             </div>
             <div className="neu-inset p-3 rounded-xl flex justify-between items-center">
-              <span className="opacity-70">Device RAM:</span>
-              <span className="font-bold">{specs?.deviceMemoryGB ? `${specs.deviceMemoryGB} GB` : 'Undisclosed'}</span>
+              <span className="opacity-70">Processor Cores:</span>
+              <span className="font-bold">{specs?.cpuCores || 4} Cores</span>
             </div>
             <div className="neu-inset p-3 rounded-xl flex justify-between items-center">
-              <span className="opacity-70">WebGPU Context:</span>
-              <span className={`font-bold ${specs?.hasWebGPU ? 'text-emerald-400' : 'opacity-60'}`}>
-                {specs?.hasWebGPU ? 'Available' : 'Unavailable'}
+              <span className="opacity-70">Graphics Acceleration:</span>
+              <span className={`font-bold ${specs?.hasWebGPU || specs?.hasWebGL2 ? 'text-emerald-400' : 'opacity-60'}`}>
+                {specs?.hasWebGPU ? 'High Speed (WebGPU)' : specs?.hasWebGL2 ? 'Standard (WebGL 2)' : 'Basic'}
               </span>
             </div>
             <div className="neu-inset p-3 rounded-xl flex justify-between items-center">
-              <span className="opacity-70">WebGL 2 Pipeline:</span>
-              <span className={`font-bold ${specs?.hasWebGL2 ? 'text-emerald-400' : 'opacity-60'}`}>
-                {specs?.hasWebGL2 ? 'Supported' : 'Disabled'}
-              </span>
-            </div>
-            <div className="neu-inset p-3 rounded-xl flex justify-between items-center">
-              <span className="opacity-70">SharedArrayBuffer:</span>
-              <span className={`font-bold ${specs?.hasSharedArrayBuffer ? 'text-emerald-400' : 'opacity-60'}`}>
-                {specs?.hasSharedArrayBuffer ? 'Enabled' : 'Disabled'}
-              </span>
-            </div>
-            <div className="neu-inset p-3 rounded-xl flex justify-between items-center">
-              <span className="opacity-70">OffscreenCanvas:</span>
-              <span className={`font-bold ${specs?.hasOffscreenCanvas ? 'text-emerald-400' : 'opacity-60'}`}>
-                {specs?.hasOffscreenCanvas ? 'Supported' : 'Not Supported'}
-              </span>
+              <span className="opacity-70">Offline Storage:</span>
+              <span className="font-bold text-emerald-400">Ready (Works Offline)</span>
             </div>
           </div>
         </div>

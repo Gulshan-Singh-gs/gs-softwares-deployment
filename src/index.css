@@ -664,3 +664,68 @@ body.theme-dark .value-badge-text,
   text-shadow: 0 0 4px rgba(255, 255, 255, 0.5) !important;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   GLOBAL TYPOGRAPHY & VIEWPORT TEXT SCALING (Small / Medium / Large)
+   Optimized specifically for dense mobile viewports & readability
+   ───────────────────────────────────────────────────────────── */
+html.text-size-small {
+  font-size: 14px;
+}
+
+html.text-size-small h1 {
+  font-size: clamp(1.75rem, 5vw, 3rem) !important;
+  line-height: 1.15 !important;
+}
+
+html.text-size-small h2 {
+  font-size: clamp(1.35rem, 3.5vw, 2rem) !important;
+  line-height: 1.2 !important;
+}
+
+html.text-size-small h3 {
+  font-size: 1.05rem !important;
+}
+
+html.text-size-small p,
+html.text-size-small span,
+html.text-size-small button,
+html.text-size-small label,
+html.text-size-small input {
+  letter-spacing: -0.01em;
+}
+
+html.text-size-small .neu-card {
+  padding: clamp(0.75rem, 2.5vw, 1.25rem);
+}
+
+html.text-size-medium {
+  font-size: 16px;
+}
+
+html.text-size-large {
+  font-size: 18px;
+}
+
+html.text-size-large h1 {
+  font-size: clamp(2.25rem, 6vw, 4rem) !important;
+}
+
+html.text-size-large h2 {
+  font-size: clamp(1.75rem, 4.5vw, 2.5rem) !important;
+}
+
+/* Mobile Viewport Specific Enhancements */
+@media (max-width: 640px) {
+  html.text-size-small h1 {
+    font-size: 1.75rem !important;
+  }
+  html.text-size-small p {
+    font-size: 0.82rem !important;
+    line-height: 1.4 !important;
+  }
+  html.text-size-small .text-xs {
+    font-size: 0.68rem !important;
+  }
+}
+
+

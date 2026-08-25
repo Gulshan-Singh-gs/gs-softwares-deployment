@@ -922,17 +922,6 @@ export const VideoApp: React.FC = () => {
             </div>
           )}
 
-          {/* REAL-TIME AUTO ENGINE STATUS (Replaces manual render button) */}
-          <div className="w-full py-3 px-4 rounded-2xl bg-slate-900/80 border border-emerald-500/30 text-xs font-bold flex items-center justify-between text-emerald-300 shadow-md">
-            <div className="flex items-center gap-2">
-              <Sparkles className={`w-4 h-4 text-emerald-400 ${isProcessing ? 'animate-spin' : 'animate-pulse'}`} />
-              <span>Real-Time Live Video Processing Active</span>
-            </div>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-              Live
-            </span>
-          </div>
         </div>
 
         {/* Video Player & Stage Visualizer */}

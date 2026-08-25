@@ -51,10 +51,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     config,
     specs,
     setTier,
+    getSetting,
+    setSetting,
     exportSettings,
     importSettings,
     resetDefaults,
+    clearHistory,
     clearAllData,
+    clearStorageCache,
   } = useSettings();
 
   const [activeCategory, setActiveCategory] = useState<SettingCategory>('performance');
@@ -65,6 +69,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   // Dialog & Feedback states
   const [warningTier, setWarningTier] = useState<PerformanceTier | null>(null);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [confirmClearHistoryOpen, setConfirmClearHistoryOpen] = useState(false);
   const [confirmWipeStep, setConfirmWipeStep] = useState<0 | 1 | 2>(0);
   const [importFeedback, setImportFeedback] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -117,9 +122,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  // Actions handlers
+  // Actions dispatcher
   const handleTriggerAction = async (actionId: string) => {
-    if (actionId === 'exportSettings') {
+    if (actionId === 'export') {
       const json = exportSettings();
       const blob = new Blob([json], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -129,12 +134,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       a.download = `gs-settings-${dateStr}.json`;
       a.click();
       URL.revokeObjectURL(url);
-    } else if (actionId === 'importSettings') {
+    } else if (actionId === 'import') {
       fileInputRef.current?.click();
     } else if (actionId === 'resetDefaults') {
       setConfirmResetOpen(true);
+    } else if (actionId === 'clearHistory') {
+      setConfirmClearHistoryOpen(true);
     } else if (actionId === 'clearAll') {
       setConfirmWipeStep(1);
+    } else if (actionId === 'clearCache') {
+      await clearStorageCache();
+      setImportFeedback({ success: true, message: 'Transient cache and buffers purged successfully.' });
+      setTimeout(() => setImportFeedback(null), 4000);
     }
   };
 
@@ -146,7 +157,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       const text = await file.text();
       const res = await importSettings(text);
       if (res.success) {
-        setImportFeedback({ success: true, message: 'Settings successfully restored from backup!' });
+        setImportFeedback({
+          success: true,
+          message: `Imported ${res.importedCount || 0} settings.${res.ignoredCount ? ` ${res.ignoredCount} unknown keys ignored.` : ''}`,
+        });
       } else {
         setImportFeedback({ success: false, message: res.error || 'Failed to parse configuration backup.' });
       }
@@ -166,6 +180,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     await resetDefaults();
     setConfirmResetOpen(false);
     await loadStorageMetrics();
+    setImportFeedback({ success: true, message: 'Settings restored to factory schema defaults.' });
+    setTimeout(() => setImportFeedback(null), 4000);
+  };
+
+  const handleConfirmClearHistory = async () => {
+    await clearHistory();
+    setConfirmClearHistoryOpen(false);
+    await loadStorageMetrics();
+    setImportFeedback({ success: true, message: 'Workspace history purged successfully.' });
+    setTimeout(() => setImportFeedback(null), 4000);
   };
 
   const handleConfirmWipe = async () => {
@@ -195,7 +219,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-extrabold tracking-tight flex items-center gap-2">
-                GS Settings &amp; Engine
+                Settings
                 <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
                   tier === 'eco'
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
@@ -206,14 +230,54 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   {config.label.split(' / ')[0]}
                 </span>
               </h2>
-              <p className="text-[11px] opacity-60 font-medium">Schema-driven offline configuration engine</p>
+              <p className="text-[11px] opacity-60 font-medium">Preferences and workspace defaults</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick Text Size Selector for Mobile/Desktop */}
+            <div className="flex items-center p-0.5 rounded-xl neu-inset border border-slate-500/20 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => setSetting('appearance.textSize', 'small')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  (getSetting('appearance.textSize') || 'medium') === 'small'
+                    ? 'bg-cyan-500 text-white shadow-sm'
+                    : 'opacity-60 hover:opacity-100'
+                }`}
+                title="Small text for mobile"
+              >
+                A-
+              </button>
+              <button
+                type="button"
+                onClick={() => setSetting('appearance.textSize', 'medium')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  (getSetting('appearance.textSize') || 'medium') === 'medium'
+                    ? 'bg-cyan-500 text-white shadow-sm'
+                    : 'opacity-60 hover:opacity-100'
+                }`}
+                title="Medium text (Default)"
+              >
+                A
+              </button>
+              <button
+                type="button"
+                onClick={() => setSetting('appearance.textSize', 'large')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  (getSetting('appearance.textSize') || 'medium') === 'large'
+                    ? 'bg-cyan-500 text-white shadow-sm'
+                    : 'opacity-60 hover:opacity-100'
+                }`}
+                title="Large text"
+              >
+                A+
+              </button>
+            </div>
+
             {/* Real-time Fuzzy Search Bar */}
-            <div className="relative flex-1 sm:w-64">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
+            <div className="relative flex-1 sm:w-56">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search settings..."
@@ -241,7 +305,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </div>
         </div>
 
-        {/* ── IMPORT FEEDBACK BANNER ── */}
+        {/* ── IMPORT / ACTION FEEDBACK BANNER ── */}
         {importFeedback && (
           <div className={`px-6 py-2.5 text-xs font-semibold flex items-center gap-2 ${
             importFeedback.success ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
@@ -251,10 +315,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </div>
         )}
 
-        {/* ── MAIN WORKSPACE AREA (2-Column Layout) ── */}
+        {/* ── MAIN WORKSPACE AREA (2-Column Desktop / Mobile Tabs) ── */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           
-          {/* LEFT SIDEBAR: Categories Nav */}
+          {/* LEFT SIDEBAR: 10 Categories Nav */}
           <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-500/20 p-2 md:p-3 overflow-x-auto md:overflow-y-auto shrink-0 flex md:flex-col gap-1 scrollbar-none bg-slate-500/5">
             {SETTING_CATEGORIES.map((cat) => {
               const Icon = CATEGORY_ICON_MAP[cat.id] || Sliders;
@@ -292,7 +356,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             })}
           </div>
 
-          {/* RIGHT CONTENT PANEL: Controls Auto-Generated from Schema */}
+          {/* RIGHT CONTENT PANEL: Dynamic Schema Controls */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
             {/* Category Header */}
             {!searchQuery && (
@@ -348,21 +412,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               className="px-3 py-1.5 rounded-xl text-xs font-bold neu-btn opacity-70 hover:opacity-100 transition-all flex items-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Reset Defaults
+              Reset to Defaults
             </button>
             <button
-              onClick={() => handleTriggerAction('exportSettings')}
+              onClick={() => handleTriggerAction('export')}
               className="px-3 py-1.5 rounded-xl text-xs font-bold neu-btn text-cyan-400 hover:text-cyan-300 transition-all flex items-center gap-1.5"
             >
               <Download className="w-3.5 h-3.5" />
-              Export JSON
+              Export Settings
             </button>
             <button
-              onClick={() => handleTriggerAction('importSettings')}
+              onClick={() => handleTriggerAction('import')}
               className="px-3 py-1.5 rounded-xl text-xs font-bold neu-btn text-emerald-400 hover:text-emerald-300 transition-all flex items-center gap-1.5"
             >
               <Upload className="w-3.5 h-3.5" />
-              Import
+              Import Settings
             </button>
           </div>
 
@@ -376,7 +440,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
       </div>
 
-      {/* ── MODAL: MANUAL OVERRIDE WARNING ── */}
+      {/* ── MODAL: MANUAL OVERRIDE GUARD (PRD Section 3.1) ── */}
       {warningTier && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="neu-flat max-w-md w-full p-6 rounded-3xl border border-rose-500/40 shadow-2xl space-y-4 animate-in fade-in duration-150">
@@ -387,7 +451,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <h3 className="text-base font-extrabold">Device Capability Warning</h3>
             </div>
             <p className="text-xs opacity-80 leading-relaxed font-medium">
-              Your device reports fewer than 6 cores or limited available memory. Forcing <strong>🔴 Performance Mode</strong> unlocks 2-pass video transcoding, unthrottled WebGPU, and deep neural models, which may cause browser tab slowdowns. We recommend <strong>🟡 Balanced Mode</strong>.
+              Your device may struggle in Performance mode. We recommend Balanced for your hardware. Switch anyway?
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
@@ -403,7 +467,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 }}
                 className="px-4 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg transition-all"
               >
-                Override Anyway
+                Switch Anyway
               </button>
             </div>
           </div>
@@ -418,10 +482,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <div className="p-2 rounded-2xl neu-inset">
                 <RotateCcw className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-extrabold">Reset to Factory Defaults?</h3>
+              <h3 className="text-base font-extrabold">Reset to Defaults?</h3>
             </div>
             <p className="text-xs opacity-80 leading-relaxed font-medium">
-              This will reset all your theme preferences, tool presets, and custom hardware tier overrides back to schema defaults and re-run auto-detection. Your saved project files in IndexedDB will be preserved.
+              This will restore all settings and tool presets to their original defaults. Saved project files in your browser will be preserved.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
@@ -441,7 +505,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         </div>
       )}
 
-      {/* ── MODAL: DOUBLE-CONFIRMATION DATA PURGE ── */}
+      {/* ── MODAL: CLEAR HISTORY CONFIRMATION ── */}
+      {confirmClearHistoryOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="neu-flat max-w-md w-full p-6 rounded-3xl border border-amber-500/40 shadow-2xl space-y-4 animate-in fade-in duration-150">
+            <div className="flex items-center gap-3 text-amber-400">
+              <div className="p-2 rounded-2xl neu-inset">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-extrabold">Clear Recent History?</h3>
+            </div>
+            <p className="text-xs opacity-80 leading-relaxed font-medium">
+              This will clear recent project history while keeping your active settings intact.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setConfirmClearHistoryOpen(false)}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold opacity-70 hover:opacity-100 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmClearHistory}
+                className="px-4 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white shadow-lg transition-all"
+              >
+                Clear History
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: DOUBLE-CONFIRMATION NUCLEAR WIPE ── */}
       {confirmWipeStep > 0 && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="neu-flat max-w-md w-full p-6 rounded-3xl border border-rose-500 shadow-2xl space-y-4 animate-in fade-in duration-150">
@@ -450,34 +545,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <Trash2 className="w-6 h-6" />
               </div>
               <h3 className="text-base font-extrabold">
-                {confirmWipeStep === 1 ? '⚠️ Purge All Workspace Data?' : '🚨 FINAL CONFIRMATION: Permanent Erasure'}
+                {confirmWipeStep === 1 ? 'Clear All Data & Settings?' : 'Final Confirmation: Permanent Reset'}
               </h3>
             </div>
             <p className="text-xs opacity-90 leading-relaxed font-medium">
               {confirmWipeStep === 1
-                ? 'This will permanently wipe all IndexedDB workspace files across Pixels, Canvas, PDF, Video, Audio, and Text, flush cache storage, and erase all local settings.'
-                : 'Are you absolutely certain? This operation cannot be undone. All project drafts will be immediately and irrevocably destroyed.'}
+                ? 'This will permanently delete all stored workspace files, offline drafts, and custom settings on this device.'
+                : 'Are you completely sure? This action cannot be undone. All saved drafts and custom preferences will be erased.'}
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setConfirmWipeStep(0)}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-bold opacity-70 hover:opacity-100 transition-all"
               >
-                Abort
+                Cancel
               </button>
               {confirmWipeStep === 1 ? (
                 <button
                   onClick={() => setConfirmWipeStep(2)}
                   className="px-4 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-lg transition-all"
                 >
-                  I Understand, Continue
+                  Continue
                 </button>
               ) : (
                 <button
                   onClick={handleConfirmWipe}
                   className="px-4 py-1.5 rounded-xl text-xs font-bold bg-rose-700 hover:bg-rose-600 text-white shadow-lg transition-all font-mono"
                 >
-                  PERMANENTLY WIPE EVERYTHING
+                  PERMANENTLY DELETE ALL DATA
                 </button>
               )}
             </div>

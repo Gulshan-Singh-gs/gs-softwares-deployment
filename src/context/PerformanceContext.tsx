@@ -41,14 +41,15 @@ interface PerformanceContextType {
   runBenchmark: () => Promise<{ score: number; durationMs: number; recommendedTier: PerformanceTier }>;
   resetToAutoDetect: () => void;
 
-  // Schema-Driven Settings Store
+  // Schema-Driven Settings Store (Master Contract v1.0)
   settings: SettingsState;
-  getSetting: <K extends SettingKey>(key: K) => SettingValue<K>;
+  getSetting: <K extends SettingKey>(key: K, toolId?: string) => SettingValue<K>;
   setSetting: <K extends SettingKey>(key: K, value: SettingValue<K>) => void;
-  resolve: (toolId: string, param: string) => any;
+  resolve: (key: string, toolId?: string) => any;
   exportSettings: () => string;
-  importSettings: (json: string) => Promise<{ success: boolean; error?: string }>;
+  importSettings: (json: string) => Promise<{ success: boolean; importedCount?: number; ignoredCount?: number; error?: string }>;
   resetDefaults: () => Promise<void>;
+  clearHistory: () => Promise<void>;
   clearAllData: () => Promise<void>;
 
   // Toast & Modal Controls
@@ -92,8 +93,9 @@ const PerformanceContext = createContext<PerformanceContextType>({
   setSetting: () => {},
   resolve: () => undefined,
   exportSettings: () => '',
-  importSettings: async () => ({ success: true }),
+  importSettings: async () => ({ success: true, importedCount: 0, ignoredCount: 0 }),
   resetDefaults: async () => {},
+  clearHistory: async () => {},
   clearAllData: async () => {},
   showToast: false,
   toastMessage: null,
@@ -130,9 +132,13 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
       setOverridesState(perfSettings.overrides);
       setBenchmarkScore(perfSettings.benchmarkScore);
 
-      // Sync settings state with loaded tier
+      // Sync settings state with loaded tier & auto-detect state
       setSettingsState((prev) => {
-        const next = { ...prev, 'perf.tier': perfSettings.tier, 'perf.override': perfSettings.overrides.enabled };
+        const next = {
+          ...prev,
+          'perf.tier': perfSettings.tier,
+          'perf.autoDetect': perfSettings.isAutoDetected,
+        };
         persistSettings(next);
         return next;
       });
@@ -150,6 +156,47 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
       mounted = false;
     };
   }, []);
+
+  // Sync Appearance CSS attributes
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+
+    // 1. Accent color
+    if (settings['appearance.accent']) {
+      root.style.setProperty('--accent-primary', settings['appearance.accent']);
+    }
+
+    // 2. High Contrast
+    if (settings['appearance.highContrast']) {
+      root.classList.add('high-contrast');
+    } else {
+      root.classList.remove('high-contrast');
+    }
+
+    // 3. Compact mode
+    if (settings['appearance.compact']) {
+      root.classList.add('compact-mode');
+    } else {
+      root.classList.remove('compact-mode');
+    }
+
+    // 4. Text Size Preset (Small / Medium / Large)
+    const textSize = settings['appearance.textSize'] || 'medium';
+    root.classList.remove('text-size-small', 'text-size-medium', 'text-size-large');
+    root.classList.add(`text-size-${textSize}`);
+    
+    if (textSize === 'small') {
+      root.style.fontSize = '14px';
+      root.style.setProperty('--base-font-size', '14px');
+    } else if (textSize === 'large') {
+      root.style.fontSize = '18px';
+      root.style.setProperty('--base-font-size', '18px');
+    } else {
+      root.style.fontSize = '16px';
+      root.style.setProperty('--base-font-size', '16px');
+    }
+  }, [settings]);
 
   // Update localStorage when performance state updates
   const persistPerf = useCallback(
@@ -172,7 +219,11 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
     (newTier: PerformanceTier, manual = true) => {
       setTierState(newTier);
       setSettingsState((prev) => {
-        const next = { ...prev, 'perf.tier': newTier, 'perf.override': manual ? true : prev['perf.override'] };
+        const next = {
+          ...prev,
+          'perf.tier': newTier,
+          'perf.autoDetect': manual ? false : prev['perf.autoDetect'],
+        };
         persistSettings(next);
         return next;
       });
@@ -196,10 +247,10 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
       setSettingsState((prev) => {
         const next = {
           ...prev,
-          'perf.override': updated.enabled,
-          ...(updated.customWorkerCount && { 'perf.workers': updated.customWorkerCount }),
-          ...(updated.customGpuAcceleration && { 'perf.gpu': updated.customGpuAcceleration }),
-          ...(updated.customMemoryBudgetMB && { 'perf.memoryCeilingMB': updated.customMemoryBudgetMB }),
+          'perf.autoDetect': !updated.enabled,
+          ...(updated.customWorkerCount && { 'perf.workerCountOverride': updated.customWorkerCount }),
+          ...(updated.customGpuAcceleration && { 'perf.gpuOverride': updated.customGpuAcceleration as any }),
+          ...(updated.customMemoryBudgetMB && { 'perf.memoryOverrideMB': updated.customMemoryBudgetMB }),
         };
         persistSettings(next);
         return next;
@@ -221,10 +272,10 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
       const next = {
         ...prev,
         'perf.tier': recTier,
-        'perf.override': false,
-        'perf.workers': TIER_CONFIG_MATRIX[recTier].workerCount,
-        'perf.gpu': TIER_CONFIG_MATRIX[recTier].gpuAcceleration,
-        'perf.memoryCeilingMB': TIER_CONFIG_MATRIX[recTier].memoryBudgetMB,
+        'perf.autoDetect': true,
+        'perf.workerCountOverride': TIER_CONFIG_MATRIX[recTier].workerCount,
+        'perf.gpuOverride': TIER_CONFIG_MATRIX[recTier].gpuAcceleration as any,
+        'perf.memoryOverrideMB': TIER_CONFIG_MATRIX[recTier].memoryBudgetMB,
       };
       persistSettings(next);
       return next;
@@ -266,12 +317,20 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
     }
   }, [isAutoDetected, overrides, tier, persistPerf]);
 
-  // Schema-Driven Generic Get & Set
+  // Section 5: Cascading Precedence Resolver
   const getSetting = useCallback(
-    <K extends SettingKey>(key: K): SettingValue<K> => {
-      return settings[key];
+    <K extends SettingKey>(key: K, toolId?: string): SettingValue<K> => {
+      const activeConfig = resolveEffectiveTierConfig(tier, overrides, specs || defaultSpecs);
+      return resolveSetting(settings, String(key), toolId, activeConfig);
     },
-    [settings]
+    [settings, tier, overrides, specs]
+  );
+
+  const resolve = useCallback(
+    (key: string, toolId?: string) => {
+      return getSetting(key as any, toolId);
+    },
+    [getSetting]
   );
 
   const setSetting = useCallback(
@@ -285,35 +344,38 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
       // Synchronize performance tier if perf keys change
       if (key === 'perf.tier') {
         setTier(value as PerformanceTier, true);
-      } else if (key === 'perf.override') {
-        setOverrides({ enabled: Boolean(value) });
-      } else if (key === 'perf.workers') {
+      } else if (key === 'perf.autoDetect') {
+        const isAuto = Boolean(value);
+        setIsAutoDetected(isAuto);
+        setOverrides({ enabled: !isAuto });
+      } else if (key === 'perf.workerCountOverride') {
         setOverrides({ customWorkerCount: Number(value) });
-      } else if (key === 'perf.gpu') {
+      } else if (key === 'perf.gpuOverride') {
         setOverrides({ customGpuAcceleration: value });
-      } else if (key === 'perf.memoryCeilingMB') {
+      } else if (key === 'perf.memoryOverrideMB') {
         setOverrides({ customMemoryBudgetMB: Number(value) });
       } else if (key === 'appearance.theme') {
         const themeValue = String(value);
-        if (themeValue === 'light' || themeValue === 'semi' || themeValue === 'dark') {
+        if (themeValue === 'light' || themeValue === 'dark') {
           const classes = ['theme-light', 'theme-semi', 'theme-dark'];
           document.documentElement.classList.remove(...classes);
           document.body.classList.remove(...classes);
           document.documentElement.classList.add(`theme-${themeValue}`);
           document.body.classList.add(`theme-${themeValue}`);
           localStorage.setItem('gs_theme_mode', themeValue);
+        } else if (themeValue === 'system') {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const systemTheme = prefersDark ? 'dark' : 'light';
+          const classes = ['theme-light', 'theme-semi', 'theme-dark'];
+          document.documentElement.classList.remove(...classes);
+          document.body.classList.remove(...classes);
+          document.documentElement.classList.add(`theme-${systemTheme}`);
+          document.body.classList.add(`theme-${systemTheme}`);
+          localStorage.setItem('gs_theme_mode', 'system');
         }
       }
     },
     [setTier, setOverrides]
-  );
-
-  const resolve = useCallback(
-    (toolId: string, param: string) => {
-      const activeConfig = resolveEffectiveTierConfig(tier, overrides, specs || defaultSpecs);
-      return resolveSetting(settings, toolId, param, activeConfig);
-    },
-    [settings, tier, overrides, specs]
   );
 
   const exportSettings = useCallback(() => {
@@ -327,9 +389,13 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
         setSettingsState(res.state);
         persistSettings(res.state);
         if (res.state['perf.tier']) {
-          setTier(res.state['perf.tier'], Boolean(res.state['perf.override']));
+          setTier(res.state['perf.tier'], !res.state['perf.autoDetect']);
         }
-        return { success: true };
+        return {
+          success: true,
+          importedCount: res.importedCount,
+          ignoredCount: res.ignoredCount,
+        };
       }
       return { success: false, error: res.error };
     },
@@ -342,6 +408,24 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
     persistSettings(defaults);
     await resetToAutoDetect();
   }, [resetToAutoDetect]);
+
+  const clearHistory = useCallback(async () => {
+    try {
+      if (typeof indexedDB !== 'undefined') {
+        // Clear history store if present in IndexedDB
+        const req = indexedDB.open('GS_Softwares_DB');
+        req.onsuccess = () => {
+          const db = req.result;
+          if (db.objectStoreNames.contains('history')) {
+            const tx = db.transaction('history', 'readwrite');
+            tx.objectStore('history').clear();
+          }
+        };
+      }
+    } catch (e) {
+      console.error('Failed to clear history:', e);
+    }
+  }, []);
 
   const clearAllData = useCallback(async () => {
     try {
@@ -359,7 +443,7 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
         const keys = await caches.keys();
         await Promise.all(keys.map((k) => caches.delete(k)));
       }
-      // Wipe localStorage
+      // Wipe localStorage and sessionStorage
       localStorage.clear();
       sessionStorage.clear();
 
@@ -418,6 +502,7 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
         exportSettings,
         importSettings,
         resetDefaults,
+        clearHistory,
         clearAllData,
         showToast,
         toastMessage,

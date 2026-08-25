@@ -37,9 +37,10 @@ import {
 
 interface HomeProps {
   onSelectApp: (appId: string) => void;
+  onSelectLanding?: (slug: string) => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
+export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
   const [activePersonaTab, setActivePersonaTab] = useState<'photographers' | 'developers' | 'social' | 'students'>('photographers');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -47,104 +48,104 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
   const tools = [
     {
       id: 'canvas',
-      title: 'Infinite Vector Canvas',
-      desc: 'Infinite Bézier sketchbook with pressure-sensitive strokes & node editing',
+      title: 'Freehand Drawing Canvas',
+      desc: 'Sketch, draw, and brainstorm freely on an endless board',
       icon: PenTool,
       subTool: 'infinite'
     },
     {
       id: 'canvas',
-      title: 'Smart Shape Studio',
-      desc: '400ms dwell-time snapping to perfect circles, boxes, triangles & lines',
+      title: 'Quick Shapes',
+      desc: 'Draw clean shapes, arrows, and lines with automatic line smoothing',
       icon: Shapes,
       subTool: 'shapes'
     },
     {
       id: 'pixels',
       title: 'Photo Studio',
-      desc: 'Unified Workspace: Crop, Adjustments, Filters & Text Overlays',
+      desc: 'Crop, adjust lighting, add text overlays, and apply filters',
       icon: Wand2,
       subTool: 'studio'
     },
     {
       id: 'pixels',
-      title: 'Smart Compressor',
-      desc: 'Shrink without the squish — live A/B wipe preview',
+      title: 'Image Compressor',
+      desc: 'Shrink file size for sharing without losing crisp visual clarity',
       icon: Sliders,
       subTool: 'compress'
     },
     {
       id: 'pixels',
-      title: 'Universal Converter',
-      desc: 'JPG ↔ PNG ↔ WebP ↔ AVIF — all local',
+      title: 'Format Converter',
+      desc: 'Convert images between standard formats (JPG, PNG, WebP)',
       icon: RefreshCw,
       subTool: 'convert'
     },
     {
       id: 'pixels',
-      title: 'Resize & Fit',
-      desc: 'px • % • MP • print DPI — aspect-locked or free',
+      title: 'Resize and Fit',
+      desc: 'Scale images to custom dimensions, percentages, or print sizes',
       icon: Layers,
       subTool: 'resize'
     },
     {
       id: 'pixels',
-      title: 'Crop & Straighten',
-      desc: 'Freeform • fixed ratios • circle avatar • horizon dial',
+      title: 'Crop and Straighten',
+      desc: 'Trim borders, create round avatars, and fix tilted photos',
       icon: Crop,
       subTool: 'crop'
     },
     {
       id: 'pixels',
-      title: 'Rotate & Flip',
-      desc: '90° • 180° • custom angle • mirror — EXIF-aware',
+      title: 'Rotate and Flip',
+      desc: 'Turn photos sideways, upside down, or mirror them instantly',
       icon: RotateCw,
       subTool: 'rotate'
     },
     {
       id: 'pixels',
-      title: 'Watermark & Annotate',
-      desc: 'Text • logo • tiling • 3×3 anchor grid',
+      title: 'Add Watermark',
+      desc: 'Stamp your name, logo, or brand mark across your images',
       icon: Stamp,
       subTool: 'watermark'
     },
     {
       id: 'pixels',
-      title: 'Metadata Scrubber',
-      desc: 'View & strip EXIF, GPS, camera info — privacy-first',
+      title: 'Remove Hidden Info',
+      desc: 'Wipe camera settings, dates, and location tags before sharing',
       icon: FileSearch,
       subTool: 'metadata'
     },
     {
       id: 'pixels',
-      title: 'Background Remover',
-      desc: 'On-device AI segmentation — no server upload',
+      title: 'Remove Background',
+      desc: 'Erase photo backgrounds automatically with a single click',
       icon: Sparkles,
       subTool: 'studio'
     },
     {
       id: 'pixels',
-      title: 'Palette Extractor',
-      desc: 'Extract dominant color palettes, HEX, RGB & Pro Marker sets',
+      title: 'Color Palette Extractor',
+      desc: 'Extract color schemes and hex codes directly from any image',
       icon: Palette,
       subTool: 'palette'
     },
     {
       id: 'pdf',
-      title: 'Image → Document',
-      desc: 'Convert images to PDF or DOCX — page layout, margins',
+      title: 'Image to PDF',
+      desc: 'Convert pictures and documents into clean, shareable PDFs',
       icon: FileText,
       subTool: 'doc'
     }
   ];
 
   const comparisonRows = [
-    { feature: 'File Upload Required?', gs: 'No', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Yes', typicalIcon: Check, typicalColor: 'text-emerald-400/90 font-medium' },
-    { feature: 'Processing Speed', gs: 'Instant', gsIcon: Zap, gsColor: 'text-cyan-400 font-medium', typical: 'Depends on Internet', typicalIcon: Globe, typicalColor: 'text-amber-400/90 font-medium' },
-    { feature: 'Privacy Guarantee', gs: '100% Local', gsIcon: Lock, gsColor: 'text-emerald-400 font-medium', typical: 'Server Storage', typicalIcon: ShieldCheck, typicalColor: 'text-rose-400/90 font-medium' },
-    { feature: 'Watermarks', gs: 'Never', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Paid Removal', typicalIcon: DollarSignFallback, typicalColor: 'text-amber-400/90 font-medium' },
+    { feature: 'File Upload Required?', gs: 'No (100% Local)', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Yes (Uploaded to Cloud)', typicalIcon: Check, typicalColor: 'text-emerald-400/90 font-medium' },
+    { feature: 'Processing Speed', gs: 'Instant', gsIcon: Zap, gsColor: 'text-cyan-400 font-medium', typical: 'Slow / Queued', typicalIcon: Globe, typicalColor: 'text-amber-400/90 font-medium' },
+    { feature: 'Privacy Guarantee', gs: 'Completely Private', gsIcon: Lock, gsColor: 'text-emerald-400 font-medium', typical: 'Stored on Remote Servers', typicalIcon: ShieldCheck, typicalColor: 'text-rose-400/90 font-medium' },
+    { feature: 'Watermarks', gs: 'Never', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Paid Removal Only', typicalIcon: DollarSignFallback, typicalColor: 'text-amber-400/90 font-medium' },
     { feature: 'Offline Access', gs: 'Yes', gsIcon: Check, gsColor: 'text-emerald-400 font-medium', typical: 'No', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
-    { feature: 'Max File Size', gs: 'RAM Limited', gsIcon: HardDrive, gsColor: 'text-cyan-400 font-medium', typical: 'Often 5-10MB', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
+    { feature: 'File Limits and Cost', gs: 'Unlimited and Free', gsIcon: HardDrive, gsColor: 'text-cyan-400 font-medium', typical: 'Strict Size Caps and Paywalls', typicalIcon: X, typicalColor: 'text-rose-400/90 font-medium' },
   ];
 
   function DollarSignFallback(props: any) {
@@ -153,24 +154,24 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
 
   const faqs = [
     {
-      q: 'Is it really free?',
-      a: 'Yes, every single tool is completely free. No paywalls, no pro tiers, no hidden costs. Everything runs locally in your browser using WebAssembly.'
+      q: 'Is this really 100% free?',
+      a: 'Yes, completely free. There are no subscriptions, credits, or locked paid tiers. You can edit and convert as many files as you need without limits.'
     },
     {
-      q: 'Is GS Softwares really 100% free?',
-      a: 'Absolutely. We do not require account creation, credits, or subscriptions. You can process unlimited batches of images, PDFs, video, audio, and text.'
+      q: 'Are my files safe and private?',
+      a: 'Yes. Your files are never uploaded to any remote server or cloud system. Everything is processed entirely in your device memory, meaning nobody else can access your data.'
     },
     {
-      q: 'Does it work offline?',
-      a: 'Yes! Thanks to modern Service Workers and client-side WebAssembly, once the application loads, you can disconnect your internet and continue editing.'
+      q: 'Does this work without an internet connection?',
+      a: 'Yes. Once the website is loaded in your browser, you can disconnect from the internet and continue using all editing tools offline.'
     },
     {
-      q: 'What formats are supported?',
-      a: 'Images (JPG, PNG, WebP, AVIF, SVG), PDFs, Videos (MP4, WebM, MOV, MKV), Audio (MP3, WAV, FLAC, AAC, OGG), and Documents (Markdown, JSON, TXT).'
+      q: 'Will there be watermarks on my downloads?',
+      a: 'Never. All exported images, PDFs, and media files are clean and free of watermarks.'
     },
     {
-      q: 'Is my data safe?',
-      a: 'Your data is 100% private. Files never leave your device memory (RAM). Nothing is ever transmitted or stored on remote servers.'
+      q: 'Do I need to install any heavy software?',
+      a: 'No. Everything runs directly inside your web browser on phones, tablets, Mac, or Windows PC. You can also select "Add to Home Screen" to use it like a standalone app.'
     }
   ];
 
@@ -188,14 +189,14 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           </h1>
 
           <p className="text-base sm:text-xl font-medium opacity-90 max-w-xl leading-relaxed">
-            Professional-grade image, PDF, video, audio & text processing running entirely in your browser. 
-            No uploads, no servers, no accounts. Just drop your file and get results in milliseconds.
+            Crop photos, convert formats, edit PDFs, trim audio, and sketch ideas with zero waiting. 
+            No uploads, no servers, and no accounts. Just drop your file and get results instantly.
           </p>
 
           {/* Quick Value Badges */}
           <div className="flex flex-wrap gap-3 pt-2 text-xs font-bold opacity-90">
-            <span className="flex items-center gap-1.5"><Lock className="w-4 h-4 value-badge-icon" /> Zero Data Transmission</span>
-            <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 value-badge-icon" /> Instant Processing</span>
+            <span className="flex items-center gap-1.5"><Lock className="w-4 h-4 value-badge-icon" /> 100% Private</span>
+            <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 value-badge-icon" /> Instant Speed</span>
             <span className="flex items-center gap-1.5"><X className="w-4 h-4 value-badge-icon" /> No Watermarks</span>
             <span className="flex items-center gap-1.5"><Check className="w-4 h-4 value-badge-icon" /> Works Offline</span>
           </div>
@@ -212,10 +213,10 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
             </div>
             <div className="space-y-1">
               <h3 className="text-xl font-extrabold">Drop any file here</h3>
-              <p className="text-xs opacity-75">We'll suggest the best studio tool. No uploads, ever.</p>
+              <p className="text-xs opacity-75">We will suggest the right tool instantly. Nothing ever leaves your device.</p>
             </div>
             <button className="px-6 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 transition-all">
-              Browse Files
+              Choose File
             </button>
           </div>
         </div>
@@ -227,9 +228,9 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           <div className="w-10 h-10 rounded-2xl neu-inset mx-auto flex items-center justify-center text-cyan-500">
             <Zap className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-extrabold">No Upload Wait</h3>
+          <h3 className="text-base font-extrabold">Instant Speed</h3>
           <p className="text-xs opacity-80 leading-relaxed">
-            Processing happens on your CPU/GPU, not our server. Even 50MB files process instantly.
+            No upload queues or network lag. Tasks run directly on your device and finish in milliseconds.
           </p>
         </div>
 
@@ -237,9 +238,9 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           <div className="w-10 h-10 rounded-2xl neu-inset mx-auto flex items-center justify-center text-emerald-500">
             <Lock className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-extrabold">Total Privacy</h3>
+          <h3 className="text-base font-extrabold">Complete Privacy</h3>
           <p className="text-xs opacity-80 leading-relaxed">
-            We physically cannot see your files. No data leaves your browser tab.
+            We physically cannot see your files. Everything stays strictly inside your browser tab.
           </p>
         </div>
 
@@ -247,19 +248,19 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           <div className="w-10 h-10 rounded-2xl neu-inset mx-auto flex items-center justify-center text-pink-500">
             <Sparkles className="w-5 h-5" />
           </div>
-          <h3 className="text-base font-extrabold">Pure Quality</h3>
+          <h3 className="text-base font-extrabold">Zero Catches</h3>
           <p className="text-xs opacity-80 leading-relaxed">
-            No hidden compression artifacts. No watermarks. No locks on any features.
+            No watermarks, no hidden compression limits, and no features locked behind paywalls.
           </p>
         </div>
       </section>
 
-      {/* 3. 12 THE LOCAL STUDIO TOOLS GRID */}
+      {/* 3. THE STUDIO TOOLS GRID */}
       <section className="space-y-8 text-center">
         <div className="space-y-2 max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">The Local Suite Studios</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Everything You Need in One Place</h2>
           <p className="text-sm font-medium opacity-80">
-            Powerful utilities running on WebAssembly, directly in your browser.
+            Fast, private editing tools running directly on your device.
           </p>
         </div>
 
@@ -288,7 +289,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
 
                 <div className="pt-2 border-t border-slate-500/10 flex items-center justify-between">
                   <span className="text-xs font-bold text-cyan-500 group-hover:underline flex items-center gap-1">
-                    Try It <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    Open Tool <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
               </div>
@@ -352,20 +353,18 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
         </div>
       </section>
 
-      {/* 5. TRUSTED BY PROFESSIONALS - Removed as per user request */}
-
-      {/* 6. BUILT FOR YOU - PERSONA TABS */}
+      {/* 5. BUILT FOR YOU - PERSONA TABS */}
       <section className="space-y-8 text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Built For You</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Tailored for How You Work</h2>
 
         <div className="neu-card rounded-3xl p-4 sm:p-8 max-w-4xl mx-auto space-y-6">
           {/* Persona Tabs Header */}
           <div className="flex flex-wrap items-center justify-center gap-2 pb-2 border-b border-slate-500/20">
             {[
-              { id: 'photographers', label: 'Photographers' },
-              { id: 'developers', label: 'Web Developers' },
-              { id: 'social', label: 'Social Media' },
-              { id: 'students', label: 'Students' },
+              { id: 'photographers', label: 'Photographers & Creators' },
+              { id: 'developers', label: 'Everyday Users & Students' },
+              { id: 'social', label: 'Social Media Managers' },
+              { id: 'students', label: 'Professionals & Teams' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -385,29 +384,29 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
           <div className="text-xs sm:text-sm font-medium opacity-90 max-w-2xl mx-auto leading-relaxed py-2">
             {activePersonaTab === 'photographers' && (
               <p>
-                Batch resize and watermark entire portfolios locally. Preserve EXIF data or strip it for client delivery without ever uploading a gigabyte of data.
+                Batch resize and watermark photo collections on your device. Remove hidden location data before client delivery without uploading files.
               </p>
             )}
             {activePersonaTab === 'developers' && (
               <p>
-                Convert images to WebP/AVIF, extract CSS color palettes, convert assets to Base64 strings, and validate JSON payloads instantly.
+                Merge lecture handouts, extract pages from study guides, trim audio recordings, and convert downloaded files into ready-to-share PDFs with one click.
               </p>
             )}
             {activePersonaTab === 'social' && (
               <p>
-                Crop to perfect 9:16 reels, 1:1 Instagram posts, compress videos for Discord 25MB limits, and burn subtitles with zero watermark.
+                Crop photos for reels and posts, trim video clips, and shrink file sizes under chat limits—completely watermark-free.
               </p>
             )}
             {activePersonaTab === 'students' && (
               <p>
-                Merge multi-source lecture PDFs, redact private notes, extract audio lectures, and format markdown essays with live reading time metrics.
+                Clean sensitive client data from photos, quickly convert format types, extract color schemes, and edit documents in total privacy.
               </p>
             )}
           </div>
         </div>
       </section>
 
-      {/* 7. FREQUENTLY ASKED QUESTIONS */}
+      {/* 6. FREQUENTLY ASKED QUESTIONS */}
       <section className="space-y-8 text-center max-w-3xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Frequently Asked Questions</h2>
 
@@ -437,9 +436,12 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp }) => {
         </div>
       </section>
 
-      {/* 8. CALL TO ACTION FOOTER BANNER */}
+      {/* 7. CALL TO ACTION FOOTER BANNER */}
       <section className="neu-card p-8 sm:p-12 rounded-3xl text-center space-y-6 max-w-4xl mx-auto">
-        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">Ready to regain control of your files?</h2>
+        <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">Ready to edit without the hassle?</h2>
+        <p className="text-xs sm:text-sm font-medium opacity-80 max-w-lg mx-auto">
+          No sign-up required. Choose a tool and start creating in seconds.
+        </p>
         <div>
           <button
             onClick={() => onSelectApp('pixels')}
