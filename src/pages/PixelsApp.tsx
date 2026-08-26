@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Crop,
   RotateCw,
-  Stamp,
   FileSearch,
   Palette,
   Code,
@@ -44,7 +43,6 @@ type PixelSubTool =
   | 'resize' 
   | 'crop' 
   | 'rotate' 
-  | 'watermark' 
   | 'metadata' 
   | 'palette' 
   | 'base64';
@@ -91,8 +89,6 @@ export const PixelsApp: React.FC = () => {
   const [rotation, setRotation] = useState<number>(0);
   const [flipX, setFlipX] = useState<boolean>(false);
   const [flipY, setFlipY] = useState<boolean>(false);
-  const [watermarkText, setWatermarkText] = useState<string>('GS Softwares');
-  const [watermarkOpacity, setWatermarkOpacity] = useState<number>(40);
   const [base64Output, setBase64Output] = useState<string>('');
   
   // Advanced Palette Extractor State
@@ -118,17 +114,6 @@ export const PixelsApp: React.FC = () => {
   const [cropW, setCropW] = useState<number>(100);
   const [cropH, setCropH] = useState<number>(100);
 
-  // Watermark Positioning & Typography State
-  const [watermarkX, setWatermarkX] = useState<number>(50);
-  const [watermarkY, setWatermarkY] = useState<number>(50);
-  const [watermarkFontSize, setWatermarkFontSize] = useState<number>(24);
-  const [watermarkFontFamily, setWatermarkFontFamily] = useState<string>('sans-serif');
-  const [watermarkTextColor, setWatermarkTextColor] = useState<string>('#ffffff');
-  const [watermarkStrokeColor, setWatermarkStrokeColor] = useState<string>('#000000');
-  const [watermarkStrokeWidth, setWatermarkStrokeWidth] = useState<number>(1);
-  const [watermarkBgColor, setWatermarkBgColor] = useState<string>('transparent');
-  const [watermarkBgPadding, setWatermarkBgPadding] = useState<number>(6);
-  const [isDraggingWatermark, setIsDraggingWatermark] = useState<boolean>(false);
 
   // Robust Vibration API Helper
   const triggerVibrate = (pattern: number | number[]) => {
@@ -168,17 +153,6 @@ export const PixelsApp: React.FC = () => {
       rotation,
       flipX,
       flipY,
-      watermarkText,
-      watermarkOpacity,
-      watermarkX,
-      watermarkY,
-      watermarkFontSize,
-      watermarkFontFamily,
-      watermarkTextColor,
-      watermarkStrokeColor,
-      watermarkStrokeWidth,
-      watermarkBgColor,
-      watermarkBgPadding,
       cropAspect,
       cropX,
       cropY,
@@ -215,17 +189,6 @@ export const PixelsApp: React.FC = () => {
     rotation,
     flipX,
     flipY,
-    watermarkText,
-    watermarkOpacity,
-    watermarkX,
-    watermarkY,
-    watermarkFontSize,
-    watermarkFontFamily,
-    watermarkTextColor,
-    watermarkStrokeColor,
-    watermarkStrokeWidth,
-    watermarkBgColor,
-    watermarkBgPadding,
     cropAspect,
     cropX,
     cropY,
@@ -250,17 +213,6 @@ export const PixelsApp: React.FC = () => {
     if (snap.rotation !== undefined) setRotation(snap.rotation);
     if (snap.flipX !== undefined) setFlipX(snap.flipX);
     if (snap.flipY !== undefined) setFlipY(snap.flipY);
-    if (snap.watermarkText !== undefined) setWatermarkText(snap.watermarkText);
-    if (snap.watermarkOpacity !== undefined) setWatermarkOpacity(snap.watermarkOpacity);
-    if (snap.watermarkX !== undefined) setWatermarkX(snap.watermarkX);
-    if (snap.watermarkY !== undefined) setWatermarkY(snap.watermarkY);
-    if (snap.watermarkFontSize !== undefined) setWatermarkFontSize(snap.watermarkFontSize);
-    if (snap.watermarkFontFamily !== undefined) setWatermarkFontFamily(snap.watermarkFontFamily);
-    if (snap.watermarkTextColor !== undefined) setWatermarkTextColor(snap.watermarkTextColor);
-    if (snap.watermarkStrokeColor !== undefined) setWatermarkStrokeColor(snap.watermarkStrokeColor);
-    if (snap.watermarkStrokeWidth !== undefined) setWatermarkStrokeWidth(snap.watermarkStrokeWidth);
-    if (snap.watermarkBgColor !== undefined) setWatermarkBgColor(snap.watermarkBgColor);
-    if (snap.watermarkBgPadding !== undefined) setWatermarkBgPadding(snap.watermarkBgPadding);
     if (snap.cropAspect !== undefined) setCropAspect(snap.cropAspect);
     if (snap.cropX !== undefined) setCropX(snap.cropX);
     if (snap.cropY !== undefined) setCropY(snap.cropY);
@@ -312,7 +264,6 @@ export const PixelsApp: React.FC = () => {
     { id: 'resize', name: 'Resize & Fit', icon: Layers, tagline: 'Exact PX or Scale Dimensions' },
     { id: 'crop', name: 'Crop Studio', icon: Crop, tagline: 'Aspect-Ratio Crop & Framing' },
     { id: 'rotate', name: 'Rotate & Flip', icon: RotateCw, tagline: '90°/180° Angle & Mirror' },
-    { id: 'watermark', name: 'Watermark Studio', icon: Stamp, tagline: 'Custom Text & Position Overlay' },
     { id: 'metadata', name: 'EXIF Scrubber', icon: FileSearch, tagline: 'Remove Privacy Metadata' },
     { id: 'palette', name: 'Color Extractor', icon: Palette, tagline: 'Extract Dominant Palette' },
     { id: 'base64', name: 'Base64 Encoder', icon: Code, tagline: 'Convert Image to Data URI' },
@@ -733,14 +684,6 @@ export const PixelsApp: React.FC = () => {
           icon: Crop,
           gradient: 'from-purple-600 to-indigo-600'
         };
-      case 'watermark':
-        return {
-          badge: 'Watermark Studio',
-          title: 'Paste or Drop Image to Stamp Custom Watermarks',
-          desc: 'Add custom brand typography, background badges, and drag-and-drop overlays',
-          icon: Stamp,
-          gradient: 'from-amber-600 to-orange-600'
-        };
       case 'compress':
         return {
           badge: 'Compress & Convert',
@@ -867,54 +810,6 @@ export const PixelsApp: React.FC = () => {
         }
         ctx.restore();
 
-        // Watermark Overlay on Canvas with Custom Font, Size, Stroke, and Background
-        if ((activeTool === 'watermark' || activeTool === 'studio') && watermarkText.trim()) {
-          ctx.save();
-          const wx = (watermarkX / 100) * canvas.width;
-          const wy = (watermarkY / 100) * canvas.height;
-          const fontPx = Math.max(12, Math.round((watermarkFontSize / 800) * canvas.width));
-
-          ctx.font = `bold ${fontPx}px ${watermarkFontFamily}`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-
-          const metrics = ctx.measureText(watermarkText);
-          const textWidth = metrics.width;
-          const textHeight = fontPx * 1.2;
-
-          // Render Background Box behind Text
-          if (watermarkBgColor && watermarkBgColor !== 'transparent') {
-            ctx.fillStyle = watermarkBgColor;
-            const padX = (watermarkBgPadding / 800) * canvas.width;
-            const padY = (watermarkBgPadding / 800) * canvas.height;
-            ctx.fillRect(
-              wx - textWidth / 2 - padX,
-              wy - textHeight / 2 - padY,
-              textWidth + padX * 2,
-              textHeight + padY * 2
-            );
-          }
-
-          // Render Text Stroke (Outline)
-          if (watermarkStrokeWidth > 0) {
-            ctx.strokeStyle = watermarkStrokeColor || '#000000';
-            ctx.lineWidth = Math.max(1, Math.round((watermarkStrokeWidth / 800) * canvas.width));
-            ctx.strokeText(watermarkText, wx, wy);
-          }
-
-          // Helper to parse hex to rgba
-          const hexToRgb = (hex: string, alpha: number) => {
-            let c = hex.replace('#', '');
-            if (c.length === 3) c = c.split('').map((x) => x + x).join('');
-            const num = parseInt(c, 16);
-            return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
-          };
-
-          // Render Fill Text with Selected Color Wheel Choice
-          ctx.fillStyle = hexToRgb(watermarkTextColor, watermarkOpacity / 100);
-          ctx.fillText(watermarkText, wx, wy);
-          ctx.restore();
-        }
 
         // Optimization for Low-End Devices: Downscale max preview dimensions during live editing
         const MAX_PREVIEW_DIM = 1920;
@@ -985,7 +880,7 @@ export const PixelsApp: React.FC = () => {
 
   // Real-time automatic processing on control or image changes
   useEffect(() => {
-    if (images.length === 0 || isDraggingWatermark) return;
+    if (images.length === 0) return;
     let isCancelled = false;
 
     const runRealTimeProcessing = async () => {
@@ -1007,8 +902,7 @@ export const PixelsApp: React.FC = () => {
       }
     };
 
-    // Fast 30ms real-time drag debounce for Watermark, 250ms threshold for heavy operations
-    const timeout = setTimeout(runRealTimeProcessing, activeTool === 'watermark' ? 30 : 250);
+    const timeout = setTimeout(runRealTimeProcessing, 250);
 
     return () => {
       isCancelled = true;
@@ -1031,18 +925,6 @@ export const PixelsApp: React.FC = () => {
     rotation,
     flipX,
     flipY,
-    watermarkText,
-    watermarkOpacity,
-    watermarkX,
-    watermarkY,
-    watermarkFontSize,
-    watermarkFontFamily,
-    watermarkTextColor,
-    watermarkStrokeColor,
-    watermarkStrokeWidth,
-    watermarkBgColor,
-    watermarkBgPadding,
-    isDraggingWatermark,
     activeTool,
     cropAspect,
     cropX,
@@ -1127,7 +1009,7 @@ export const PixelsApp: React.FC = () => {
           </div>
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">GS-Pixels Studio</h1>
-            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Complete suite: Resize, Crop, Compress, Rotate, Watermark, EXIF, Palette &amp; Base64</p>
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Complete suite: Resize, Crop, Compress, Rotate, EXIF Scrubber, Palette &amp; Base64</p>
           </div>
         </div>
 
@@ -1536,201 +1418,6 @@ export const PixelsApp: React.FC = () => {
             </div>
           )}
 
-          {/* WATERMARK CONTROLS */}
-          {(activeTool === 'watermark' || activeTool === 'studio') && (
-            <div className="space-y-4 pt-2 border-t border-white/10">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-slate-300">Watermark Text</label>
-                <span className="text-[10px] text-cyan-400 font-bold">Hold & drag to place</span>
-              </div>
-              {/* Watermark Text Input */}
-              <input
-                type="text"
-                value={watermarkText}
-                onChange={(e) => setWatermarkText(e.target.value)}
-                className="w-full px-3 py-1.5 rounded-lg bg-black border border-white/10 text-xs text-white"
-                placeholder="Watermark / Copyright..."
-              />
-
-              {/* Text Color Wheel Picker */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Text Color Wheel</span>
-                  <span className="font-mono text-cyan-400 font-bold">{watermarkTextColor}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={watermarkTextColor}
-                    onChange={(e) => setWatermarkTextColor(e.target.value)}
-                    className="w-full h-8 rounded-lg bg-black border border-white/20 cursor-pointer p-0.5"
-                    title="Select watermark text color from color wheel"
-                  />
-                  {['#ffffff', '#000000', '#06b6d4', '#f59e0b', '#10b981', '#ef4444'].map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setWatermarkTextColor(c)}
-                      className={`w-6 h-6 rounded-full border transition-all ${
-                        watermarkTextColor === c ? 'border-cyan-400 scale-110 shadow' : 'border-white/20'
-                      }`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Font Size */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Font Size</span>
-                  <span className="text-cyan-400 font-bold">{watermarkFontSize}px</span>
-                </div>
-                <input
-                  type="range"
-                  min="12"
-                  max="72"
-                  value={watermarkFontSize}
-                  onChange={(e) => setWatermarkFontSize(Number(e.target.value))}
-                  className="w-full accent-cyan-500 cursor-pointer"
-                />
-              </div>
-
-              {/* Font Family */}
-              <div className="space-y-1">
-                <label className="text-xs text-slate-400">Font Style</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[
-                    { id: 'sans-serif', label: 'Sans' },
-                    { id: 'serif', label: 'Serif' },
-                    { id: 'monospace', label: 'Mono' },
-                    { id: 'cursive', label: 'Script' },
-                    { id: 'Impact, sans-serif', label: 'Impact' },
-                    { id: 'Outfit, sans-serif', label: 'Display' },
-                  ].map((f) => (
-                    <button
-                      key={f.id}
-                      onClick={() => setWatermarkFontFamily(f.id)}
-                      className={`py-1 rounded-lg text-xs font-bold border transition-all ${
-                        watermarkFontFamily === f.id
-                          ? 'bg-cyan-600 border-cyan-500 text-white'
-                          : 'bg-black border-white/10 text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stroke / Outline */}
-              <div className="space-y-2 pt-1 border-t border-white/10">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Text Stroke / Outline</span>
-                  <span className="text-cyan-400 font-bold">{watermarkStrokeWidth}px</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="6"
-                    value={watermarkStrokeWidth}
-                    onChange={(e) => setWatermarkStrokeWidth(Number(e.target.value))}
-                    className="w-full accent-cyan-500 cursor-pointer flex-1"
-                  />
-                  <input
-                    type="color"
-                    value={watermarkStrokeColor}
-                    onChange={(e) => setWatermarkStrokeColor(e.target.value)}
-                    className="w-7 h-7 rounded-lg bg-black border border-white/20 cursor-pointer p-0.5"
-                    title="Stroke Color"
-                  />
-                </div>
-              </div>
-
-              {/* Background Box Fill */}
-              <div className="space-y-2 pt-1 border-t border-white/10">
-                <label className="text-xs text-slate-400">Background Box Fill</label>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setWatermarkBgColor('transparent')}
-                    className={`px-2 py-1 rounded-lg text-xs font-bold border ${
-                      watermarkBgColor === 'transparent' ? 'bg-cyan-600 border-cyan-500 text-white' : 'bg-black border-white/10 text-slate-400'
-                    }`}
-                  >
-                    None
-                  </button>
-                  {['#000000', '#ffffff', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'].map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setWatermarkBgColor(color)}
-                      className={`w-6 h-6 rounded-full border transition-all ${
-                        watermarkBgColor === color ? 'border-cyan-400 scale-110 shadow-md' : 'border-white/20'
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Opacity */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Opacity</span>
-                  <span className="text-cyan-400 font-bold">{watermarkOpacity}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={watermarkOpacity}
-                  onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
-                  className="w-full accent-cyan-500 cursor-pointer"
-                />
-              </div>
-
-              {/* Pos X & Pos Y */}
-              <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] text-slate-400">
-                    <span>Pos X</span>
-                    <span className="text-cyan-400 font-bold">{watermarkX}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="5"
-                    max="95"
-                    value={watermarkX}
-                    onChange={(e) => setWatermarkX(Number(e.target.value))}
-                    className="w-full accent-cyan-500 cursor-pointer"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] text-slate-400">
-                    <span>Pos Y</span>
-                    <span className="text-cyan-400 font-bold">{watermarkY}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="5"
-                    max="95"
-                    value={watermarkY}
-                    onChange={(e) => setWatermarkY(Number(e.target.value))}
-                    className="w-full accent-cyan-500 cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setWatermarkX(50);
-                  setWatermarkY(50);
-                }}
-                className="w-full py-1 rounded-lg text-[11px] font-bold bg-neutral-900 border border-white/10 text-slate-400 hover:text-white transition-all"
-              >
-                Reset Center Position (50%, 50%)
-              </button>
-            </div>
-          )}
 
           {/* Apply Settings to All Images Button */}
           {images.length > 1 && (
@@ -2182,70 +1869,7 @@ export const PixelsApp: React.FC = () => {
                       }`}
                     >
                       <div
-                        onMouseDown={(e) => {
-                          if (activeTool !== 'watermark' && !watermarkText.trim()) return;
-                          setIsDraggingWatermark(true);
-                          triggerVibrate(35);
-
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const updatePos = (clientX: number, clientY: number) => {
-                            const xPercent = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100));
-                            const yPercent = Math.max(5, Math.min(95, ((clientY - rect.top) / rect.height) * 100));
-                            setWatermarkX(Math.round(xPercent));
-                            setWatermarkY(Math.round(yPercent));
-                          };
-
-                          updatePos(e.clientX, e.clientY);
-
-                          const handleMouseMove = (moveEvent: MouseEvent) => {
-                            updatePos(moveEvent.clientX, moveEvent.clientY);
-                          };
-
-                          const handleMouseUp = () => {
-                            setIsDraggingWatermark(false);
-                            triggerVibrate([20, 15, 20]);
-                            window.removeEventListener('mousemove', handleMouseMove);
-                            window.removeEventListener('mouseup', handleMouseUp);
-                          };
-
-                          window.addEventListener('mousemove', handleMouseMove);
-                          window.addEventListener('mouseup', handleMouseUp);
-                        }}
-                        onTouchStart={(e) => {
-                          if (activeTool !== 'watermark' && !watermarkText.trim()) return;
-                          setIsDraggingWatermark(true);
-                          triggerVibrate(35);
-
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          if (!e.touches[0]) return;
-
-                          const updatePos = (clientX: number, clientY: number) => {
-                            const xPercent = Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100));
-                            const yPercent = Math.max(5, Math.min(95, ((clientY - rect.top) / rect.height) * 100));
-                            setWatermarkX(Math.round(xPercent));
-                            setWatermarkY(Math.round(yPercent));
-                          };
-
-                          updatePos(e.touches[0].clientX, e.touches[0].clientY);
-
-                          const handleTouchMove = (touchEvent: TouchEvent) => {
-                            if (!touchEvent.touches[0]) return;
-                            updatePos(touchEvent.touches[0].clientX, touchEvent.touches[0].clientY);
-                          };
-
-                          const handleTouchEnd = () => {
-                            setIsDraggingWatermark(false);
-                            triggerVibrate([20, 15, 20]);
-                            window.removeEventListener('touchmove', handleTouchMove);
-                            window.removeEventListener('touchend', handleTouchEnd);
-                          };
-
-                          window.addEventListener('touchmove', handleTouchMove);
-                          window.addEventListener('touchend', handleTouchEnd);
-                        }}
-                        className={`relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10 flex items-center justify-center shadow-inner group/thumb select-none ${
-                          activeTool === 'watermark' ? 'cursor-crosshair' : ''
-                        }`}
+                        className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10 flex items-center justify-center shadow-inner group/thumb select-none"
                       >
                         <img
                           src={item.processedUrl || item.previewUrl}
@@ -2256,31 +1880,6 @@ export const PixelsApp: React.FC = () => {
                             transform: `rotate(${rotation}deg) scaleX(${flipX ? -1 : 1}) scaleY(${flipY ? -1 : 1})`
                           }}
                         />
-
-                        {/* Instant Real-Time Draggable DOM Overlay Text */}
-                        {(activeTool === 'watermark' || isDraggingWatermark) && watermarkText.trim() !== '' && (
-                          <div
-                            style={{
-                              left: `${watermarkX}%`,
-                              top: `${watermarkY}%`,
-                              transform: `translate(-50%, -50%) scale(${isDraggingWatermark ? 1.2 : 1})`,
-                              opacity: watermarkOpacity / 100,
-                              fontSize: `${Math.max(14, Math.min(36, watermarkFontSize))}px`,
-                              fontFamily: watermarkFontFamily,
-                              color: watermarkTextColor,
-                              backgroundColor: watermarkBgColor === 'transparent' ? 'transparent' : watermarkBgColor,
-                              padding: watermarkBgColor === 'transparent' ? '0px' : `${watermarkBgPadding}px`,
-                              WebkitTextStroke: watermarkStrokeWidth > 0 ? `${watermarkStrokeWidth}px ${watermarkStrokeColor}` : 'none'
-                            }}
-                            className={`absolute z-30 cursor-move font-bold select-none transition-transform duration-75 whitespace-nowrap drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] pointer-events-none ${
-                              isDraggingWatermark
-                                ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-black scale-120 shadow-2xl rounded-lg'
-                                : 'hover:outline hover:outline-dashed hover:outline-cyan-400/80 hover:outline-1 hover:px-1 rounded'
-                            }`}
-                          >
-                            {watermarkText}
-                          </div>
-                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

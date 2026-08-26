@@ -40,7 +40,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      'canvas-confetti': path.resolve(__dirname, './src/lib/confetti.ts')
     }
   },
   server: {

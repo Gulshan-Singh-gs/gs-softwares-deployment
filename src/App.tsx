@@ -7,6 +7,9 @@ import { PdfApp } from './pages/PdfApp';
 import { VideoApp } from './pages/VideoApp';
 import { AudioApp } from './pages/AudioApp';
 import { TextApp } from './pages/TextApp';
+import { SecurityApp } from './pages/SecurityApp';
+import { HashApp } from './pages/HashApp';
+import { BridgeApp } from './pages/BridgeApp';
 import { PWALoadingScreen } from './components/PWALoadingScreen';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { PerformanceToast } from './components/settings/PerformanceToast';
@@ -75,6 +78,9 @@ function AppContent() {
             {currentApp === 'video' && <VideoApp />}
             {currentApp === 'audio' && <AudioApp />}
             {currentApp === 'text' && <TextApp />}
+            {currentApp === 'security' && <SecurityApp />}
+            {currentApp === 'hash' && <HashApp />}
+            {currentApp === 'bridge' && <BridgeApp />}
           </>
         )}
       </main>

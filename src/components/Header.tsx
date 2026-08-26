@@ -17,7 +17,9 @@ import {
   X,
   Zap,
   Download,
-  Sliders
+  Sliders,
+  Lock,
+  Hash
 } from 'lucide-react';
 import { usePerformanceTier } from '../context/PerformanceContext';
 
@@ -114,6 +116,9 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
     { id: 'video', label: 'GS-Video', icon: Video, badge: 'WASM Video' },
     { id: 'audio', label: 'GS-Audio', icon: Music, badge: 'WebAudio' },
     { id: 'text', label: 'GS-Text', icon: FileCode, badge: 'Code & Diff' },
+    { id: 'bridge', label: 'GS-Bridge', icon: Sparkles, badge: 'Transmutation' },
+    { id: 'security', label: 'GS-Security', icon: Lock, badge: 'AES-256' },
+    { id: 'hash', label: 'GS-Hash', icon: Sliders, badge: 'Checksum' },
   ];
 
   return (

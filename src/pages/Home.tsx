@@ -136,6 +136,27 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
       desc: 'Convert pictures and documents into clean, shareable PDFs',
       icon: FileText,
       subTool: 'doc'
+    },
+    {
+      id: 'bridge',
+      title: 'Cross-Domain Bridge (Transmutation)',
+      desc: 'Transmute video to audio, images to PDF, PDF to images, OCR text and smart archives',
+      icon: Sparkles,
+      subTool: 'bridge'
+    },
+    {
+      id: 'security',
+      title: 'AES-256 File Encryption',
+      desc: 'Encrypt & decrypt sensitive files with PBKDF2 master passphrase protection',
+      icon: Lock,
+      subTool: 'encrypt'
+    },
+    {
+      id: 'hash',
+      title: 'SHA Checksum & Integrity',
+      desc: 'Calculate SHA-256 / SHA-512 cryptographic hashes and detect tampering',
+      icon: Sliders,
+      subTool: 'hash'
     }
   ];
 
