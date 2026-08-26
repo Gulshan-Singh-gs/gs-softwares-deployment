@@ -240,23 +240,27 @@ export const PerformanceProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const setOverrides = useCallback(
     (partial: Partial<ManualOverrides>) => {
-      const updated: ManualOverrides = { ...overrides, ...partial };
-      setOverridesState(updated);
-      persistPerf(tier, isAutoDetected, updated, benchmarkScore);
+      setOverridesState((prevOverrides) => {
+        const updated: ManualOverrides = { ...prevOverrides, enabled: true, ...partial };
+        setIsAutoDetected(false);
+        persistPerf(tier, false, updated, benchmarkScore);
 
-      setSettingsState((prev) => {
-        const next = {
-          ...prev,
-          'perf.autoDetect': !updated.enabled,
-          ...(updated.customWorkerCount && { 'perf.workerCountOverride': updated.customWorkerCount }),
-          ...(updated.customGpuAcceleration && { 'perf.gpuOverride': updated.customGpuAcceleration as any }),
-          ...(updated.customMemoryBudgetMB && { 'perf.memoryOverrideMB': updated.customMemoryBudgetMB }),
-        };
-        persistSettings(next);
-        return next;
+        setSettingsState((prev) => {
+          const next = {
+            ...prev,
+            'perf.autoDetect': false,
+            ...(updated.customWorkerCount !== undefined && { 'perf.workerCountOverride': updated.customWorkerCount }),
+            ...(updated.customGpuAcceleration !== undefined && { 'perf.gpuOverride': updated.customGpuAcceleration as any }),
+            ...(updated.customMemoryBudgetMB !== undefined && { 'perf.memoryOverrideMB': updated.customMemoryBudgetMB }),
+          };
+          persistSettings(next);
+          return next;
+        });
+
+        return updated;
       });
     },
-    [overrides, tier, isAutoDetected, benchmarkScore, persistPerf]
+    [tier, benchmarkScore, persistPerf]
   );
 
   const resetToAutoDetect = useCallback(async () => {

@@ -36,6 +36,7 @@ import {
   extractSmartZip
 } from '../lib/bridgeEngine';
 import { downloadBlob, formatBytes } from '../lib/fileUtils';
+import { saveWorkspaceFile } from '../lib/db';
 import confetti from 'canvas-confetti';
 
 export type BridgeToolId =
@@ -49,7 +50,11 @@ export type BridgeToolId =
   | 'smart-zip'
   | 'smart-unzip';
 
-export const BridgeApp: React.FC = () => {
+interface BridgeAppProps {
+  onNavigate?: (app: string) => void;
+}
+
+export const BridgeApp: React.FC<BridgeAppProps> = ({ onNavigate }) => {
   const [activeTool, setActiveTool] = useState<BridgeToolId>('images-to-pdf');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [rawText, setRawText] = useState<string>('# GS-Bridge Master Notes\n\nCross-domain processing running 100% locally in browser memory.\n\n- Zero Cloud Latency\n- True Data Sovereignty\n- Powered by WebAssembly & Web Audio');
@@ -59,6 +64,7 @@ export const BridgeApp: React.FC = () => {
   const [unzippedFiles, setUnzippedFiles] = useState<{ name: string; blob: Blob; size: number }[]>([]);
   const [copied, setCopied] = useState<boolean>(false);
   const [ttsPlaying, setTtsPlaying] = useState<boolean>(false);
+  const [sentToAudio, setSentToAudio] = useState<boolean>(false);
 
   const { state, process, setProgress, reset } = useProcessingState<Blob>();
 
@@ -404,13 +410,46 @@ export const BridgeApp: React.FC = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleDownload}
-                  className="w-full py-3.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download Transmuted Artifact</span>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    onClick={handleDownload}
+                    className="flex-1 py-3.5 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Transmuted Artifact</span>
+                  </button>
+
+                  {activeTool === 'video-to-audio' && (
+                    <button
+                      onClick={async () => {
+                        if (!state.result) return;
+                        try {
+                          const buffer = await state.result.arrayBuffer();
+                          await saveWorkspaceFile({
+                            id: `take_${Date.now()}`,
+                            app: 'audio',
+                            name: selectedFiles[0] ? selectedFiles[0].name.replace(/\.[^/.]+$/, '.wav') : 'Extracted_Audio.wav',
+                            type: 'audio/wav',
+                            size: state.result.size,
+                            data: buffer,
+                            metadata: { duration: 30 },
+                            timestamp: Date.now()
+                          });
+                          setSentToAudio(true);
+                          if (onNavigate) {
+                            setTimeout(() => onNavigate('audio'), 400);
+                          }
+                        } catch (err) {
+                          console.error('Failed to handoff to GS Audio:', err);
+                        }
+                      }}
+                      className="py-3.5 px-5 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xs font-bold shadow-lg shadow-pink-600/30 flex items-center justify-center gap-2 transition-transform hover:scale-[1.02]"
+                    >
+                      <Music className="w-4 h-4" />
+                      <span>{sentToAudio ? 'Loaded to GS-Audio!' : 'Load to GS-Audio'}</span>
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 

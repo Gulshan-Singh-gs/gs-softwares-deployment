@@ -82,6 +82,12 @@ export const PixelsApp: React.FC = () => {
   const [aspectLock, setAspectLock] = useState<boolean>(true);
   const [brightness, setBrightness] = useState<number>(100);
   const [contrast, setContrast] = useState<number>(100);
+  const [saturation, setSaturation] = useState<number>(100);
+  const [blueTone, setBlueTone] = useState<number>(0);
+  const [skinTone, setSkinTone] = useState<number>(0);
+  const [tint, setTint] = useState<number>(0);
+  const [warmth, setWarmth] = useState<number>(0);
+  const [straighten, setStraighten] = useState<number>(0);
   const [blur, setBlur] = useState<number>(0);
   const [grayscale, setGrayscale] = useState<boolean>(false);
   const [sepia, setSepia] = useState<boolean>(false);
@@ -89,6 +95,7 @@ export const PixelsApp: React.FC = () => {
   const [rotation, setRotation] = useState<number>(0);
   const [flipX, setFlipX] = useState<boolean>(false);
   const [flipY, setFlipY] = useState<boolean>(false);
+  const [toolSearch, setToolSearch] = useState<string>('');
   const [base64Output, setBase64Output] = useState<string>('');
   
   // Advanced Palette Extractor State
@@ -146,6 +153,12 @@ export const PixelsApp: React.FC = () => {
       targetHeight,
       brightness,
       contrast,
+      saturation,
+      blueTone,
+      skinTone,
+      tint,
+      warmth,
+      straighten,
       blur,
       grayscale,
       sepia,
@@ -182,6 +195,12 @@ export const PixelsApp: React.FC = () => {
     targetHeight,
     brightness,
     contrast,
+    saturation,
+    blueTone,
+    skinTone,
+    tint,
+    warmth,
+    straighten,
     blur,
     grayscale,
     sepia,
@@ -206,6 +225,12 @@ export const PixelsApp: React.FC = () => {
     if (snap.targetHeight !== undefined) setTargetHeight(snap.targetHeight);
     if (snap.brightness !== undefined) setBrightness(snap.brightness);
     if (snap.contrast !== undefined) setContrast(snap.contrast);
+    if (snap.saturation !== undefined) setSaturation(snap.saturation);
+    if (snap.blueTone !== undefined) setBlueTone(snap.blueTone);
+    if (snap.skinTone !== undefined) setSkinTone(snap.skinTone);
+    if (snap.tint !== undefined) setTint(snap.tint);
+    if (snap.warmth !== undefined) setWarmth(snap.warmth);
+    if (snap.straighten !== undefined) setStraighten(snap.straighten);
     if (snap.blur !== undefined) setBlur(snap.blur);
     if (snap.grayscale !== undefined) setGrayscale(snap.grayscale);
     if (snap.sepia !== undefined) setSepia(snap.sepia);
@@ -791,17 +816,18 @@ export const PixelsApp: React.FC = () => {
         }
 
         // Apply filters
-        let filterStr = `brightness(${brightness}%) contrast(${contrast}%)`;
+        let filterStr = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
         if (blur > 0) filterStr += ` blur(${blur}px)`;
         if (grayscale) filterStr += ` grayscale(100%)`;
         if (sepia) filterStr += ` sepia(100%)`;
         if (invert) filterStr += ` invert(100%)`;
         ctx.filter = filterStr;
 
-        // Transformation matrix
+        // Transformation matrix (including straighten angle + 90deg steps)
+        const totalAngle = ((rotation + straighten) * Math.PI) / 180;
         ctx.save();
         ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate((rotation * Math.PI) / 180);
+        ctx.rotate(totalAngle);
         ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
         if (activeTool === 'crop' || cropW < 100 || cropH < 100 || cropX > 0 || cropY > 0) {
           ctx.drawImage(img, sx, sy, sw, sh, -w / 2, -h / 2, w, h);
@@ -809,6 +835,56 @@ export const PixelsApp: React.FC = () => {
           ctx.drawImage(img, -w / 2, -h / 2, w, h);
         }
         ctx.restore();
+
+        // Secondary Pass: Pixel-level tone balancing (Blue tone, Skin tone warmth, Tint)
+        if (blueTone !== 0 || skinTone !== 0 || tint !== 0 || warmth !== 0) {
+          try {
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+              let r = d[i];
+              let g = d[i + 1];
+              let b = d[i + 2];
+
+              // Warmth / Coolness (Red vs Blue shift)
+              if (warmth !== 0) {
+                r += warmth * 1.2;
+                b -= warmth * 1.0;
+              }
+
+              // Blue Tone (Selective sky/blue boost or soften)
+              if (blueTone !== 0) {
+                b += blueTone * 1.5;
+                if (blueTone < 0) {
+                  r -= blueTone * 0.3;
+                }
+              }
+
+              // Skin Tone warmth & exposure balance (targeted at mid-warm tones)
+              if (skinTone !== 0) {
+                if (r > g && g > b) {
+                  r += skinTone * 1.1;
+                  g += skinTone * 0.7;
+                  b -= skinTone * 0.4;
+                }
+              }
+
+              // Tint balance (Magenta vs Green)
+              if (tint !== 0) {
+                r += tint * 0.8;
+                g -= tint * 0.8;
+                b += tint * 0.8;
+              }
+
+              d[i] = Math.min(255, Math.max(0, r));
+              d[i + 1] = Math.min(255, Math.max(0, g));
+              d[i + 2] = Math.min(255, Math.max(0, b));
+            }
+            ctx.putImageData(imgData, 0, 0);
+          } catch (e) {
+            console.warn('Tone adjustment pass skipped:', e);
+          }
+        }
 
 
         // Optimization for Low-End Devices: Downscale max preview dimensions during live editing
@@ -1158,56 +1234,233 @@ export const PixelsApp: React.FC = () => {
 
           {/* STUDIO LIVE ADJUSTMENTS */}
           {activeTool === 'studio' && (
-            <div className="space-y-3 pt-2 border-t border-slate-800">
-              <label className="text-xs font-semibold text-slate-300">Live Image Filters & Effects</label>
-              
-              {/* Brightness */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Brightness</span>
-                  <span className="text-cyan-400 font-bold">{brightness}%</span>
-                </div>
+            <div className="space-y-4 pt-2 border-t border-slate-800">
+              {/* Search editing tools bar */}
+              <div className="relative">
                 <input
-                  type="range"
-                  min="20"
-                  max="200"
-                  value={brightness}
-                  onChange={(e) => setBrightness(Number(e.target.value))}
-                  className="w-full accent-cyan-500 cursor-pointer"
+                  type="text"
+                  value={toolSearch}
+                  onChange={(e) => setToolSearch(e.target.value)}
+                  placeholder="Search editing tools (warmth, tint, tone...)"
+                  className="w-full px-3.5 py-2 pl-9 rounded-xl neu-inset bg-slate-900 border border-slate-800 text-xs text-white placeholder:text-slate-500"
                 />
+                <Filter className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
+                {toolSearch && (
+                  <button
+                    onClick={() => setToolSearch('')}
+                    className="absolute right-2.5 top-2 text-[10px] text-slate-400 hover:text-white"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
 
-              {/* Contrast */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Contrast</span>
-                  <span className="text-cyan-400 font-bold">{contrast}%</span>
+              {/* Blue Tone */}
+              {(!toolSearch || 'blue tone'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Blue tone</p>
+                      <p className="text-[10px] text-slate-400">Increase to make blues more vivid, decrease to soften</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{blueTone > 0 ? `+${blueTone}` : blueTone}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-50"
+                    max="50"
+                    value={blueTone}
+                    onChange={(e) => setBlueTone(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="20"
-                  max="200"
-                  value={contrast}
-                  onChange={(e) => setContrast(Number(e.target.value))}
-                  className="w-full accent-cyan-500 cursor-pointer"
-                />
-              </div>
+              )}
+
+              {/* Saturation */}
+              {(!toolSearch || 'saturation'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Saturation</p>
+                      <p className="text-[10px] text-slate-400">Make the colors more or less vibrant</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{saturation}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200"
+                    value={saturation}
+                    onChange={(e) => setSaturation(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Skin Tone */}
+              {(!toolSearch || 'skin tone'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Skin tone</p>
+                      <p className="text-[10px] text-slate-400">Increase for warmth, decrease for overexposed areas</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{skinTone > 0 ? `+${skinTone}` : skinTone}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-40"
+                    max="40"
+                    value={skinTone}
+                    onChange={(e) => setSkinTone(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Tint */}
+              {(!toolSearch || 'tint'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Tint</p>
+                      <p className="text-[10px] text-slate-400">Adjust the color balance by adding more magenta or green</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{tint > 0 ? `+${tint}` : tint}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-40"
+                    max="40"
+                    value={tint}
+                    onChange={(e) => setTint(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Warmth */}
+              {(!toolSearch || 'warmth'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Warmth</p>
+                      <p className="text-[10px] text-slate-400">Make the image appear warmer or cooler</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{warmth > 0 ? `+${warmth}` : warmth}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-50"
+                    max="50"
+                    value={warmth}
+                    onChange={(e) => setWarmth(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Straighten */}
+              {(!toolSearch || 'straighten'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Straighten</p>
+                      <p className="text-[10px] text-slate-400">Make image look like it's being viewed from a straight angle</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{straighten}°</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-45"
+                    max="45"
+                    value={straighten}
+                    onChange={(e) => setStraighten(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Brightness */}
+              {(!toolSearch || 'brightness'.includes(toolSearch.toLowerCase())) && (
+                <div className="p-3 rounded-2xl neu-inset space-y-1.5 border border-slate-800/80">
+                  <div className="flex justify-between items-center text-xs">
+                    <div>
+                      <p className="font-bold text-white">Brightness</p>
+                      <p className="text-[10px] text-slate-400">Lighten or darken image to balance exposure</p>
+                    </div>
+                    <span className="text-cyan-400 font-mono font-bold text-xs">{brightness}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="20"
+                    max="200"
+                    value={brightness}
+                    onChange={(e) => setBrightness(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Contrast & Blur Controls */}
+              {(!toolSearch || 'contrast'.includes(toolSearch.toLowerCase())) && (
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Contrast</span>
+                    <span className="text-cyan-400 font-bold">{contrast}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="20"
+                    max="200"
+                    value={contrast}
+                    onChange={(e) => setContrast(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
+                </div>
+              )}
 
               {/* Blur */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-400">Blur</span>
-                  <span className="text-cyan-400 font-bold">{blur}px</span>
+              {(!toolSearch || 'blur'.includes(toolSearch.toLowerCase())) && (
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Blur</span>
+                    <span className="text-cyan-400 font-bold">{blur}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={blur}
+                    onChange={(e) => setBlur(Number(e.target.value))}
+                    className="w-full accent-cyan-500 cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  value={blur}
-                  onChange={(e) => setBlur(Number(e.target.value))}
-                  className="w-full accent-cyan-500 cursor-pointer"
-                />
-              </div>
+              )}
+
+              {/* Quick Reset All Adjustments */}
+              <button
+                onClick={() => {
+                  setBrightness(100);
+                  setContrast(100);
+                  setSaturation(100);
+                  setBlueTone(0);
+                  setSkinTone(0);
+                  setTint(0);
+                  setWarmth(0);
+                  setStraighten(0);
+                  setBlur(0);
+                  setGrayscale(false);
+                  setSepia(false);
+                  setInvert(false);
+                  setRotation(0);
+                  setFlipX(false);
+                  setFlipY(false);
+                }}
+                className="w-full py-2 rounded-xl text-xs font-bold neu-btn border border-slate-700 hover:border-cyan-500/50 text-slate-300 transition-all"
+              >
+                Reset All Image Adjustments
+              </button>
 
               {/* Preset Filter Toggles */}
               <div className="grid grid-cols-3 gap-2 pt-1">

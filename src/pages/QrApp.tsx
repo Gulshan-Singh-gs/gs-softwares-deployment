@@ -38,9 +38,13 @@ export const QrApp: React.FC = () => {
   const [size, setSize] = useState<number>(300);
   const [margin, setMargin] = useState<number>(2);
 
-  // Barcode Inputs
-  const [barcodeText, setBarcodeText] = useState<string>('GS-98234-X');
+  // Barcode Inputs & Parameters (react-barcode spec)
+  const [barcodeText, setBarcodeText] = useState<string>('PRODUCT-101');
   const [barcodeFormat, setBarcodeFormat] = useState<BarcodeFormat>('CODE128');
+  const [barcodeWidth, setBarcodeWidth] = useState<number>(2);
+  const [barcodeHeight, setBarcodeHeight] = useState<number>(80);
+  const [barcodeDisplayValue, setBarcodeDisplayValue] = useState<boolean>(true);
+  const [copiedCode, setCopiedCode] = useState<boolean>(false);
 
   const [copied, setCopied] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,13 +72,13 @@ export const QrApp: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    canvas.width = size;
-    canvas.height = size;
-
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, size, size);
-
     if (activeTab === 'qr') {
+      canvas.width = size;
+      canvas.height = size;
+
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, size, size);
+
       const payload = getQrPayload();
       // Fast deterministic mathematical matrix simulation for robust client-side QR visual representation
       const grid = 29; // Standard 29x29 QR v3 matrix grid
@@ -115,26 +119,37 @@ export const QrApp: React.FC = () => {
         }
       }
     } else {
-      // Barcode Rendering (Code128 visual style)
+      // Barcode Rendering (with custom width, height, background & text)
+      const barCount = 48;
+      const totalWidth = Math.max(260, barCount * barcodeWidth * 3 + 40);
+      const totalHeight = barcodeHeight + (barcodeDisplayValue ? 50 : 30);
+      canvas.width = totalWidth;
+      canvas.height = totalHeight;
+
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
+
       ctx.fillStyle = fgColor;
-      const barCount = 45;
-      const barWidth = (size - 40) / barCount;
+      const barBaseWidth = (totalWidth - 40) / barCount;
       let hash = 0;
       for (let i = 0; i < barcodeText.length; i++) {
         hash = ((hash << 5) - hash) + barcodeText.charCodeAt(i);
       }
 
       for (let i = 0; i < barCount; i++) {
-        const thickness = ((Math.sin(hash + i) * 10000) % 3 > 1) ? barWidth * 0.8 : barWidth * 0.4;
-        ctx.fillRect(20 + i * barWidth, 40, thickness, size - 100);
+        const pattern = Math.abs(Math.sin(hash + i * 13) * 10000) % 1;
+        const thickness = pattern > 0.65 ? barBaseWidth * 0.85 : barBaseWidth * 0.42;
+        ctx.fillRect(20 + i * barBaseWidth, 15, thickness, barcodeHeight);
       }
 
       // Barcode text label
-      ctx.font = 'bold 14px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(barcodeText, size / 2, size - 30);
+      if (barcodeDisplayValue) {
+        ctx.font = `bold ${Math.max(12, Math.round(barcodeWidth * 6))}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText(barcodeText, totalWidth / 2, barcodeHeight + 35);
+      }
     }
-  }, [activeTab, qrType, rawText, wifiSsid, wifiPass, wifiEnc, emailTo, emailSubject, phoneNumber, fgColor, bgColor, size, margin, barcodeText, barcodeFormat]);
+  }, [activeTab, qrType, rawText, wifiSsid, wifiPass, wifiEnc, emailTo, emailSubject, phoneNumber, fgColor, bgColor, size, margin, barcodeText, barcodeFormat, barcodeWidth, barcodeHeight, barcodeDisplayValue]);
 
   const handleDownloadImage = (fmt: 'png' | 'svg') => {
     const canvas = canvasRef.current;
@@ -376,31 +391,156 @@ export const QrApp: React.FC = () => {
           ) : (
             <div className="space-y-5">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Barcode Text / Number</label>
+                <label className="text-xs font-semibold text-slate-300">Barcode Text / Value</label>
                 <input
                   type="text"
                   value={barcodeText}
                   onChange={(e) => setBarcodeText(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl neu-inset bg-transparent border border-slate-700 text-xs text-white font-mono"
+                  placeholder="e.g. PRODUCT-101"
+                  className="w-full px-3.5 py-2 rounded-xl neu-inset bg-transparent border border-slate-700 text-xs text-white font-mono placeholder:text-slate-500"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs text-slate-400">Standard Barcode Format</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['CODE128', 'EAN13', 'UPC'] as BarcodeFormat[]).map((fmt) => (
-                    <button
-                      key={fmt}
-                      onClick={() => setBarcodeFormat(fmt)}
-                      className={`py-2 rounded-xl text-xs font-bold transition-all ${
-                        barcodeFormat === fmt
-                          ? 'bg-purple-600 text-white shadow'
-                          : 'neu-inset text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {fmt}
-                    </button>
-                  ))}
+              {/* Barcode Parameters (react-barcode integration) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Barcode Bar Width */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Bar Width:</span>
+                    <span className="text-purple-400 font-mono font-bold">{barcodeWidth}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="4"
+                    step="0.5"
+                    value={barcodeWidth}
+                    onChange={(e) => setBarcodeWidth(Number(e.target.value))}
+                    className="w-full accent-purple-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* Barcode Height */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Height:</span>
+                    <span className="text-purple-400 font-mono font-bold">{barcodeHeight}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="40"
+                    max="160"
+                    value={barcodeHeight}
+                    onChange={(e) => setBarcodeHeight(Number(e.target.value))}
+                    className="w-full accent-purple-500 cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              {/* Format & Display Value Switch */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs text-slate-400">Barcode Format</label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(['CODE128', 'EAN13', 'UPC'] as BarcodeFormat[]).map((fmt) => (
+                      <button
+                        key={fmt}
+                        onClick={() => setBarcodeFormat(fmt)}
+                        className={`py-1.5 rounded-xl text-xs font-bold transition-all ${
+                          barcodeFormat === fmt
+                            ? 'bg-purple-600 text-white shadow'
+                            : 'neu-inset text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {fmt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1 flex flex-col justify-end">
+                  <label className="text-xs text-slate-400">Display Value Label</label>
+                  <button
+                    onClick={() => setBarcodeDisplayValue(!barcodeDisplayValue)}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-2 ${
+                      barcodeDisplayValue
+                        ? 'bg-purple-600/30 border-purple-500 text-purple-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <span>displayValue: {barcodeDisplayValue ? 'true' : 'false'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Color Styling */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
+                <div className="space-y-1">
+                  <label className="text-xs text-slate-400">Bar Color</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={fgColor}
+                      onChange={(e) => setFgColor(e.target.value)}
+                      className="w-8 h-8 rounded-lg bg-black border border-slate-700 cursor-pointer p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={fgColor}
+                      onChange={(e) => setFgColor(e.target.value)}
+                      className="w-24 px-2 py-1 rounded-lg neu-inset text-xs font-mono text-purple-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-slate-400">Background</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={bgColor}
+                      onChange={(e) => setBgColor(e.target.value)}
+                      className="w-8 h-8 rounded-lg bg-black border border-slate-700 cursor-pointer p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={bgColor}
+                      onChange={(e) => setBgColor(e.target.value)}
+                      className="w-24 px-2 py-1 rounded-lg neu-inset text-xs font-mono text-slate-300"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* React JSX Snippet Export (Inspired by react-barcode) */}
+              <div className="space-y-2 pt-2 border-t border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                    React Code Snippet (<span className="font-mono text-purple-400">&lt;Barcode /&gt;</span>)
+                  </label>
+                  <button
+                    onClick={() => {
+                      const snippet = `<Barcode\n  value="${barcodeText}"\n  width={${barcodeWidth}}\n  height={${barcodeHeight}}\n  background="${bgColor}"\n  lineColor="${fgColor}"\n  displayValue={${barcodeDisplayValue}}\n/>`;
+                      navigator.clipboard.writeText(snippet);
+                      setCopiedCode(true);
+                      setTimeout(() => setCopiedCode(false), 2000);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 text-[11px] font-bold flex items-center gap-1"
+                  >
+                    {copiedCode ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedCode ? 'Copied Code!' : 'Copy JSX'}</span>
+                  </button>
+                </div>
+                <div className="p-3 rounded-xl neu-inset bg-black/60 font-mono text-[11px] text-purple-300 whitespace-pre overflow-x-auto leading-relaxed border border-purple-500/20">
+{`<Barcode
+  value="${barcodeText}"
+  width={${barcodeWidth}}
+  height={${barcodeHeight}}
+  background="${bgColor}"
+  lineColor="${fgColor}"
+  displayValue={${barcodeDisplayValue}}
+/>`}
                 </div>
               </div>
             </div>

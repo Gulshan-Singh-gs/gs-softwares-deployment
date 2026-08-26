@@ -35,12 +35,14 @@ export type ThemeMode = 'light' | 'semi' | 'dark';
 
 interface HeaderProps {
   currentApp: string;
+  showFooter?: boolean;
+  onToggleFooter?: () => void;
   onNavigate: (app: string) => void;
   onOpenAbout: () => void;
   onOpenSettings?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAbout, onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, onToggleFooter, onNavigate, onOpenAbout, onOpenSettings }) => {
   const { tier, setIsSettingsOpen } = usePerformanceTier();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -333,6 +335,19 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
                 }`}
               />
             </button>
+
+            {/* Footer Visibility Toggle */}
+            {onToggleFooter && (
+              <button
+                onClick={onToggleFooter}
+                className={`p-1.5 sm:p-2 rounded-xl transition-all ${
+                  showFooter ? 'neu-btn opacity-80 hover:opacity-100' : 'neu-inset text-cyan-400 opacity-100 shadow-inner'
+                }`}
+                title={showFooter ? 'Hide Page Footer' : 'Show Page Footer'}
+              >
+                <Layers className="w-4 h-4" />
+              </button>
+            )}
 
             {/* Privacy Guarantee Icon */}
             <button

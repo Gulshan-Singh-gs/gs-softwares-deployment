@@ -26,7 +26,18 @@ function AppContent() {
   const [currentApp, setCurrentApp] = useState<string>('home');
   const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
+  const [showFooter, setShowFooter] = useState<boolean>(() => {
+    return localStorage.getItem('gs_show_footer') !== 'false';
+  });
   const { isSettingsOpen, setIsSettingsOpen, tier, config } = usePerformanceTier();
+
+  const handleToggleFooter = () => {
+    setShowFooter((prev) => {
+      const next = !prev;
+      localStorage.setItem('gs_show_footer', String(next));
+      return next;
+    });
+  };
 
   const handleLaunchTool = (appId: string) => {
     setLandingSlug(null);
@@ -39,6 +50,8 @@ function AppContent() {
       {/* Global Navigation Header */}
       <Header
         currentApp={landingSlug ? '' : currentApp}
+        showFooter={showFooter}
+        onToggleFooter={handleToggleFooter}
         onNavigate={(app) => {
           setLandingSlug(null);
           setCurrentApp(app);
@@ -71,7 +84,7 @@ function AppContent() {
             {currentApp === 'text' && <TextApp />}
             {currentApp === 'security' && <SecurityApp />}
             {currentApp === 'hash' && <HashApp />}
-            {currentApp === 'bridge' && <BridgeApp />}
+            {currentApp === 'bridge' && <BridgeApp onNavigate={(app) => setCurrentApp(app)} />}
             {currentApp === 'archive' && <ArchiveApp />}
             {currentApp === 'qr' && <QrApp />}
             {currentApp === 'spreadsheet' && <SpreadsheetApp />}
@@ -90,8 +103,8 @@ function AppContent() {
         onClose={() => setIsSettingsOpen(false)}
       />
 
-      {/* Rich Footer (Hidden in GS-Canvas for maximum creative real estate) */}
-      {currentApp !== 'canvas' && (
+      {/* Rich Footer (Toggled or Hidden in GS-Canvas for maximum creative real estate) */}
+      {currentApp !== 'canvas' && showFooter && (
         <footer className="border-t border-slate-500/20 mt-8">
           {/* Main Footer Grid */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

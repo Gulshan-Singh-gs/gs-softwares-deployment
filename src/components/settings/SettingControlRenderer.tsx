@@ -310,8 +310,12 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
                 <button
                   key={String(opt.value)}
                   type="button"
-                  onClick={() => setSetting(definition.key, opt.value)}
-                  disabled={isDisabled}
+                  onClick={() => {
+                    if (isDisabled) {
+                      setSetting('perf.autoDetect', false);
+                    }
+                    setSetting(definition.key, opt.value);
+                  }}
                   className={`p-3 rounded-xl text-xs font-medium text-left transition-all border ${
                     isSelected
                       ? 'bg-cyan-600/20 border-cyan-500 text-cyan-300 font-bold shadow-md ring-1 ring-cyan-500/30'

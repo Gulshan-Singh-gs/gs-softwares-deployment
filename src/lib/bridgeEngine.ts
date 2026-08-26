@@ -217,15 +217,39 @@ export async function textToPdf(
 // ---------------------------------------------------------------------------
 
 /**
- * Video to Audio Extractor: Demuxes and extracts audio track from video into lossless WAV.
+ * Video to Audio Extractor: High-performance audio track extraction from video into WAV.
+ * Employs direct Web Audio decoding for high-speed extraction, falling back to MediaStream capture.
  */
 export async function videoToAudioBlob(
   videoFile: File,
   onProgress?: (percent: number) => void
 ): Promise<Blob> {
+  // Method A: Fast ArrayBuffer decode through Web Audio API
+  try {
+    if (onProgress) onProgress(15);
+    const arrayBuffer = await videoFile.arrayBuffer();
+    if (onProgress) onProgress(35);
+    
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    try {
+      const decodedBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+      if (onProgress) onProgress(75);
+      const wavBlob = audioBufferToWavBlob(decodedBuffer, 16);
+      if (onProgress) onProgress(100);
+      audioCtx.close().catch(() => {});
+      return wavBlob;
+    } catch {
+      audioCtx.close().catch(() => {});
+    }
+  } catch (err) {
+    console.warn('Fast direct audio decode fallback to stream capture:', err);
+  }
+
+  // Method B: High-speed MediaStream capture fallback
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
     video.preload = 'auto';
+    video.muted = false;
     const url = URL.createObjectURL(videoFile);
     video.src = url;
 
@@ -261,6 +285,7 @@ export async function videoToAudioBlob(
         };
 
         const duration = video.duration || 10;
+        video.playbackRate = 4.0; // 4x turbo capture speed
         video.ontimeupdate = () => {
           if (onProgress) {
             onProgress(Math.min(99, Math.round((video.currentTime / duration) * 100)));

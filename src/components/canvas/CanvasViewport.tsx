@@ -104,6 +104,13 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     startWorld: CanvasPoint;
     imgStartPos: { x: number; y: number };
   } | null>(null);
+  const resizingImageRef = useRef<{
+    imageId: string;
+    handle: 'nw' | 'ne' | 'se' | 'sw';
+    startWorld: CanvasPoint;
+    startBounds: { x: number; y: number; width: number; height: number };
+    aspectRatio: number;
+  } | null>(null);
 
   // Lasso / Box selection points
   const lassoPointsRef = useRef<CanvasPoint[]>([]);
@@ -209,12 +216,41 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
           ctx.globalAlpha = imgItem.opacity ?? 1;
           ctx.drawImage(cached, imgItem.x, imgItem.y, imgItem.width, imgItem.height);
 
-          // Selection border on image
+          // Selection border & resize handles on image
           if (selectedStrokeIds.includes(imgItem.id)) {
             ctx.strokeStyle = '#06b6d4';
             ctx.lineWidth = 2 / cam.zoom;
             ctx.setLineDash([4 / cam.zoom, 4 / cam.zoom]);
             ctx.strokeRect(imgItem.x - 2, imgItem.y - 2, imgItem.width + 4, imgItem.height + 4);
+            ctx.setLineDash([]);
+
+            // Draw 4 corner resize handles
+            const handleRadius = 5 / cam.zoom;
+            const corners = [
+              { x: imgItem.x - 2, y: imgItem.y - 2 }, // nw
+              { x: imgItem.x + imgItem.width + 2, y: imgItem.y - 2 }, // ne
+              { x: imgItem.x + imgItem.width + 2, y: imgItem.y + imgItem.height + 2 }, // se
+              { x: imgItem.x - 2, y: imgItem.y + imgItem.height + 2 } // sw
+            ];
+
+            for (const c of corners) {
+              ctx.fillStyle = '#ffffff';
+              ctx.beginPath();
+              ctx.arc(c.x, c.y, handleRadius, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = '#0891b2';
+              ctx.lineWidth = 2 / cam.zoom;
+              ctx.stroke();
+            }
+
+            // Size badge
+            ctx.fillStyle = 'rgba(6, 182, 212, 0.9)';
+            ctx.font = `bold ${Math.max(10, 11 / cam.zoom)}px monospace`;
+            ctx.fillText(
+              `${Math.round(imgItem.width)} × ${Math.round(imgItem.height)}px`,
+              imgItem.x,
+              imgItem.y + imgItem.height + 16 / cam.zoom
+            );
           }
           ctx.restore();
         }
@@ -544,8 +580,37 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       return;
     }
 
-    // Check if clicking on an image in select mode
+    // Check if clicking on an image corner resize handle or body in select mode
     if (currentTool === 'select' && project.images) {
+      const handleHitDist = 12 / project.camera.zoom;
+
+      // 1. Check if clicking a corner resize handle of any currently selected image
+      for (const imgId of selectedStrokeIds) {
+        const selImg = project.images.find(im => im.id === imgId);
+        if (selImg) {
+          const corners: { handle: 'nw' | 'ne' | 'se' | 'sw'; x: number; y: number }[] = [
+            { handle: 'nw', x: selImg.x, y: selImg.y },
+            { handle: 'ne', x: selImg.x + selImg.width, y: selImg.y },
+            { handle: 'se', x: selImg.x + selImg.width, y: selImg.y + selImg.height },
+            { handle: 'sw', x: selImg.x, y: selImg.y + selImg.height }
+          ];
+
+          for (const c of corners) {
+            if (Math.hypot(worldPt.x - c.x, worldPt.y - c.y) <= handleHitDist) {
+              resizingImageRef.current = {
+                imageId: selImg.id,
+                handle: c.handle,
+                startWorld: worldPt,
+                startBounds: { x: selImg.x, y: selImg.y, width: selImg.width, height: selImg.height },
+                aspectRatio: selImg.width / Math.max(1, selImg.height)
+              };
+              return;
+            }
+          }
+        }
+      }
+
+      // 2. Check if clicking inside image body
       const clickedImg = [...project.images].reverse().find(
         (img) =>
           worldPt.x >= img.x &&
@@ -650,6 +715,48 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
     worldPt.tiltY = e.tiltY;
     worldPt.time = Date.now();
 
+    // Resize placed image item
+    if (resizingImageRef.current && project.images) {
+      const { imageId, handle, startWorld, startBounds, aspectRatio } = resizingImageRef.current;
+      const dx = worldPt.x - startWorld.x;
+      const dy = worldPt.y - startWorld.y;
+      const targetImg = project.images.find((im) => im.id === imageId);
+
+      if (targetImg && onImageUpdated) {
+        let newX = startBounds.x;
+        let newY = startBounds.y;
+        let newWidth = startBounds.width;
+        let newHeight = startBounds.height;
+
+        if (handle === 'se') {
+          newWidth = Math.max(30, startBounds.width + dx);
+          newHeight = Math.max(30, newWidth / aspectRatio);
+        } else if (handle === 'sw') {
+          newWidth = Math.max(30, startBounds.width - dx);
+          newHeight = Math.max(30, newWidth / aspectRatio);
+          newX = startBounds.x + (startBounds.width - newWidth);
+        } else if (handle === 'ne') {
+          newWidth = Math.max(30, startBounds.width + dx);
+          newHeight = Math.max(30, newWidth / aspectRatio);
+          newY = startBounds.y + (startBounds.height - newHeight);
+        } else if (handle === 'nw') {
+          newWidth = Math.max(30, startBounds.width - dx);
+          newHeight = Math.max(30, newWidth / aspectRatio);
+          newX = startBounds.x + (startBounds.width - newWidth);
+          newY = startBounds.y + (startBounds.height - newHeight);
+        }
+
+        onImageUpdated({
+          ...targetImg,
+          x: newX,
+          y: newY,
+          width: Math.round(newWidth),
+          height: Math.round(newHeight)
+        });
+      }
+      return;
+    }
+
     // Drag placed image item
     if (draggingImageRef.current && project.images) {
       const { imageId, startWorld, imgStartPos } = draggingImageRef.current;
@@ -712,6 +819,7 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       activePointerIdRef.current = null;
       lastPanPointRef.current = null;
       draggingImageRef.current = null;
+      resizingImageRef.current = null;
     }
 
     if (smartShapeTimerRef.current) {
