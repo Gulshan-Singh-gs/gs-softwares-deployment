@@ -10,7 +10,11 @@ import { TextApp } from './pages/TextApp';
 import { SecurityApp } from './pages/SecurityApp';
 import { HashApp } from './pages/HashApp';
 import { BridgeApp } from './pages/BridgeApp';
-import { PWALoadingScreen } from './components/PWALoadingScreen';
+import { ArchiveApp } from './pages/ArchiveApp';
+import { QrApp } from './pages/QrApp';
+import { SpreadsheetApp } from './pages/SpreadsheetApp';
+import { EbookApp } from './pages/EbookApp';
+import { PresentationApp } from './pages/PresentationApp';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { PerformanceToast } from './components/settings/PerformanceToast';
 import { PerformanceProvider, usePerformanceTier } from './context/PerformanceContext';
@@ -23,12 +27,6 @@ function AppContent() {
   const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
   const { isSettingsOpen, setIsSettingsOpen, tier, config } = usePerformanceTier();
-  const [showPwaLoader, setShowPwaLoader] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return !sessionStorage.getItem('gs_pwa_loaded_session');
-    }
-    return true;
-  });
 
   const handleLaunchTool = (appId: string) => {
     setLandingSlug(null);
@@ -38,13 +36,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300 selection:bg-indigo-500/30 selection:text-indigo-500">
-      {/* PWA Loading Screen & Pre-warmer */}
-      {showPwaLoader && (
-        <PWALoadingScreen
-          onComplete={() => setShowPwaLoader(false)}
-        />
-      )}
-
       {/* Global Navigation Header */}
       <Header
         currentApp={landingSlug ? '' : currentApp}
@@ -81,6 +72,11 @@ function AppContent() {
             {currentApp === 'security' && <SecurityApp />}
             {currentApp === 'hash' && <HashApp />}
             {currentApp === 'bridge' && <BridgeApp />}
+            {currentApp === 'archive' && <ArchiveApp />}
+            {currentApp === 'qr' && <QrApp />}
+            {currentApp === 'spreadsheet' && <SpreadsheetApp />}
+            {currentApp === 'ebook' && <EbookApp />}
+            {currentApp === 'presentation' && <PresentationApp />}
           </>
         )}
       </main>
@@ -277,13 +273,6 @@ function AppContent() {
                 title="Performance Settings"
               >
                 <Sliders className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setShowPwaLoader(true)}
-                className="w-9 h-9 rounded-full neu-inset flex items-center justify-center hover:text-emerald-500 transition-colors opacity-70 hover:opacity-100"
-                title="PWA Engine Status"
-              >
-                <Shield className="w-4 h-4" />
               </button>
             </div>
 

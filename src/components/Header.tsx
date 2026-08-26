@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Sparkles, 
   Image, 
@@ -19,7 +19,15 @@ import {
   Download,
   Sliders,
   Lock,
-  Hash
+  Hash,
+  Archive,
+  QrCode,
+  Table,
+  BookOpen,
+  Presentation,
+  ChevronDown,
+  Layers,
+  Check
 } from 'lucide-react';
 import { usePerformanceTier } from '../context/PerformanceContext';
 
@@ -36,6 +44,8 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
   const { tier, setIsSettingsOpen } = usePerformanceTier();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState<ThemeMode>(() => {
     return (localStorage.getItem('gs_theme_mode') as ThemeMode) || 'dark';
   });
@@ -72,16 +82,24 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
       setDeferredPrompt(null);
     };
 
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -109,65 +127,140 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, onNavigate, onOpenAb
   }, [theme]);
 
   const navItems = [
-    { id: 'home', label: 'Suite Hub', icon: Sparkles },
-    { id: 'pixels', label: 'GS-Pixels', icon: Image, badge: 'Image Studio' },
-    { id: 'canvas', label: 'GS-Canvas', icon: PenTool, badge: 'Vector Canvas' },
-    { id: 'pdf', label: 'GS-PDF', icon: FileText, badge: 'PDF Tools' },
-    { id: 'video', label: 'GS-Video', icon: Video, badge: 'WASM Video' },
-    { id: 'audio', label: 'GS-Audio', icon: Music, badge: 'WebAudio' },
-    { id: 'text', label: 'GS-Text', icon: FileCode, badge: 'Code & Diff' },
-    { id: 'bridge', label: 'GS-Bridge', icon: Sparkles, badge: 'Transmutation' },
-    { id: 'security', label: 'GS-Security', icon: Lock, badge: 'AES-256' },
-    { id: 'hash', label: 'GS-Hash', icon: Sliders, badge: 'Checksum' },
+    { id: 'home', label: 'Suite Hub', icon: Sparkles, badge: 'Overview', group: 'Core' },
+    { id: 'pixels', label: 'GS-Pixels', icon: Image, badge: 'Image Studio', group: 'Media & Creative' },
+    { id: 'canvas', label: 'GS-Canvas', icon: PenTool, badge: 'Vector Canvas', group: 'Media & Creative' },
+    { id: 'video', label: 'GS-Video', icon: Video, badge: 'WASM Video', group: 'Media & Creative' },
+    { id: 'audio', label: 'GS-Audio', icon: Music, badge: 'WebAudio', group: 'Media & Creative' },
+    { id: 'pdf', label: 'GS-PDF', icon: FileText, badge: 'PDF Tools', group: 'Documents & Data' },
+    { id: 'spreadsheet', label: 'GS-Sheets', icon: Table, badge: 'CSV & Grid', group: 'Documents & Data' },
+    { id: 'presentation', label: 'GS-Slides', icon: Presentation, badge: 'Deck Studio', group: 'Documents & Data' },
+    { id: 'ebook', label: 'GS-EBook', icon: BookOpen, badge: 'EPUB Studio', group: 'Documents & Data' },
+    { id: 'text', label: 'GS-Text', icon: FileCode, badge: 'Code & Diff', group: 'Developer & System' },
+    { id: 'archive', label: 'GS-Archive', icon: Archive, badge: 'ZIP & TAR', group: 'Developer & System' },
+    { id: 'qr', label: 'GS-QR', icon: QrCode, badge: 'QR & Barcode', group: 'Developer & System' },
+    { id: 'security', label: 'GS-Security', icon: Lock, badge: 'AES-256', group: 'Security & Integrity' },
+    { id: 'hash', label: 'GS-Hash', icon: Sliders, badge: 'Checksum', group: 'Security & Integrity' },
+    { id: 'bridge', label: 'GS-Bridge', icon: Sparkles, badge: 'Transmutation', group: 'Security & Integrity' },
   ];
+
+  const currentActiveItem = navItems.find((item) => item.id === currentApp) || navItems[0];
+  const CurrentIcon = currentActiveItem.icon;
 
   return (
     <header className="sticky top-0 z-50 neu-flat backdrop-blur-xl transition-all duration-300">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-2">
+        <div className="flex items-center justify-between h-16 gap-3">
           
-          {/* Brand Logo - Compact on mobile */}
-          <div 
-            onClick={() => onNavigate('home')} 
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none min-w-0"
-          >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
-              <img src="/favicon.png" alt="GS Logo" className="w-full h-full rounded-[0.8rem] object-cover" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight truncate">
-                  GS Softwares
-                </span>
-                <span className="hidden xs:inline-block text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full neu-inset text-cyan-400 shrink-0">
-                  2.0
-                </span>
+          {/* Brand Logo & Current Suite Badge */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div 
+              onClick={() => {
+                onNavigate('home');
+                setDropdownOpen(false);
+              }} 
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none shrink-0"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl p-0.5 bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-cyan-500/25 group-hover:scale-105 transition-transform duration-200 shrink-0">
+                <img src="/favicon.png" alt="GS Logo" className="w-full h-full rounded-[0.8rem] object-cover" />
               </div>
-              <p className="text-[10px] opacity-70 font-medium truncate hidden sm:block">100% Private</p>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-base sm:text-lg tracking-tight truncate">
+                    GS Softwares
+                  </span>
+                  <span className="hidden xs:inline-block text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full neu-inset text-cyan-400 shrink-0">
+                    2.0
+                  </span>
+                </div>
+                <p className="text-[10px] opacity-70 font-medium truncate hidden sm:block">100% Private Client-Side</p>
+              </div>
             </div>
           </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1.5 neu-inset p-1.5 rounded-2xl">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentApp === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
-                    isActive
-                      ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-lg shadow-cyan-600/30'
-                      : 'opacity-70 hover:opacity-100 hover:bg-slate-500/10'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+          {/* Clean Dropdown Menu for Tool Suite Selection */}
+          <div className="hidden lg:block relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className={`flex items-center gap-2.5 px-4 py-2 rounded-2xl text-xs font-bold transition-all duration-200 border ${
+                dropdownOpen 
+                  ? 'neu-inset border-cyan-500/40 text-cyan-400 shadow-inner' 
+                  : 'neu-btn border-slate-500/20 hover:border-cyan-500/30'
+              }`}
+              title="Select Tool Suite"
+            >
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-600 to-teal-600 flex items-center justify-center text-white shadow-sm">
+                <CurrentIcon className="w-3.5 h-3.5" />
+              </div>
+              <div className="text-left flex flex-col">
+                <span className="text-[10px] opacity-60 font-semibold uppercase tracking-wider leading-none">
+                  Active Suite
+                </span>
+                <span className="text-xs font-extrabold tracking-tight mt-0.5">
+                  {currentActiveItem.label}
+                </span>
+              </div>
+              <ChevronDown className={`w-4 h-4 opacity-60 transition-transform duration-200 ml-1 ${dropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
+            </button>
+
+            {/* Dropdown Popover */}
+            {dropdownOpen && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[480px] neu-flat rounded-2xl p-3 shadow-2xl border border-slate-500/20 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="flex items-center justify-between px-2 py-1.5 mb-2 border-b border-slate-500/15">
+                  <span className="text-[11px] font-bold uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                    Select Tool Suite (14 Dedicated Tools)
+                  </span>
+                  <button
+                    onClick={() => {
+                      onNavigate('home');
+                      setDropdownOpen(false);
+                    }}
+                    className="text-[10px] font-bold text-cyan-500 hover:underline px-2 py-0.5 rounded-md"
+                  >
+                    View All in Hub
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5 max-h-[360px] overflow-y-auto pr-1">
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentApp === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          onNavigate(item.id);
+                          setDropdownOpen(false);
+                        }}
+                        className={`flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-left transition-all duration-150 group ${
+                          isActive
+                            ? 'bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-md shadow-cyan-600/30'
+                            : 'hover:bg-slate-500/10 opacity-80 hover:opacity-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-110 ${
+                            isActive ? 'bg-white/20 text-white' : 'neu-inset text-cyan-400'
+                          }`}>
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold truncate text-[12px]">{item.label}</p>
+                            <p className={`text-[10px] truncate ${isActive ? 'text-white/80' : 'opacity-60'}`}>
+                              {item.badge}
+                            </p>
+                          </div>
+                        </div>
+                        {isActive && <Check className="w-4 h-4 shrink-0 text-white ml-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Controls & Action Badges */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">

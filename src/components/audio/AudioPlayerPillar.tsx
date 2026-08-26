@@ -582,11 +582,12 @@ export const AudioPlayerPillar: React.FC<AudioPlayerPillarProps> = ({
         {currentTrack && currentTrack.blob && (
           <button
             onClick={() => onSendToEditor({ name: currentTrack.name, blob: currentTrack.blob! })}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-pink-600/20 hover:bg-pink-600/30 border border-pink-500/30 text-pink-300 text-xs font-bold transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold neu-btn text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/40 transition-all shadow-sm shrink-0"
             title="Send track directly to Audacity-Class Editor"
           >
-            <Scissors className="w-3.5 h-3.5" />
-            <span>Open in Editor ➔</span>
+            <Scissors className="w-3.5 h-3.5 text-pink-400" />
+            <span>Open in Editor</span>
+            <span className="text-[10px] text-slate-400 font-mono">➔</span>
           </button>
         )}
       </div>

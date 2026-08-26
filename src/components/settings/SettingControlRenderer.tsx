@@ -182,17 +182,17 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
         </div>
 
         {/* Synthetic Benchmark Action */}
-        <div className="neu-card p-4 rounded-2xl border border-slate-500/20 flex items-center justify-between gap-4">
-          <div className="space-y-0.5">
+        <div className="neu-card p-4 rounded-2xl border border-slate-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-0.5 min-w-0">
             <h4 className="text-xs font-extrabold flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-cyan-400" />
+              <Activity className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               Re-run Hardware Benchmark
             </h4>
-            <p className="text-[11px] opacity-60">Re-evaluates CPU floating-point &amp; Canvas 2D throughput without forcing a tier change</p>
+            <p className="text-[11px] opacity-60 leading-relaxed">Re-evaluates CPU floating-point &amp; Canvas 2D throughput without forcing a tier change</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start sm:self-auto">
             {benchmarkScore && (
-              <span className="text-xs font-bold px-2.5 py-1 rounded-xl bg-cyan-500/20 text-cyan-300">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono">
                 Score: {benchmarkScore}
               </span>
             )}
@@ -303,7 +303,7 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
         </div>
 
         {isRadioGroup ? (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
             {opts.map((opt) => {
               const isSelected = String(currentValue ?? definition.default) === String(opt.value);
               return (
@@ -312,14 +312,14 @@ export const SettingControlRenderer: React.FC<SettingControlRendererProps> = ({
                   type="button"
                   onClick={() => setSetting(definition.key, opt.value)}
                   disabled={isDisabled}
-                  className={`p-2 rounded-xl text-xs font-medium text-left transition-all border ${
+                  className={`p-3 rounded-xl text-xs font-medium text-left transition-all border ${
                     isSelected
-                      ? 'bg-cyan-600/20 border-cyan-500 text-cyan-300 font-bold shadow-md'
+                      ? 'bg-cyan-600/20 border-cyan-500 text-cyan-300 font-bold shadow-md ring-1 ring-cyan-500/30'
                       : 'neu-inset border-slate-500/20 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <p className="truncate">{opt.label}</p>
-                  {opt.desc && <p className="text-[10px] opacity-60 truncate mt-0.5">{opt.desc}</p>}
+                  <p className="leading-snug break-words">{opt.label}</p>
+                  {opt.desc && <p className="text-[10px] opacity-60 leading-tight mt-1">{opt.desc}</p>}
                 </button>
               );
             })}

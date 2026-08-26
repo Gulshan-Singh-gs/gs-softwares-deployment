@@ -32,7 +32,12 @@ import {
   Users,
   Camera,
   Globe,
-  Share2
+  Share2,
+  Archive,
+  QrCode,
+  Table,
+  BookOpen,
+  Presentation
 } from 'lucide-react';
 
 interface HomeProps {
@@ -44,119 +49,133 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
   const [activePersonaTab, setActivePersonaTab] = useState<'photographers' | 'developers' | 'social' | 'students'>('photographers');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  // Studio Tools grid
-  const tools = [
+  // 14 Dedicated Tool Suites
+  const suiteTiles = [
+    {
+      id: 'pixels',
+      title: 'GS-Pixels',
+      badge: 'Image Studio',
+      desc: 'Compress, crop, resize, convert formats, extract palettes, and scrub EXIF metadata.',
+      icon: Image,
+      gradient: 'from-cyan-600 to-teal-500',
+      toolsCount: '6 Tools'
+    },
     {
       id: 'canvas',
-      title: 'Freehand Drawing Canvas',
-      desc: 'Sketch, draw, and brainstorm freely on an endless board',
+      title: 'GS-Canvas',
+      badge: 'Vector Canvas',
+      desc: 'Endless freehand drawing canvas with shapes, smart smoothing, and layer management.',
       icon: PenTool,
-      subTool: 'infinite'
-    },
-    {
-      id: 'canvas',
-      title: 'Quick Shapes',
-      desc: 'Draw clean shapes, arrows, and lines with automatic line smoothing',
-      icon: Shapes,
-      subTool: 'shapes'
-    },
-    {
-      id: 'pixels',
-      title: 'Photo Studio',
-      desc: 'Crop, adjust lighting, add text overlays, and apply filters',
-      icon: Wand2,
-      subTool: 'studio'
-    },
-    {
-      id: 'pixels',
-      title: 'Image Compressor',
-      desc: 'Shrink file size for sharing without losing crisp visual clarity',
-      icon: Sliders,
-      subTool: 'compress'
-    },
-    {
-      id: 'pixels',
-      title: 'Format Converter',
-      desc: 'Convert images between standard formats (JPG, PNG, WebP)',
-      icon: RefreshCw,
-      subTool: 'convert'
-    },
-    {
-      id: 'pixels',
-      title: 'Resize and Fit',
-      desc: 'Scale images to custom dimensions, percentages, or print sizes',
-      icon: Layers,
-      subTool: 'resize'
-    },
-    {
-      id: 'pixels',
-      title: 'Crop and Straighten',
-      desc: 'Trim borders, create round avatars, and fix tilted photos',
-      icon: Crop,
-      subTool: 'crop'
-    },
-    {
-      id: 'pixels',
-      title: 'Rotate and Flip',
-      desc: 'Turn photos sideways, upside down, or mirror them instantly',
-      icon: RotateCw,
-      subTool: 'rotate'
-    },
-    {
-      id: 'pixels',
-      title: 'Add Watermark',
-      desc: 'Stamp your name, logo, or brand mark across your images',
-      icon: Stamp,
-      subTool: 'watermark'
-    },
-    {
-      id: 'pixels',
-      title: 'Remove Hidden Info',
-      desc: 'Wipe camera settings, dates, and location tags before sharing',
-      icon: FileSearch,
-      subTool: 'metadata'
-    },
-    {
-      id: 'pixels',
-      title: 'Remove Background',
-      desc: 'Erase photo backgrounds automatically with a single click',
-      icon: Sparkles,
-      subTool: 'studio'
-    },
-    {
-      id: 'pixels',
-      title: 'Color Palette Extractor',
-      desc: 'Extract color schemes and hex codes directly from any image',
-      icon: Palette,
-      subTool: 'palette'
+      gradient: 'from-blue-600 to-indigo-500',
+      toolsCount: '3 Tools'
     },
     {
       id: 'pdf',
-      title: 'Image to PDF',
-      desc: 'Convert pictures and documents into clean, shareable PDFs',
+      title: 'GS-PDF',
+      badge: 'PDF Tools',
+      desc: 'Merge, split, compress, reorder, convert, and stamp PDF files 100% offline.',
       icon: FileText,
-      subTool: 'doc'
+      gradient: 'from-rose-600 to-pink-500',
+      toolsCount: '5 Tools'
     },
     {
-      id: 'bridge',
-      title: 'Cross-Domain Bridge (Transmutation)',
-      desc: 'Transmute video to audio, images to PDF, PDF to images, OCR text and smart archives',
-      icon: Sparkles,
-      subTool: 'bridge'
+      id: 'video',
+      title: 'GS-Video',
+      badge: 'WASM Video',
+      desc: 'Frame-accurate video trimmer, converter, GIF maker, and audio extractor powered by WebAssembly.',
+      icon: Video,
+      gradient: 'from-purple-600 to-indigo-600',
+      toolsCount: '4 Tools'
+    },
+    {
+      id: 'audio',
+      title: 'GS-Audio',
+      badge: 'WebAudio Studio',
+      desc: 'High-res audio trimmer, 10-band equalizer, format converter, and spectrum visualizer.',
+      icon: Music,
+      gradient: 'from-pink-600 to-rose-500',
+      toolsCount: '3 Tools'
+    },
+    {
+      id: 'text',
+      title: 'GS-Text',
+      badge: 'Code & Diff',
+      desc: 'Side-by-side diff comparator, JSON/YAML formatter, Regex testing studio, and Base64 encoder.',
+      icon: FileCode,
+      gradient: 'from-emerald-600 to-teal-500',
+      toolsCount: '4 Tools'
+    },
+    {
+      id: 'archive',
+      title: 'GS-Archive',
+      badge: 'ZIP & TAR',
+      desc: 'Inspect, compress, extract, and convert multi-file ZIP and TAR archives in-memory.',
+      icon: Archive,
+      gradient: 'from-amber-600 to-orange-500',
+      toolsCount: '3 Tools'
+    },
+    {
+      id: 'qr',
+      title: 'GS-QR & Barcode',
+      badge: 'QR & Barcode Studio',
+      desc: 'Generate custom branded QR codes, WiFi access cards, vCards, and Code128 barcodes.',
+      icon: QrCode,
+      gradient: 'from-violet-600 to-purple-500',
+      toolsCount: '2 Tools'
+    },
+    {
+      id: 'spreadsheet',
+      title: 'GS-Sheets',
+      badge: 'CSV & Data Grid',
+      desc: 'Fast offline spreadsheet viewer, delimiter cleaner, and CSV to JSON/Markdown converter.',
+      icon: Table,
+      gradient: 'from-emerald-600 to-green-500',
+      toolsCount: '2 Tools'
+    },
+    {
+      id: 'ebook',
+      title: 'GS-EBook',
+      badge: 'EPUB Studio',
+      desc: 'Distraction-free EPUB reader and Markdown-to-EPUB 3.0 publication builder.',
+      icon: BookOpen,
+      gradient: 'from-amber-600 to-yellow-500',
+      toolsCount: '2 Tools'
+    },
+    {
+      id: 'presentation',
+      title: 'GS-Slides',
+      badge: 'Deck Studio',
+      desc: 'Markdown to 16:9 slide presenter mode with vector printable PDF handouts.',
+      icon: Presentation,
+      gradient: 'from-indigo-600 to-blue-500',
+      toolsCount: '2 Tools'
     },
     {
       id: 'security',
-      title: 'AES-256 File Encryption',
-      desc: 'Encrypt & decrypt sensitive files with PBKDF2 master passphrase protection',
+      title: 'GS-Security',
+      badge: 'AES-256',
+      desc: 'Client-side PBKDF2 password-protected AES-256-GCM file encryption and decryption.',
       icon: Lock,
-      subTool: 'encrypt'
+      gradient: 'from-blue-600 to-indigo-600',
+      toolsCount: '2 Tools'
     },
     {
       id: 'hash',
-      title: 'SHA Checksum & Integrity',
-      desc: 'Calculate SHA-256 / SHA-512 cryptographic hashes and detect tampering',
+      title: 'GS-Hash',
+      badge: 'Checksum & Verify',
+      desc: 'Compute SHA-256, SHA-512, SHA-1, and MD5 file digests for tamper verification.',
       icon: Sliders,
-      subTool: 'hash'
+      gradient: 'from-teal-600 to-cyan-500',
+      toolsCount: '4 Algorithims'
+    },
+    {
+      id: 'bridge',
+      title: 'GS-Bridge',
+      badge: 'Transmutation',
+      desc: 'Cross-domain transmutation pipeline linking video, audio, image, PDF, and OCR text.',
+      icon: Sparkles,
+      gradient: 'from-amber-500 via-rose-500 to-cyan-500',
+      toolsCount: 'Transmute Pipeline'
     }
   ];
 
@@ -276,41 +295,54 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
         </div>
       </section>
 
-      {/* 3. THE STUDIO TOOLS GRID */}
+      {/* 3. THE STUDIO TOOL SUITES GRID */}
       <section className="space-y-8 text-center">
         <div className="space-y-2 max-w-2xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Everything You Need in One Place</h2>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-inset text-cyan-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <Layers className="w-3.5 h-3.5" /> 14 Complete Tool Suites
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Explore the Private Tool Suites</h2>
           <p className="text-sm font-medium opacity-80">
-            Fast, private editing tools running directly on your device.
+            Dedicated client-side creative, document, media, and security suites running directly in your browser.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-left">
-          {tools.map((t, idx) => {
-            const Icon = t.icon;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 text-left">
+          {suiteTiles.map((suite) => {
+            const Icon = suite.icon;
             return (
               <div
-                key={idx}
-                onClick={() => onSelectApp(t.id)}
-                className="group neu-card rounded-3xl p-6 cursor-pointer flex flex-col justify-between hover:scale-[1.01] transition-all space-y-4"
+                key={suite.id}
+                onClick={() => onSelectApp(suite.id)}
+                className="group neu-card rounded-3xl p-6 cursor-pointer flex flex-col justify-between hover:scale-[1.02] transition-all space-y-4 border border-slate-500/10 hover:border-cyan-500/30"
               >
-                <div className="space-y-3">
-                  <div className="w-11 h-11 rounded-2xl neu-inset flex items-center justify-center text-cyan-500">
-                    <Icon className="w-5 h-5" />
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-cyan-600/20 group-hover:scale-110 transition-transform">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full neu-inset text-cyan-400">
+                      {suite.badge}
+                    </span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold group-hover:text-cyan-500 transition-colors">
-                      {t.title}
-                    </h3>
-                    <p className="text-xs font-medium opacity-80 mt-1 leading-relaxed">
-                      {t.desc}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-extrabold group-hover:text-cyan-500 transition-colors">
+                        {suite.title}
+                      </h3>
+                      <span className="text-[10px] opacity-60 font-semibold font-mono">
+                        {suite.toolsCount}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium opacity-80 mt-1.5 leading-relaxed">
+                      {suite.desc}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-500/10 flex items-center justify-between">
+                <div className="pt-3 border-t border-slate-500/10 flex items-center justify-between">
                   <span className="text-xs font-bold text-cyan-500 group-hover:underline flex items-center gap-1">
-                    Open Tool <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    Open {suite.title} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform" />
                   </span>
                 </div>
               </div>
