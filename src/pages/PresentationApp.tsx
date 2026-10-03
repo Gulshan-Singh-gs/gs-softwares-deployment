@@ -13,7 +13,7 @@ import {
   Check, 
   FileText
 } from 'lucide-react';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts } from '@cantoo/pdf-lib';
 import { downloadBlob } from '../lib/fileUtils';
 
 interface Slide {
@@ -81,6 +81,38 @@ export const PresentationApp: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [slides.length]);
+
+  // Dual-Window Presenter Sync via BroadcastChannel
+  useEffect(() => {
+    let channel: BroadcastChannel | null = null;
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        channel = new BroadcastChannel('gs-slides-presenter-sync');
+        channel.onmessage = (event) => {
+          if (typeof event.data?.slideIdx === 'number') {
+            setCurrentSlideIdx(event.data.slideIdx);
+          }
+        };
+      }
+    } catch (e) {
+      console.warn('BroadcastChannel sync unavailable:', e);
+    }
+    return () => {
+      channel?.close();
+    };
+  }, []);
+
+  // Broadcast slide changes to secondary presenter window
+  const updateSlideWithSync = (newIdx: number) => {
+    setCurrentSlideIdx(newIdx);
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const channel = new BroadcastChannel('gs-slides-presenter-sync');
+        channel.postMessage({ slideIdx: newIdx });
+        channel.close();
+      }
+    } catch (e) {}
+  };
 
   // Client-Side Vector PDF Slide Deck Export via pdf-lib
   const handleExportPdf = async () => {
@@ -291,7 +323,7 @@ export const PresentationApp: React.FC = () => {
           {/* Slide Deck Navigation Controls */}
           <div className="flex items-center justify-between pt-2">
             <button
-              onClick={() => setCurrentSlideIdx((p) => Math.max(0, p - 1))}
+              onClick={() => updateSlideWithSync(Math.max(0, currentSlideIdx - 1))}
               disabled={currentSlideIdx === 0}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl neu-btn text-xs font-bold text-slate-300 disabled:opacity-30"
             >
@@ -302,7 +334,7 @@ export const PresentationApp: React.FC = () => {
               {slides.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setCurrentSlideIdx(i)}
+                  onClick={() => updateSlideWithSync(i)}
                   className={`w-2 h-2 rounded-full transition-all ${
                     currentSlideIdx === i ? 'bg-cyan-400 w-5' : 'bg-slate-700'
                   }`}
@@ -311,7 +343,7 @@ export const PresentationApp: React.FC = () => {
             </div>
 
             <button
-              onClick={() => setCurrentSlideIdx((p) => Math.min(slides.length - 1, p + 1))}
+              onClick={() => updateSlideWithSync(Math.min(slides.length - 1, currentSlideIdx + 1))}
               disabled={currentSlideIdx === slides.length - 1}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold disabled:opacity-30 shadow-md"
             >

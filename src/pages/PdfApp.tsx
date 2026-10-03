@@ -38,7 +38,7 @@ import {
   Redo2,
   Columns
 } from 'lucide-react';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument } from '@cantoo/pdf-lib';
 import confetti from 'canvas-confetti';
 import { saveWorkspaceFile, getWorkspaceFilesByApp, deleteWorkspaceFile } from '../lib/db';
 import { 

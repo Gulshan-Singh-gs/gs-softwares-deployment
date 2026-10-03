@@ -897,6 +897,39 @@ export const PixelsApp: React.FC = () => {
           sh = Math.round(sh * ratio);
         }
 
+        if (activeTool === 'metadata' && item.file) {
+          import('../lib/imageEngine').then(({ scrubExifLossless }) => {
+            scrubExifLossless(item.file!).then((blob) => {
+              const processedUrl = URL.createObjectURL(blob);
+              resolve({
+                ...item,
+                processedUrl,
+                processedSize: blob.size,
+                status: 'done'
+              });
+            }).catch(() => {
+              canvas.toBlob(
+                (blob) => {
+                  if (!blob) {
+                    resolve(item);
+                    return;
+                  }
+                  const processedUrl = URL.createObjectURL(blob);
+                  resolve({
+                    ...item,
+                    processedUrl,
+                    processedSize: blob.size,
+                    status: 'done'
+                  });
+                },
+                format,
+                quality / 100
+              );
+            });
+          });
+          return;
+        }
+
         canvas.toBlob(
           (blob) => {
             if (!blob) {

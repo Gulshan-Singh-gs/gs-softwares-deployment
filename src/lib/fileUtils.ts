@@ -46,3 +46,29 @@ export class MemoryManager {
     this.blobUrls.clear();
   }
 }
+
+/**
+ * Validates and sanitizes archive entries against "Zip Slip" path traversal vulnerabilities.
+ * Rejects absolute paths, drive letters, and paths containing ".." segments.
+ */
+export const sanitizeZipPath = (rawPath: string): { safe: boolean; path: string; error?: string } => {
+  // Normalize slashes
+  const normalized = rawPath.replace(/\\/g, '/').trim();
+
+  // Block drive letters (e.g. C:) and absolute paths
+  if (/^[a-zA-Z]:/.test(normalized) || normalized.startsWith('/')) {
+    return { safe: false, path: '', error: 'Absolute archive paths are prohibited' };
+  }
+
+  // Split and inspect components
+  const segments = normalized.split('/');
+  for (const part of segments) {
+    if (part === '..' || part === '.') {
+      return { safe: false, path: '', error: 'Directory traversal segment ".." detected' };
+    }
+  }
+
+  // Strip null bytes and control chars
+  const sanitized = normalized.replace(/[\x00-\x1f\x7f]/g, '');
+  return { safe: true, path: sanitized };
+};

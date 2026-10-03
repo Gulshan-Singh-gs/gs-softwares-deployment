@@ -183,11 +183,35 @@ export const compressImageClient = async (
       );
     };
 
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Failed to read image for compression'));
-    };
-
     img.src = url;
   });
+};
+
+export const scrubExifLossless = async (file: File): Promise<Blob> => {
+  // If JPEG, perform lossless bitstream EXIF removal without recompressing pixels
+  if (file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg')) {
+    try {
+      const piexif = (await import('piexifjs')).default || (await import('piexifjs'));
+      const buffer = await file.arrayBuffer();
+      // Convert buffer to binary string
+      const bytes = new Uint8Array(buffer);
+      let binaryStr = '';
+      const chunk = 8192;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binaryStr += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+      }
+      
+      const scrubbedBinary = piexif.remove(binaryStr);
+      const outBytes = new Uint8Array(scrubbedBinary.length);
+      for (let i = 0; i < scrubbedBinary.length; i++) {
+        outBytes[i] = scrubbedBinary.charCodeAt(i);
+      }
+      return new Blob([outBytes], { type: 'image/jpeg' });
+    } catch (err) {
+      console.warn('Lossless EXIF strip fallback:', err);
+    }
+  }
+
+  // Fallback for other formats (PNG/WebP): draw to clean canvas without metadata
+  return convertImage(file, file.type === 'image/png' ? 'image/png' : 'image/jpeg', 1.0);
 };

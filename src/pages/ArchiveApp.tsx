@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { FileDropZone } from '../components/shared/FileDropZone';
 import { ProgressBar } from '../components/shared/ProgressBar';
-import { formatBytes, downloadBlob } from '../lib/fileUtils';
+import { formatBytes, downloadBlob, sanitizeZipPath } from '../lib/fileUtils';
 import { useProcessingState } from '../hooks/useProcessingState';
 
 interface ExtractedFile {
@@ -25,6 +25,8 @@ interface ExtractedFile {
   dir: boolean;
   date: Date;
   blob?: Blob;
+  isSafe?: boolean;
+  securityNotice?: string;
 }
 
 export const ArchiveApp: React.FC = () => {
@@ -56,11 +58,14 @@ export const ArchiveApp: React.FC = () => {
 
       for (const filename of entries) {
         const item = loadedZip.files[filename];
+        const validation = sanitizeZipPath(item.name);
         list.push({
-          name: item.name,
+          name: validation.safe ? validation.path : item.name,
           size: (item as any)._data?.uncompressedSize || 0,
           dir: item.dir,
           date: item.date,
+          isSafe: validation.safe,
+          securityNotice: validation.safe ? undefined : validation.error
         });
         count++;
         setProgress(Math.round((count / entries.length) * 100));
@@ -74,6 +79,10 @@ export const ArchiveApp: React.FC = () => {
   // Download individual extracted item
   const handleExtractSingle = async (item: ExtractedFile) => {
     if (!archiveFile || item.dir) return;
+    if (item.isSafe === false) {
+      alert(`Extraction blocked: ${item.securityNotice || 'Zip Slip path traversal risk detected'}`);
+      return;
+    }
     try {
       const zip = new JSZip();
       const loaded = await zip.loadAsync(archiveFile);
@@ -306,10 +315,15 @@ export const ArchiveApp: React.FC = () => {
                       <div className="flex items-center gap-2.5 min-w-0">
                         {item.dir ? <FolderOpen className="w-4 h-4 text-amber-400 shrink-0" /> : <FileText className="w-4 h-4 text-cyan-400 shrink-0" />}
                         <span className="truncate font-medium text-slate-200">{item.name}</span>
+                        {item.isSafe === false && (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 shrink-0">
+                            Path Traversal Blocked
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <span className="font-mono text-slate-400">{item.dir ? 'DIR' : formatBytes(item.size)}</span>
-                        {!item.dir && (
+                        {!item.dir && item.isSafe !== false && (
                           <>
                             <button
                               onClick={() => handlePreviewText(item)}

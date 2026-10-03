@@ -19,10 +19,10 @@ export const useProcessingState = <T>() => {
     setState((prev) => ({ ...prev, progress }));
   }, []);
 
-  const process = useCallback(async (processor: () => Promise<T>) => {
+  const process = useCallback(async (processor: (setProgress: (progress: number) => void) => Promise<T>) => {
     setState({ status: 'processing', progress: 0, result: null, error: null });
     try {
-      const result = await processor();
+      const result = await processor(setProgress);
       setState({ status: 'complete', progress: 100, result, error: null });
       return result;
     } catch (error) {
@@ -35,7 +35,7 @@ export const useProcessingState = <T>() => {
       });
       throw error;
     }
-  }, []);
+  }, [setProgress]);
 
   const reset = useCallback(() => {
     setState({ status: 'idle', progress: 0, result: null, error: null });

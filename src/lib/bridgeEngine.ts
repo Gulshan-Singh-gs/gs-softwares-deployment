@@ -3,7 +3,7 @@
  * Zero-Server, Client-Side Media & Document Transmutation
  */
 
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts } from '@cantoo/pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 import JSZip from 'jszip';
 import Tesseract from 'tesseract.js';

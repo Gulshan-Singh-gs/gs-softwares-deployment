@@ -51,6 +51,9 @@ export interface VectorStroke {
   
   // Computed smooth Bézier segments for rendering & export
   segments: BezierSegment[];
+
+  // Outline polygon points for perfect-freehand variable-width stroke rendering
+  outlinePoints?: [number, number][];
   
   // Editable vector nodes (anchors + handles) for post-stroke editing
   nodes: VectorNode[];

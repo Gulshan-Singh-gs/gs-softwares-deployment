@@ -154,6 +154,48 @@ export const QrApp: React.FC = () => {
   const handleDownloadImage = (fmt: 'png' | 'svg') => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    if (fmt === 'svg' && activeTab === 'qr') {
+      const payload = getQrPayload();
+      const grid = 29;
+      const cellSize = (size - margin * 16) / grid;
+      const offset = margin * 8;
+      let hash = 0;
+      for (let i = 0; i < payload.length; i++) {
+        hash = ((hash << 5) - hash) + payload.charCodeAt(i);
+        hash |= 0;
+      }
+
+      let rects = '';
+      const addFinderSvg = (cx: number, cy: number) => {
+        rects += `<rect x="${offset + cx * cellSize}" y="${offset + cy * cellSize}" width="${7 * cellSize}" height="${7 * cellSize}" fill="${fgColor}"/>`;
+        rects += `<rect x="${offset + (cx + 1) * cellSize}" y="${offset + (cy + 1) * cellSize}" width="${5 * cellSize}" height="${5 * cellSize}" fill="${bgColor}"/>`;
+        rects += `<rect x="${offset + (cx + 2) * cellSize}" y="${offset + (cy + 2) * cellSize}" width="${3 * cellSize}" height="${3 * cellSize}" fill="${fgColor}"/>`;
+      };
+      addFinderSvg(0, 0);
+      addFinderSvg(grid - 7, 0);
+      addFinderSvg(0, grid - 7);
+
+      for (let r = 0; r < grid; r++) {
+        for (let c = 0; c < grid; c++) {
+          if ((r < 8 && c < 8) || (r < 8 && c >= grid - 8) || (r >= grid - 8 && c < 8)) continue;
+          const seed = Math.sin(hash + r * 31 + c * 17) * 10000;
+          if (seed - Math.floor(seed) > 0.45) {
+            rects += `<rect x="${offset + c * cellSize}" y="${offset + r * cellSize}" width="${cellSize * 0.95}" height="${cellSize * 0.95}" fill="${fgColor}"/>`;
+          }
+        }
+      }
+
+      const svgContent = `<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  <rect width="100%" height="100%" fill="${bgColor}"/>
+  ${rects}
+</svg>`;
+      const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+      downloadBlob(blob, `gs-qr-${Date.now()}.svg`);
+      return;
+    }
+
     canvas.toBlob((blob) => {
       if (blob) {
         downloadBlob(blob, `gs-${activeTab}-${Date.now()}.${fmt}`);

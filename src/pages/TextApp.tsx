@@ -69,6 +69,11 @@ export const TextApp: React.FC = () => {
   const [replaceQuery, setReplaceQuery] = useState<string>('');
   
   // Developer Utilities State
+  // JSON Query & JWT Inspector State
+  const [jsonQuery, setJsonQuery] = useState<string>('.');
+  const [queryResult, setQueryResult] = useState<string>('');
+  const [jwtToken, setJwtToken] = useState<string>('');
+  const [jwtDecoded, setJwtDecoded] = useState<{ header: any; payload: any; valid: boolean } | null>(null);
   const [devInput, setDevInput] = useState<string>('Hello GS Studio Developer');
   const [devOutput, setDevOutput] = useState<string>('');
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -147,6 +152,55 @@ export const TextApp: React.FC = () => {
       confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
     } catch (err: any) {
       setJsonError(err.message);
+    }
+  };
+
+  const handleJsonQuery = () => {
+    try {
+      const data = JSON.parse(content);
+      // Evaluates jq-like path expressions (e.g. .user.name or .items[0])
+      const q = jsonQuery.trim();
+      let res: any;
+      if (q === '.' || q === '') {
+        res = data;
+      } else {
+        const cleanPath = q.startsWith('.') ? q.slice(1) : q;
+        const parts = cleanPath.split('.').filter(Boolean);
+        res = parts.reduce((acc: any, key: string) => {
+          if (acc == null) return undefined;
+          const arrayMatch = key.match(/^(\w+)\[(\d+)\]$/);
+          if (arrayMatch) {
+            return acc[arrayMatch[1]]?.[Number(arrayMatch[2])];
+          }
+          return acc[key];
+        }, data);
+      }
+      setQueryResult(JSON.stringify(res, null, 2));
+      setJsonError(null);
+      confetti({ particleCount: 30, spread: 40, origin: { y: 0.8 } });
+    } catch (err: any) {
+      setJsonError(`Query failed: ${err.message}`);
+    }
+  };
+
+  const handleDecodeJwt = (tokenStr: string) => {
+    setJwtToken(tokenStr);
+    const parts = tokenStr.trim().split('.');
+    if (parts.length < 2) {
+      setJwtDecoded(null);
+      return;
+    }
+    try {
+      const decodeB64 = (str: string) => {
+        let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) b64 += '=';
+        return JSON.parse(atob(b64));
+      };
+      const header = decodeB64(parts[0]);
+      const payload = decodeB64(parts[1]);
+      setJwtDecoded({ header, payload, valid: true });
+    } catch (e) {
+      setJwtDecoded({ header: null, payload: null, valid: false });
     }
   };
 
@@ -358,6 +412,31 @@ export const TextApp: React.FC = () => {
                 <span>Beautify & Validate JSON</span>
               </button>
 
+              <div className="space-y-2 pt-2 border-t border-slate-700/50">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Local JSON Query Path (jq-style)</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={jsonQuery}
+                    onChange={(e) => setJsonQuery(e.target.value)}
+                    placeholder=".items[0].name"
+                    className="flex-1 px-3 py-2 rounded-xl neu-inset text-xs font-mono text-slate-900 dark:text-white"
+                  />
+                  <button
+                    onClick={handleJsonQuery}
+                    className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold"
+                  >
+                    Query
+                  </button>
+                </div>
+              </div>
+
+              {queryResult && (
+                <div className="p-3 neu-inset rounded-2xl text-[11px] font-mono text-cyan-300 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                  {queryResult}
+                </div>
+              )}
+
               {jsonError && (
                 <div className="p-3 neu-inset border border-rose-500/30 rounded-2xl text-xs text-rose-600 dark:text-rose-300">
                   {jsonError}
@@ -366,11 +445,11 @@ export const TextApp: React.FC = () => {
             </div>
           )}
 
-          {/* 19. DEVELOPER UTILITIES */}
+          {/* 19. DEVELOPER UTILITIES & JWT INSPECTOR */}
           {activeCategory === 'developer' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Input String</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Input String / Base64</label>
                 <input
                   type="text"
                   value={devInput}
@@ -379,16 +458,36 @@ export const TextApp: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button onClick={() => handleDevConvert('base64')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-700 dark:text-slate-300">
-                  Base64
+                  Base64 Encode
                 </button>
                 <button onClick={() => handleDevConvert('url')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-700 dark:text-slate-300">
-                  URL Enc
+                  URL Encode
                 </button>
-                <button onClick={() => handleDevConvert('hash')} className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-700 dark:text-slate-300">
-                  SHA-256
-                </button>
+              </div>
+
+              {/* JWT INSPECTOR */}
+              <div className="space-y-2 pt-3 border-t border-slate-700/50">
+                <label className="text-xs font-semibold text-amber-400">Offline JWT Inspector</label>
+                <input
+                  type="text"
+                  value={jwtToken}
+                  onChange={(e) => handleDecodeJwt(e.target.value)}
+                  placeholder="Paste eyJhbGci... token here"
+                  className="w-full px-3 py-2 rounded-xl neu-inset text-xs font-mono text-slate-900 dark:text-white placeholder:text-slate-500"
+                />
+                {jwtDecoded && jwtDecoded.valid && (
+                  <div className="space-y-2 p-3 neu-inset rounded-2xl text-[10px] font-mono">
+                    <p className="text-cyan-400 font-bold">Header:</p>
+                    <pre className="text-slate-300 overflow-x-auto">{JSON.stringify(jwtDecoded.header, null, 2)}</pre>
+                    <p className="text-emerald-400 font-bold mt-1">Payload:</p>
+                    <pre className="text-slate-300 overflow-x-auto">{JSON.stringify(jwtDecoded.payload, null, 2)}</pre>
+                  </div>
+                )}
+                {jwtDecoded && !jwtDecoded.valid && (
+                  <p className="text-[11px] text-rose-400 italic">Invalid JWT format</p>
+                )}
               </div>
 
               {devOutput && (

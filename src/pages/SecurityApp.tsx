@@ -27,11 +27,11 @@ export const SecurityApp: React.FC = () => {
     }
 
     try {
-      await process(async () => {
+      await process(async (updateProgress: (p: number) => void) => {
         if (mode === 'encrypt') {
-          return await encryptFile(selectedFile, password);
+          return await encryptFile(selectedFile, password, updateProgress);
         } else {
-          return await decryptFile(selectedFile, password);
+          return await decryptFile(selectedFile, password, updateProgress);
         }
       });
       confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
@@ -66,9 +66,12 @@ export const SecurityApp: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 AES-256-GCM
               </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                .gsenc Open Format
+              </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              Military-grade client-side file encryption with PBKDF2 key derivation. Your keys never leave your browser memory.
+              Military-grade client-side file encryption using authenticated AES-256-GCM &amp; PBKDF2. Standardized open <code className="text-emerald-400 font-mono">.gsenc</code> format guarantees zero vendor lock-in.
             </p>
           </div>
         </div>

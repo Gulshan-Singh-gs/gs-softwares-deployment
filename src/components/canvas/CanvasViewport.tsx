@@ -19,6 +19,7 @@ import {
   isStrokeInLasso
 } from '../../lib/canvas/bezierMath';
 import { recognizeSmartShape, RecognizedShape } from '../../lib/canvas/smartShapes';
+import { getStroke } from 'perfect-freehand';
 
 interface CanvasViewportProps {
   project: CanvasProject;
@@ -292,7 +293,16 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
         ctx.lineJoin = stroke.join || 'round';
         ctx.lineWidth = stroke.width;
 
-        if (stroke.segments.length > 0) {
+        if (stroke.outlinePoints && stroke.outlinePoints.length > 0) {
+          ctx.fillStyle = stroke.color;
+          ctx.beginPath();
+          ctx.moveTo(stroke.outlinePoints[0][0], stroke.outlinePoints[0][1]);
+          for (let i = 1; i < stroke.outlinePoints.length; i++) {
+            ctx.lineTo(stroke.outlinePoints[i][0], stroke.outlinePoints[i][1]);
+          }
+          ctx.closePath();
+          ctx.fill();
+        } else if (stroke.segments.length > 0) {
           ctx.beginPath();
           const first = stroke.segments[0];
           ctx.moveTo(first.p0.x, first.p0.y);
@@ -373,12 +383,32 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
         ctx.arc(p.x, p.y, (currentWidth * (p.pressure ?? 0.5)) / 2, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x, points[i].y);
+        const strokeInput = points.map((pt) => [pt.x, pt.y, pt.pressure ?? 0.5] as [number, number, number]);
+        const outline = getStroke(strokeInput, {
+          size: currentWidth,
+          thinning: currentBrush === 'pen' ? 0.6 : 0.2,
+          smoothing: 0.7,
+          streamline: 0.5,
+          simulatePressure: true
+        });
+
+        if (outline.length > 0) {
+          ctx.fillStyle = currentColor;
+          ctx.beginPath();
+          ctx.moveTo(outline[0][0], outline[0][1]);
+          for (let i = 1; i < outline.length; i++) {
+            ctx.lineTo(outline[i][0], outline[i][1]);
+          }
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
       ctx.restore();
     }
@@ -887,6 +917,18 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       finalNodes = computed.nodes;
     }
 
+    let outlinePoints: [number, number][] | undefined = undefined;
+    if (!activeShapePreviewRef.current && raw.length > 1) {
+      const strokeInput = raw.map((pt) => [pt.x, pt.y, pt.pressure ?? 0.5] as [number, number, number]);
+      outlinePoints = getStroke(strokeInput, {
+        size: currentWidth,
+        thinning: currentBrush === 'pen' ? 0.6 : 0.2,
+        smoothing: 0.7,
+        streamline: 0.5,
+        simulatePressure: true
+      }) as [number, number][];
+    }
+
     const bounds = computeBounds(finalSegments, raw, currentWidth);
 
     const newStroke: VectorStroke = {
@@ -902,6 +944,7 @@ export const CanvasViewport: React.FC<CanvasViewportProps> = ({
       isClosed,
       rawPoints: [...raw],
       segments: finalSegments,
+      outlinePoints,
       nodes: finalNodes,
       bounds,
       createdAt: Date.now(),

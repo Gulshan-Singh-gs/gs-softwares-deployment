@@ -20,12 +20,14 @@ import { PerformanceToast } from './components/settings/PerformanceToast';
 import { PerformanceProvider, usePerformanceTier } from './context/PerformanceContext';
 import { ToolLandingPage } from './components/ToolLandingPage';
 import { TOOLS_LANDING_DATA } from './lib/seoLandingData';
-import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap } from 'lucide-react';
+import { OpenSourceNoticesModal } from './components/OpenSourceNoticesModal';
+import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap, Award } from 'lucide-react';
 
 function AppContent() {
   const [currentApp, setCurrentApp] = useState<string>('home');
   const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
+  const [noticesModalOpen, setNoticesModalOpen] = useState<boolean>(false);
   const [showFooter, setShowFooter] = useState<boolean>(() => {
     return localStorage.getItem('gs_show_footer') !== 'false';
   });
@@ -225,6 +227,15 @@ function AppContent() {
                   </li>
                   <li>
                     <button
+                      onClick={() => setNoticesModalOpen(true)}
+                      className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
+                    >
+                      <Award className="w-4 h-4 shrink-0 text-cyan-400" />
+                      Open Source Notices
+                    </button>
+                  </li>
+                  <li>
+                    <button
                       onClick={() => setIsSettingsOpen(true)}
                       className="flex items-center gap-2 text-xs opacity-70 hover:opacity-100 hover:text-cyan-500 transition-all font-medium text-left"
                     >
@@ -337,6 +348,12 @@ function AppContent() {
           </div>
         </div>
       )}
+
+      {/* Open Source Notices & Governance Modal (Section 11.5) */}
+      <OpenSourceNoticesModal
+        isOpen={noticesModalOpen}
+        onClose={() => setNoticesModalOpen(false)}
+      />
     </div>
   );
 }

@@ -24,4 +24,12 @@ declare global {
 	}
 }
 
+declare module 'lucide-react' {
+	const content: any;
+	export default content;
+	export * from 'lucide-react';
+}
+
+declare module 'piexifjs';
+
 export {};
