@@ -1,0 +1,128 @@
+
+
+
+
+
+                                                                                                          ccccccc cccccc
+                                                                                                    cccciiii. ..iiicc  ccc
+                                                                                               oc...                 icccco co
+                                                                                           cii.   .      .             iciioco
+                                                                                        ociii               .            i.iii....iccicc
+                                                                                     oooio.            .                  .      ..occc occ
+                                                                                  ooo. .  .          ..                               cicooc
+                                                                               ooii i..   ..  .     .                                    icico
+                                                                            ooiccicc.  ..ii       o.                                        .occ
+                                                                          occ.iicii.. ....      .c                                            icc
+                                                                       oooc....     ..i.       ..                                              .iio
+                                                                       cii.i.       .i        .                                                   io
+                                                                     oii  .        i.        .                                                    iio
+                                                                     cci..   .. .                                                                  ico
+                                                                    occii.      .i..    .               ..                                          cco
+                                                                    iocci.    ..i      .              ii.   .                                        .io
+                                                                 oocicoii. ..ii.  ..i.           .... .    .                                           i
+                                                               cc ..iiii. ..    ..i .                    ...                                            c
+                                                                cc..   ..i.ii.. i.                      .i.                                              c
+                                                                tc.   .       i.                        ..                                               .o
+                                                               otii.     .   .                         . .                                                ooo
+                                                              cc.c..                            ..     ..                                                 ioc
+                                                             ticci.ii                          .      ..                                                   cicc
+                                                             coii. ...          .            .       . .                                                    coo
+                                                            o.cc..ii...                   .                  ..........                                      c
+                                                            oii  i. . .                                    ..iiiiiiiicciiii..                                ic c
+                                                            i   .ci                                        .iccccccccccccccciii                              iocc
+                                                           ti..ii   .                                   .. ciocoooooooooooccccii.                           ..oc
+                                                      ccotociii   ..  .                                ... cicoooooooooooooooccii.                          ..o
+                                                      oc.ccicci  .                                     .ii ciooooooootoooooooccci.                             iio
+                                                       oc      .      ....                          . ..ii icoooooooottooooooccii.                            .cio
+                                                        oii.          ..  .                        ....ii..icooooooooooooooocccii..                        i  t
+                                                        toi       . i     .                    .. ..i.iiciiccooooooooooooocccccii..                          co
+                                                        c.           ioi          .i   i.i .     icciiicoo.ooooootottoooooccccii..                          io
+                                                      cc.             .         ...i...i. i..  .iooccicocccottottttttoooooocccii. .                         ..o
+                                                      oo.                     .iccii.         ..coccootcoiootttttttttottoooooccii...                         .co
+                                                        c                    .cooci.             ..iiico.cootttttttttttttttooocc.. .                        i.o
+                                                       oc.        ..  .      coocci.     .            .i.ccootttttttttttttttooc.i...                     ..ccco
+                                                       coi    i  ..      i  .ci  ..   .....              .icoottttttootttooooci .                       ii.oico
+                                                         c    o.ittoo.   .     .iiiiiiii.iiii..i.          ..icooccccciiii..                             c.ot
+                                                              oioOtoci    i  .ooocccicocii...    .....i.  i.iccc..  i                                   .ioo
+                                                              ooOocii .  itt otttooci.  .           ...ii  ccccciii.                ...                 cio
+                                                              cCoiiiii...tCC CCCCCCCCtitt.  .  ..     .icc ccciiii   ...........                       .ot
+                                                          i   cCoiiicic.cOOoiOOOOOOOOCtcc.     ii..   .iici        ..                 ...              .c
+                                                          o   .Otiiictc.cOXooXXOOOOCCCttccii.... .  ..icii. .i.    .               i   ..               .ic
+                                                           .   OOtiiiocicOXocXXXXOOCCCttoociiii......ii.   .ccc.   ..           i.                  .i.ciiiico
+                                                           c.. CCCOCc.oioOXooXXXXXOCCCtttooocciiiiiicc .  ctCtto.   ..         ici.   ...          iicoio
+                                                            i. oXCOOtii.cOXC.XXXXXOCttttooooccccooooc.t  tOCCCtto   ..   .........iiiiiii          . o ocoo
+                                                            ci  XOOOCi..cOXXioXXOOOCCCtttooooootttttcoiiCOXOCCttti  ii........iiiicccccii        ioci.co
+                                                            ci  tXOOti..iOOXXiiOOOOCCCCttttttttttttti cOOOXOCCttto  icciiiiiccccccooccccc       ct   ooo
+                                                            oo.  COOCoi.cCOOXOt.cCOOCOCCCCCtttttttO..tXOOOOOCCtttoi iccccciccccoooooooooo      .o
+                                                             tc   oCCo..iCOOOOOOOoc.ccoCCCCttooooc.itOXXXXOOCCtttto  coooccccccoooooooooi ..   o
+                                                            oCt.    .i ..tOOOOOOOOXOOOociii    .iotCCOOXXXOOCCttttoi ioooooocccooooooooo. i   o
+                                                           ooo.        .itOOOOOOOOOOOOOCCttoooootOOOOOXXXOOOCCCCtttc. icoooooooooooooooc     c
+                                                          ottt i.      .ioCOOOOOOXOOOOOOCtttttttXXXXOOXXXOCCtttttttto.  .icoooooooooooc...  .t
+                                                         cciiici       ..otCOOOOOOOOOOOCCCCCCCttOOOCtttCCCCtooooottttciiii..........ii.    .t
+                                                          Coo.         .cccotCOOOOOOOOOOCCCCOCCCCtciiiictCttoooccootttcccccooooooooooo.    c
+                                                       oii.i.. .       ...icoOCOOOOOOOOOCOOOOOOCCCtotocccoocci.   .coooccoooooooooooci    .t
+                                                         toCoi          . .iootCOOOOOOOOOXXXOOOOCto... ..iii.    .icoooooooooooooooo.     o
+                                                        ciCocii.         ...icotOOOOOOOOOOOCCCtoc.               .ioottoooooooooocc.      o
+                                                     co oco. .          ... iictCOOXXOOCtoooci ..                  .otttooooooooci.       i
+                                                     c.iii              ..  .icotCOXXOCocic.   ..  .                .coooooooooci         .t
+                                                     oc.                .i. .ciooCOOOCcciii    .        ...i.        .icocooocc.           o
+                                                      ciiic              i.  .iicoCOOtci               .iii..           icoooi.           .oo
+                                                      iic. .            .o.    iootOCii. .  ..       ..iii.....           coi             ctott
+                                                     o..i.  .           .co.   .iottc.  icccci.iiiciii...i...             .i           cCOOOCtttttt
+                                                     c i ...             oto    .cci.  .icooocccoooocccccciii.                       cOXXOOOOCtttttt
+                                                    c. ..                cttc   .ii .   .iicccciicoooccccciii......              icCOOOOOCOOCCtttoooto
+                                                   i...ii.               iottc .      .  iiccii..   ....iiii.......         iitCOOOOOOXXOCCttotttttooto
+                                                      .                  .otCtc       .iicccooooci.            ..       .itCOOOOOOOOXXXXOOCttooottttooot
+                                                                         .otttoc      icccootttoci....      ..       .ctOOOXOOOOOXXXXXXXOCCttttooootttooo
+                                                          .               otttCto     ..i.iccocci . ..   ...ii.  .cotOOXOOCCCOXXXXXXXOOCtttttttottooottoooo
+                                                    i..i                 .otttttto.       i.ii.        . . .. .itCOOXOOCCOOXXXXXXXXXXOCCttttttttotttooottooo
+                                             i  ii.   ci  .              .ctttttttoo                           oOOOOCOOXXXXXXXOXXXXXXOCCtttttttttttttooootooo
+                                         i.i.       .cc  ii              .ctttttttttc.                        .COCCCOXXXXXOOOXXXXXXXOOCCCCttttototttooooooooooo
+                            i. .ii... icc.         ccc..ii.               .icotttttttci       .               oOOOOXXXXOOOXXXXXXXXXOOOCCCCCCttotttoottotttoootoo
+                 ii..i..iooi..i   ...to..         oci .ii..             .iiccottttttttoi.                    oOXXXXXOOOOXXXXXXXXXOOOOCCCCCCCCttttttottttotttoooooo
+         c.  oio.  ...oi     .i..  iicc.         cii..ci.               .ccotttttttttttoc.                  .OOOOOOCOXXXXXXXXXOOOOOCOCCCCCCCCCttttttoooootottoooooo
+    . o. iiiii...i.iii            .ci           iic .ici.   .           .iccttttttttttttoc                  OOCCOCOXXXXXOOOOCCoOCtCOCCCCCCCCttttttttttttoooottooooooo
+iii.ii .ic. .   ..ii.                          ..i .iii..               .iccootttttttoottoi.               oOOtOOXXXXXOOCtttocctooXCOOCCCCCCCCCCttttttttoooooottttooooo
+ii.i.   i    ........                         i.. .icii.                ..iccoottttttoooooc..             .OOCtXCOCCOCCttooci.iocoCOXXOCCCCCCCCCCCCttttttototoooottooooo
+ioc.   .   .  ..                             . i....  .   .             ..icccoottttooooooocii..          iCCtCXCCCCCtoccci.    ..ototCtCCOCOCCOCCCCtttCtottotoooooooooooc
+iii    .   .                                  .i .  .                   ...iccooottooccoooccccci..........cCCtCXCOOCtoi              OCCCOOOOCCOCCCCCCCCCCtttttoooooooooooc  .i
+. i.    .i.                                  . .ii.. .     ..           ...icccooottoocccccccccciiiiiiiiiicCtotOCXOtocci             oCCCCOOOCCCCCCCCCCCttCttttCttooooooooooi    .i
+  i     ii                                     ......    ....           ..iicccoootttociiiiicccccccccccciiCCtctOCOCtoci.              oCCCCCOCCCCCCCCCCCCCCCtttttCCttotoootooc.      .i
+       ii                                        ...    ..i.             .iicoccooottociiiiicccccccooocciiXCoioOCOCtoci.               oCCCCCCCCCCCCCCCCCCCCCCCCCCttCttttooooooc.       i
+  .                                             .....                      .icccootttociiiiicoooootttoocioOtc.iOCOCtoi..                .CCCCCCCCCCCCCCCCCCCCCCCCCCCCCtttttttooooi        .
+                      .                            ci..                 i      .iiottociiiiccooottttttoci.oi...tCCtooci..                .CtCCCCCCCCCCCCCCCCCCCCCCCOCCCCCCttttooooo.        c
+                                                 .i..                    .            .. ..icoottttttocci...    CCttocii.                  oCCCCCtCCttttttCCCCCCCCOOCCCCCCCCttootoooc        c
+                       .                        .ii                       .                                     .tttociiii                  itttttttttttttttCCCCCCCCCCCCCCCCCCCCCtooooi       c
+ .                     .                       .i..ii                      .                                     Cttoocii.                    cttttttttttttttttCCCCCCCCCCCCCCCtCCCtooooci .ic  c
+                       .                     ... .ii                        .                                    cOtCocii                      .coottttttttttttCCCCCCCCttCCOOCCtCCtocc. .i   .icc
+                      .                 .        ii.   .                    i                                   . ccttc.                          icooototttttttCCCCCttttCCCCCCCtocccc  . . i   ic
+                      .                     i   ..    i                      i                                 o     .                             .oooottottttttttttttttCtCCCCCtocii. i.      i  o
+                      .                    .   ...ci .                        o                               .                                      ioooootooooooottttCttCCCttttoc.   ..          oo
+                                               .                              ii                             o                                         .icccccicooCtttCCtCtCCtttttc   o cc          oo
+                                                                               ..                           o                                                 iooCCttCtCtCCCCCttt     ci.i    .      to
+                     .                                                          .                          o                                                   .ittttCCCtCCCCCCo.      i.Oc       .i ic
+                    .                                                            .                                                                               ioCCCCCCCCCCo.         . c.          c.
+                                                                                                         o                   i.                                    oCCCCCCCc               .ci   .    .  i
+                                                                                   .                    o                   .                                      .oCCCoi                   ci.i .  oc   i
+                                                                                    c                                   .                                           .cc.                   ..  .c.  ..     i
+                                                                       i             o                                 .                                          ..                          .     .ci     .
+                                                                                      .             io                                                              i                             .cciii.    i
+                                                                        .             .i           .o                i                                                                .iiiiciccccciccccic    .
+                                                                         i             ..         ..                c                                                             .iccooooooooooccccccccii.   c
+                                                                         .              .o       c                                                                              .cotttttottoooooooooccccccii  .
+                                                                         c               .o     .                  i                                                         .cotttCCCttttttttttooococccccccc  .
+                                                                                           .ii.                   i                                                          iottCCCCCCttttttoooooooooooccccci. i
+                                                                         .                  ci                                                                              icotCCCCCCtttttttttoooooooooooocciii.i
+                                                                         .                 icci                   .                                                         .ottCCCOCCCCCCtttttoocoooooooocccccciii
+                                                                        .                  iiio                  c                                                           otCCCCCCCCCCttttttttocooooooocccccccci.
+                                                                                           .i.o                  .                                                            tCCCCCCCCCCCCttttttotooooooooccoccccci.
+                                                                        i                  icct                                                                               .tCCCCCCCCtttttttooottoooooooccccccccci
+                  .                                                                        ci.o                  .                                                             itCCCCCCCtCCCtttCttttooooooooooccccccc
+                                                                                           i..t                                                                                 ctCCCCCCCCCtCttttottttoooooococcccccc
+                                                                      .                    cccc                 ..                                                               tCttCtCCCCtCCtttttotoooooooooccccccc
+                                                                      .                                                                                                          .tttCCCCCCtCtCttttotoooooooooccccccc
+                                                                                                                 .                                                                ottCCCCCCtttCtCtttttooooooooooccccc
+                                                                     i                                           i                                                                 otCCCtCCCttttttttttoooooooococcccc
+                                                                    .                                            .                                                                 .tttCCtCCtCttCtttttootoooooooccccc
+                                                                                                                                                                                    cttCCtCtttCtttttttoootoooococcccc
+                                                                  i                                              .                                                                   ottCCCCtCCCttCtttotoooooocccccci

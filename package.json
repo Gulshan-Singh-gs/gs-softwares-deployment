@@ -5,9 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test:bot": "tsx test_bot.ts"
+    "test:bot": "tsx test_bot.ts",
+    "audit": "npm audit --audit-level=high"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.0.7",

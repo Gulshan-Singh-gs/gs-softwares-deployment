@@ -1,9 +1,33 @@
+# Global security & MIME headers for all routes
 /*
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp
   Cross-Origin-Resource-Policy: same-origin
   X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Cache-Control: public, max-age=0, must-revalidate
+  Permissions-Policy: camera=(self), microphone=(self), display-capture=(self), geolocation=(), interest-cohort=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self' blob:;
 
+# Fingerprinted immutable assets (Vite hashed bundles & styles) - Cache for 1 year
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Service worker and registration must always revalidate immediately
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/registerSW.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Web App Manifest
+/manifest.webmanifest
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# HTML Shell - Always revalidate so users receive new deployment releases
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Static media / icons
+/icons/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

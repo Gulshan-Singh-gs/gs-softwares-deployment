@@ -1,0 +1,80 @@
+name: CI & Deployment Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate, Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Locked Dependencies
+        run: npm ci
+
+      - name: Typecheck TypeScript
+        run: npm run typecheck
+
+      - name: Security Audit Gate
+        run: npm audit --audit-level=high
+
+      - name: Production Bundle Build
+        run: npm run build
+
+      - name: Verify Dist Artifact & PWA Files
+        run: |
+          test -f dist/index.html || { echo "Missing dist/index.html"; exit 1; }
+          test -f dist/manifest.webmanifest || { echo "Missing manifest.webmanifest"; exit 1; }
+          test -f dist/sw.js || { echo "Missing service worker dist/sw.js"; exit 1; }
+          echo "Production build validation passed."
+
+      - name: Install Playwright Browsers for Smoke Test
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Performance & Zero-Network Audit Bot
+        run: |
+          npm run preview &
+          PREVIEW_PID=$!
+          # Wait for preview server
+          npx wait-on http://localhost:4173 --timeout 30000
+          npm run test:bot
+          kill $PREVIEW_PID
+
+      - name: Upload Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        with:
+          path: dist/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

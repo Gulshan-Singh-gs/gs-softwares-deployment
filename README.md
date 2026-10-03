@@ -7,10 +7,10 @@
   <p><strong>A high-performance, privacy-first client-side web application suite built for modern workflows.</strong></p>
 
   <p>
-    <a href="https://github.com/gulshan-singh-gs/gs-softwares-deployment/blob/main/LICENSE">
+    <a href="./LICENSE">
       <img src="https://img.shields.io/badge/License-MIT-0a0a0a?style=flat-square&logo=opensourceinitiative&logoColor=white" alt="License" />
     </a>
-    <img src="https://img.shields.io/badge/React-18-0a0a0a?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />
+    <img src="https://img.shields.io/badge/React-19-0a0a0a?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />
     <img src="https://img.shields.io/badge/TypeScript-Strict-0a0a0a?style=flat-square&logo=typescript&logoColor=3178C6" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Vite-Bundler-0a0a0a?style=flat-square&logo=vite&logoColor=646CFF" alt="Vite" />
     <img src="https://img.shields.io/badge/PWA-Offline--First-0a0a0a?style=flat-square&logo=pwa&logoColor=white" alt="PWA" />
