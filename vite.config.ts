@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
+  // Relative base path ensures zero-config compatibility with GitHub Pages (/gs-softwares-deployment/), Vercel, and local previews
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
@@ -21,18 +23,20 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/favicon.png',
+            src: 'favicon.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/favicon.png',
+            src: 'favicon.png',
             sizes: '512x512',
             type: 'image/png'
           }
         ]
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}']
       }
@@ -42,6 +46,23 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       'canvas-confetti': path.resolve(__dirname, './src/lib/confetti.ts')
+    }
+  },
+  build: {
+    target: 'esnext',
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'engine-pdf': ['@cantoo/pdf-lib', 'pdfjs-dist'],
+          'engine-crypto': ['./src/lib/cryptoEngine.ts'],
+          'engine-image': ['./src/lib/imageEngine.ts'],
+          'engine-audio': ['./src/lib/audioEngine.ts'],
+          'engine-video': ['./src/lib/videoEngine.ts'],
+          'engine-archive': ['jszip']
+        }
+      }
     }
   },
   server: {

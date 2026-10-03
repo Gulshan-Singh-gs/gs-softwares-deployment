@@ -363,7 +363,9 @@ export async function applyWatermark(
 }
 
 /**
- * 8. TRUE REDACTION SUITE (TC-1: Sever stream text operators & draw opaque rects)
+ * 8. VISUAL MASK & ANNOTATION PURGE SUITE
+ * Overlays opaque black geometry AND scrubs interactive annotations (links, comments, form fields, popups)
+ * from the target page so metadata/links underneath cannot leak or be clicked.
  */
 export async function applyTrueRedaction(
   arrayBuffer: ArrayBuffer,
@@ -374,6 +376,18 @@ export async function applyTrueRedaction(
   const pages = pdfDoc.getPages();
   const page = pages[pageIndex] || pages[0];
 
+  // Scrub interactive link annotations & popups that may contain underlying sensitive URIs or text
+  const node = page.node;
+  if (node && typeof node.delete === 'function') {
+    try {
+      // Clear annotations on redacted page to prevent sensitive click-through or popup leak
+      node.delete(pdfDoc.context.obj('Annots'));
+    } catch (e) {
+      console.warn('Annotation scrub pass:', e);
+    }
+  }
+
+  // Draw opaque solid blackout rectangles
   rects.forEach((rect) => {
     page.drawRectangle({
       x: rect.x,
@@ -445,8 +459,17 @@ export async function applyBatesNumbering(
 import * as pdfjsLib from 'pdfjs-dist';
 import JSZip from 'jszip';
 
+// Offline-first worker resolution: self-bundle worker instead of unverified CDN
 if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '3.11.174'}/pdf.worker.min.js`;
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/build/pdf.worker.mjs',
+      import.meta.url
+    ).toString();
+  } catch {
+    // Graceful fallback for non-bundler contexts
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+  }
 }
 
 /**

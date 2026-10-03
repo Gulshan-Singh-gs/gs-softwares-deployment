@@ -71,7 +71,7 @@ export const SecurityApp: React.FC = () => {
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              Military-grade client-side file encryption using authenticated AES-256-GCM &amp; PBKDF2. Standardized open <code className="text-emerald-400 font-mono">.gsenc</code> format guarantees zero vendor lock-in.
+              Client-side authenticated file encryption using AES-256-GCM &amp; PBKDF2-HMAC-SHA256 (600,000 iterations, OWASP standard). Standardized open <code className="text-emerald-400 font-mono">.gsenc</code> format guarantees zero vendor lock-in.
             </p>
           </div>
         </div>

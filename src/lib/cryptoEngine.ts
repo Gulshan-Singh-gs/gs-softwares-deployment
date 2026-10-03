@@ -4,19 +4,26 @@
  */
 
 // Standardized Open .gsenc File Specification (SEC-N-01):
-// [6 bytes Magic: "GSENC1"]
+// GSENC2 (OWASP 2024+ Compliant):
+// [6 bytes Magic: "GSENC2"]
 // [16 bytes PBKDF2 Salt]
 // [12 bytes AES-GCM IV]
 // [Remaining bytes: AES-256-GCM authenticated ciphertext + 16-byte auth tag]
+// Derived using PBKDF2-HMAC-SHA256 with 600,000 iterations.
+//
+// Legacy GSENC1 & unversioned headers use 100,000 iterations and remain fully supported on decryption.
 
-const GSENC_MAGIC = new Uint8Array([0x47, 0x53, 0x45, 0x4e, 0x43, 0x31]); // "GSENC1"
+const GSENC2_MAGIC = new Uint8Array([0x47, 0x53, 0x45, 0x4e, 0x43, 0x32]); // "GSENC2"
+const GSENC1_MAGIC = new Uint8Array([0x47, 0x53, 0x45, 0x4e, 0x43, 0x31]); // "GSENC1"
+export const OWASP_PBKDF2_ITERATIONS = 600000;
+export const LEGACY_PBKDF2_ITERATIONS = 100000;
 
 export const encryptFile = async (
   file: File,
   password: string,
   onProgress?: (percent: number) => void
 ): Promise<Blob> => {
-  if (!password) {
+  if (!password || password.trim().length === 0) {
     throw new Error('Password cannot be empty');
   }
 
@@ -25,7 +32,7 @@ export const encryptFile = async (
   // Generate 16-byte random cryptographic salt
   const salt = crypto.getRandomValues(new Uint8Array(16));
 
-  // Derive key material from password using PBKDF2-HMAC-SHA256 (100,000 iterations)
+  // Derive key material from password using PBKDF2-HMAC-SHA256 (600,000 iterations per OWASP standard)
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(password),
@@ -38,7 +45,7 @@ export const encryptFile = async (
     {
       name: 'PBKDF2',
       salt,
-      iterations: 100000,
+      iterations: OWASP_PBKDF2_ITERATIONS,
       hash: 'SHA-256',
     },
     keyMaterial,
@@ -63,13 +70,17 @@ export const encryptFile = async (
     fileBuffer
   );
 
-  // Pack open container header: [6 bytes Magic] + [16 bytes salt] + [12 bytes iv] + [encrypted data]
-  const totalLength = GSENC_MAGIC.length + salt.length + iv.length + encrypted.byteLength;
+  // Pack open container header: [6 bytes Magic GSENC2] + [16 bytes salt] + [12 bytes iv] + [encrypted data]
+  const totalLength = GSENC2_MAGIC.length + salt.length + iv.length + encrypted.byteLength;
   const result = new Uint8Array(totalLength);
-  result.set(GSENC_MAGIC, 0);
-  result.set(salt, GSENC_MAGIC.length);
-  result.set(iv, GSENC_MAGIC.length + salt.length);
-  result.set(new Uint8Array(encrypted), GSENC_MAGIC.length + salt.length + iv.length);
+  result.set(GSENC2_MAGIC, 0);
+  result.set(salt, GSENC2_MAGIC.length);
+  result.set(iv, GSENC2_MAGIC.length + salt.length);
+  result.set(new Uint8Array(encrypted), GSENC2_MAGIC.length + salt.length + iv.length);
+
+  // Securely zero out raw salt and iv buffers from memory
+  salt.fill(0);
+  iv.fill(0);
 
   if (onProgress) onProgress(100);
   return new Blob([result], { type: 'application/octet-stream' });
@@ -80,7 +91,7 @@ export const decryptFile = async (
   password: string,
   onProgress?: (percent: number) => void
 ): Promise<Blob> => {
-  if (!password) {
+  if (!password || password.trim().length === 0) {
     throw new Error('Password cannot be empty');
   }
 
@@ -92,20 +103,36 @@ export const decryptFile = async (
   let saltBuffer: ArrayBuffer;
   let ivBuffer: ArrayBuffer;
   let encryptedBuffer: ArrayBuffer;
+  let iterations = OWASP_PBKDF2_ITERATIONS;
 
-  // Check for GSENC1 magic header (6 bytes)
-  const hasMagic =
-    data.length >= GSENC_MAGIC.length &&
+  // Check for GSENC2 header (6 bytes)
+  const isGSENC2 =
+    data.length >= GSENC2_MAGIC.length &&
+    data[0] === 0x47 && data[1] === 0x53 && data[2] === 0x45 &&
+    data[3] === 0x4e && data[4] === 0x43 && data[5] === 0x32;
+
+  // Check for GSENC1 header (6 bytes)
+  const isGSENC1 =
+    data.length >= GSENC1_MAGIC.length &&
     data[0] === 0x47 && data[1] === 0x53 && data[2] === 0x45 &&
     data[3] === 0x4e && data[4] === 0x43 && data[5] === 0x31;
 
-  if (hasMagic) {
+  if (isGSENC2) {
     if (buffer.byteLength < 6 + 16 + 12 + 16) {
       throw new Error('Corrupted or truncated .gsenc encrypted package');
     }
     saltBuffer = buffer.slice(6, 22);
     ivBuffer = buffer.slice(22, 34);
     encryptedBuffer = buffer.slice(34);
+    iterations = OWASP_PBKDF2_ITERATIONS;
+  } else if (isGSENC1) {
+    if (buffer.byteLength < 6 + 16 + 12 + 16) {
+      throw new Error('Corrupted or truncated .gsenc encrypted package');
+    }
+    saltBuffer = buffer.slice(6, 22);
+    ivBuffer = buffer.slice(22, 34);
+    encryptedBuffer = buffer.slice(34);
+    iterations = LEGACY_PBKDF2_ITERATIONS;
   } else {
     // Legacy container compatibility: [16 bytes salt] + [12 bytes iv] + [ciphertext]
     if (buffer.byteLength < 28) {
@@ -114,6 +141,7 @@ export const decryptFile = async (
     saltBuffer = buffer.slice(0, 16);
     ivBuffer = buffer.slice(16, 28);
     encryptedBuffer = buffer.slice(28);
+    iterations = LEGACY_PBKDF2_ITERATIONS;
   }
 
   if (onProgress) onProgress(40);
@@ -130,7 +158,7 @@ export const decryptFile = async (
     {
       name: 'PBKDF2',
       salt: saltBuffer,
-      iterations: 100000,
+      iterations,
       hash: 'SHA-256',
     },
     keyMaterial,
@@ -147,9 +175,15 @@ export const decryptFile = async (
       key,
       encryptedBuffer
     );
+    // Securely wipe sensitive intermediate buffers
+    new Uint8Array(saltBuffer).fill(0);
+    new Uint8Array(ivBuffer).fill(0);
+
     if (onProgress) onProgress(100);
     return new Blob([decrypted]);
   } catch {
+    new Uint8Array(saltBuffer).fill(0);
+    new Uint8Array(ivBuffer).fill(0);
     throw new Error('Decryption failed. Incorrect password or damaged ciphertext.');
   }
 };

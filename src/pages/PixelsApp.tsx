@@ -31,10 +31,34 @@ import {
   Pipette,
   Clipboard,
   Filter,
-  Share2
+  Share2,
+  Stamp,
+  ShieldAlert,
+  Maximize2,
+  Grid as GridIcon,
+  Scissors,
+  Eraser,
+  Sparkle,
+  SplitSquareVertical,
+  Columns,
+  Contrast
 } from 'lucide-react';
 import JSZip from 'jszip';
 import confetti from 'canvas-confetti';
+import { 
+  removeBackgroundClient, 
+  applyWatermark, 
+  applyPrivacyBlur, 
+  vectorizeBitmapToSvg, 
+  upscaleImageSmart, 
+  sliceImageGrid,
+  inpaintImageClient,
+  applyDitherFilter,
+  invertImageNegative,
+  diffImagesClient,
+  stitchImagesClient
+} from '../lib/imageEngine';
+import { downloadBlob } from '../lib/fileUtils';
 import { saveWorkspaceFile, getWorkspaceFilesByApp, deleteWorkspaceFile } from '../lib/db';
 
 type PixelSubTool = 
@@ -45,7 +69,18 @@ type PixelSubTool =
   | 'rotate' 
   | 'metadata' 
   | 'palette' 
-  | 'base64';
+  | 'base64'
+  | 'bgremove'
+  | 'watermark'
+  | 'blur'
+  | 'vectorize'
+  | 'upscale'
+  | 'grid'
+  | 'inpaint'
+  | 'dither'
+  | 'negative'
+  | 'diff'
+  | 'stitch';
 
 export interface ExtractedColorItem {
   hex: string;
@@ -121,6 +156,31 @@ export const PixelsApp: React.FC = () => {
   const [cropW, setCropW] = useState<number>(100);
   const [cropH, setCropH] = useState<number>(100);
 
+  // New Tool States
+  const [bgTolerance, setBgTolerance] = useState<number>(38);
+  const [watermarkText, setWatermarkText] = useState<string>('CONFIDENTIAL');
+  const [watermarkPos, setWatermarkPos] = useState<'bottom-right' | 'center' | 'bottom-left' | 'top-right' | 'tile'>('bottom-right');
+  const [watermarkOpacity, setWatermarkOpacity] = useState<number>(50);
+  const [watermarkColor, setWatermarkColor] = useState<string>('#ffffff');
+  const [blurMode, setBlurMode] = useState<'pixelate' | 'blackout'>('pixelate');
+  const [blurAreaSize, setBlurAreaSize] = useState<number>(30); // percentage size of center censor
+  const [vectorThreshold, setVectorThreshold] = useState<number>(128);
+  const [vectorSvgResult, setVectorSvgResult] = useState<string>('');
+  const [upscaleFactor, setUpscaleFactor] = useState<2 | 4>(2);
+  const [gridRows, setGridRows] = useState<number>(3);
+  const [gridCols, setGridCols] = useState<number>(3);
+  const [gridSlices, setGridSlices] = useState<Array<{ filename: string; blob: Blob; url: string }>>([]);
+
+  // Generative Inpaint & Retro Dither & Diff & Stitch States
+  const [inpaintBoxSize, setInpaintBoxSize] = useState<number>(20); // percentage box in center
+  const [ditherAlgorithm, setDitherAlgorithm] = useState<'floyd-steinberg' | 'atkinson' | 'bayer'>('floyd-steinberg');
+  const [ditherPalette, setDitherPalette] = useState<'1bit' | 'gameboy' | 'sepia' | 'cmyk'>('1bit');
+  const [diffThreshold, setDiffThreshold] = useState<number>(0.1);
+  const [diffMismatchPct, setDiffMismatchPct] = useState<number | null>(null);
+  const [diffResultUrl, setDiffResultUrl] = useState<string | null>(null);
+  const [stitchOrientation, setStitchOrientation] = useState<'horizontal' | 'vertical' | 'grid2x2'>('horizontal');
+  const [stitchSpacing, setStitchSpacing] = useState<number>(12);
+  const [stitchResultUrl, setStitchResultUrl] = useState<string | null>(null);
 
   // Robust Vibration API Helper
   const triggerVibrate = (pattern: number | number[]) => {
@@ -288,10 +348,21 @@ export const PixelsApp: React.FC = () => {
     { id: 'compress', name: 'Compress & Convert', icon: Sliders, tagline: 'JPG ↔ PNG ↔ WebP Format & Quality' },
     { id: 'resize', name: 'Resize & Fit', icon: Layers, tagline: 'Exact PX or Scale Dimensions' },
     { id: 'crop', name: 'Crop Studio', icon: Crop, tagline: 'Aspect-Ratio Crop & Framing' },
+    { id: 'bgremove', name: 'AI BG Remover', icon: Scissors, tagline: 'Local Segmentation & Transparent PNG' },
+    { id: 'watermark', name: 'Watermark Stamper', icon: Stamp, tagline: 'Copyright Text & Tiled Stamps' },
+    { id: 'blur', name: 'Privacy Blur & Redact', icon: ShieldAlert, tagline: 'Censor Faces, Plates & Sensitive Text' },
+    { id: 'vectorize', name: 'Bitmap ➔ SVG Vector', icon: Code, tagline: 'Trace Raster Contours to SVG Paths' },
+    { id: 'inpaint', name: 'AI Object Inpaint', icon: Eraser, tagline: 'Erase Blemishes & Diffuse Surroundings' },
+    { id: 'dither', name: 'Retro Dither & 1-Bit', icon: Sparkle, tagline: 'Floyd-Steinberg & Game Boy Aesthetics' },
+    { id: 'negative', name: 'Color Invert & Negative', icon: Contrast, tagline: 'Bitwise Inversion & Film Negatives' },
+    { id: 'diff', name: 'Visual Regression Diff', icon: SplitSquareVertical, tagline: 'Compare 2 Images & Delta Mismatch' },
+    { id: 'stitch', name: 'Collage & Panorama Stitch', icon: Columns, tagline: 'Side-by-Side & Multi-Photo Strips' },
+    { id: 'upscale', name: 'AI Super Resolution', icon: Maximize2, tagline: '2x / 4x Smart Detail Upscaling' },
+    { id: 'grid', name: 'Grid Slicer & Splitter', icon: GridIcon, tagline: 'Split into Instagram 3x3 / Sprites' },
     { id: 'rotate', name: 'Rotate & Flip', icon: RotateCw, tagline: '90°/180° Angle & Mirror' },
     { id: 'metadata', name: 'EXIF Scrubber', icon: FileSearch, tagline: 'Remove Privacy Metadata' },
     { id: 'palette', name: 'Color Extractor', icon: Palette, tagline: 'Extract Dominant Palette' },
-    { id: 'base64', name: 'Base64 Encoder', icon: Code, tagline: 'Convert Image to Data URI' },
+    { id: 'base64', name: 'Base64 Encoder', icon: FileText, tagline: 'Convert Image to Data URI' },
   ];
   
   // Restore image workspace files from IndexedDB on refresh
@@ -897,35 +968,138 @@ export const PixelsApp: React.FC = () => {
           sh = Math.round(sh * ratio);
         }
 
-        if (activeTool === 'metadata' && item.file) {
-          import('../lib/imageEngine').then(({ scrubExifLossless }) => {
-            scrubExifLossless(item.file!).then((blob) => {
-              const processedUrl = URL.createObjectURL(blob);
-              resolve({
-                ...item,
-                processedUrl,
-                processedSize: blob.size,
-                status: 'done'
-              });
-            }).catch(() => {
-              canvas.toBlob(
-                (blob) => {
-                  if (!blob) {
-                    resolve(item);
-                    return;
-                  }
-                  const processedUrl = URL.createObjectURL(blob);
-                  resolve({
-                    ...item,
-                    processedUrl,
-                    processedSize: blob.size,
-                    status: 'done'
-                  });
-                },
-                format,
-                quality / 100
-              );
+        // New Tool Handlers
+        if (activeTool === 'bgremove' && item.file) {
+          removeBackgroundClient(item.file, { tolerance: bgTolerance }).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
             });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'watermark' && item.file) {
+          applyWatermark(item.file, {
+            text: watermarkText,
+            position: watermarkPos,
+            opacity: watermarkOpacity / 100,
+            color: watermarkColor
+          }).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'blur' && item.file) {
+          const bw = (w * blurAreaSize) / 100;
+          const bh = (h * blurAreaSize) / 100;
+          const bx = (w - bw) / 2;
+          const by = (h - bh) / 2;
+          applyPrivacyBlur(item.file, [{ x: bx, y: by, width: bw, height: bh, mode: blurMode }]).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'inpaint' && item.file) {
+          const bw = (w * inpaintBoxSize) / 100;
+          const bh = (h * inpaintBoxSize) / 100;
+          const bx = (w - bw) / 2;
+          const by = (h - bh) / 2;
+          inpaintImageClient(item.file, [{ x: bx, y: by, width: bw, height: bh }]).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'dither' && item.file) {
+          applyDitherFilter(item.file, ditherAlgorithm, ditherPalette).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'negative' && item.file) {
+          invertImageNegative(item.file).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'upscale' && item.file) {
+          upscaleImageSmart(item.file, upscaleFactor).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => resolve(item));
+          return;
+        }
+
+        if (activeTool === 'metadata' && item.file) {
+          scrubExifLossless(item.file).then((blob) => {
+            const processedUrl = URL.createObjectURL(blob);
+            resolve({
+              ...item,
+              processedUrl,
+              processedSize: blob.size,
+              status: 'done'
+            });
+          }).catch(() => {
+            canvas.toBlob(
+              (blob) => {
+                if (!blob) {
+                  resolve(item);
+                  return;
+                }
+                const processedUrl = URL.createObjectURL(blob);
+                resolve({
+                  ...item,
+                  processedUrl,
+                  processedSize: blob.size,
+                  status: 'done'
+                });
+              },
+              format,
+              quality / 100
+            );
           });
           return;
         }
@@ -1039,7 +1213,18 @@ export const PixelsApp: React.FC = () => {
     cropX,
     cropY,
     cropW,
-    cropH
+    cropH,
+    bgTolerance,
+    watermarkText,
+    watermarkPos,
+    watermarkOpacity,
+    watermarkColor,
+    blurMode,
+    blurAreaSize,
+    upscaleFactor,
+    inpaintBoxSize,
+    ditherAlgorithm,
+    ditherPalette
   ]);
 
   const applyCurrentSettingsToAll = () => {
@@ -1701,6 +1886,529 @@ export const PixelsApp: React.FC = () => {
                   Flip Vert ↕
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* AI BACKGROUND REMOVER CONTROLS */}
+          {activeTool === 'bgremove' && (
+            <div className="space-y-4">
+              <div className="p-3.5 rounded-2xl neu-inset space-y-2 border border-slate-800/80">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <p className="font-bold text-white">Segmentation Sensitivity</p>
+                    <p className="text-[10px] text-slate-400">Controls tolerance for edge extraction</p>
+                  </div>
+                  <span className="text-cyan-400 font-mono font-bold text-xs">{bgTolerance}</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="90"
+                  value={bgTolerance}
+                  onChange={(e) => setBgTolerance(Number(e.target.value))}
+                  className="w-full accent-cyan-500 cursor-pointer"
+                />
+              </div>
+              <div className="p-3 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 text-cyan-300 text-[11px] leading-relaxed">
+                Processes locally using client-side edge color segmentation. Output is exported as transparent PNG.
+              </div>
+            </div>
+          )}
+
+          {/* WATERMARK STAMPER CONTROLS */}
+          {activeTool === 'watermark' && (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-300">Watermark Text</label>
+                <input
+                  type="text"
+                  value={watermarkText}
+                  onChange={(e) => setWatermarkText(e.target.value)}
+                  placeholder="e.g. © 2026 GS Softwares"
+                  className="w-full px-3 py-2 rounded-xl neu-inset bg-slate-900 border border-slate-800 text-xs text-white"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-slate-300">Position</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'bottom-right', label: 'Bottom Right' },
+                    { id: 'center', label: 'Center' },
+                    { id: 'bottom-left', label: 'Bottom Left' },
+                    { id: 'tile', label: 'Diagonal Tile' },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setWatermarkPos(p.id as any)}
+                      className={`py-1.5 rounded-lg text-xs font-bold border ${
+                        watermarkPos === p.id
+                          ? 'bg-cyan-600 border-cyan-500 text-white'
+                          : 'bg-slate-900 border-slate-800 text-slate-400'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl neu-inset space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-white">Opacity</span>
+                  <span className="text-cyan-400 font-mono font-bold">{watermarkOpacity}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  value={watermarkOpacity}
+                  onChange={(e) => setWatermarkOpacity(Number(e.target.value))}
+                  className="w-full accent-cyan-500 cursor-pointer"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* PRIVACY BLUR & REDACT CONTROLS */}
+          {activeTool === 'blur' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-300">Redaction Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setBlurMode('pixelate')}
+                    className={`py-2 rounded-xl text-xs font-bold border ${
+                      blurMode === 'pixelate'
+                        ? 'bg-cyan-600 border-cyan-500 text-white shadow'
+                        : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    Mosaic Pixelate
+                  </button>
+                  <button
+                    onClick={() => setBlurMode('blackout')}
+                    className={`py-2 rounded-xl text-xs font-bold border ${
+                      blurMode === 'blackout'
+                        ? 'bg-cyan-600 border-cyan-500 text-white shadow'
+                        : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    Solid Blackout
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-2xl neu-inset space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <p className="font-bold text-white">Censor Bounding Size</p>
+                    <p className="text-[10px] text-slate-400">Scale of center redaction box</p>
+                  </div>
+                  <span className="text-cyan-400 font-mono font-bold text-xs">{blurAreaSize}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="10"
+                  max="80"
+                  value={blurAreaSize}
+                  onChange={(e) => setBlurAreaSize(Number(e.target.value))}
+                  className="w-full accent-cyan-500 cursor-pointer"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* BITMAP TO SVG VECTORIZER CONTROLS */}
+          {activeTool === 'vectorize' && (
+            <div className="space-y-4">
+              <div className="p-3.5 rounded-2xl neu-inset space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <p className="font-bold text-white">Contour Luminance Threshold</p>
+                    <p className="text-[10px] text-slate-400">Black/white separation cutoff</p>
+                  </div>
+                  <span className="text-cyan-400 font-mono font-bold text-xs">{vectorThreshold}</span>
+                </div>
+                <input
+                  type="range"
+                  min="32"
+                  max="224"
+                  value={vectorThreshold}
+                  onChange={(e) => setVectorThreshold(Number(e.target.value))}
+                  className="w-full accent-cyan-500 cursor-pointer"
+                />
+              </div>
+
+              <button
+                disabled={images.length === 0}
+                onClick={async () => {
+                  if (images.length === 0) return;
+                  const svg = await vectorizeBitmapToSvg(images[0].file, { threshold: vectorThreshold });
+                  setVectorSvgResult(svg);
+                  confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
+                }}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5"
+              >
+                <Code className="w-4 h-4" />
+                <span>Generate SVG Paths</span>
+              </button>
+
+              {vectorSvgResult && (
+                <div className="space-y-2 pt-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-emerald-400">SVG Generated!</span>
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([vectorSvgResult], { type: 'image/svg+xml' });
+                        downloadBlob(blob, `${images[0]?.name.replace(/\.[^/.]+$/, '') || 'vector'}.svg`);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center gap-1"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Download .svg</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* AI SUPER RESOLUTION / SMART UPSCALER CONTROLS */}
+          {activeTool === 'upscale' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-300">Magnification Scale</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setUpscaleFactor(2)}
+                    className={`py-2 rounded-xl text-xs font-bold border ${
+                      upscaleFactor === 2
+                        ? 'bg-cyan-600 border-cyan-500 text-white shadow'
+                        : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    2x Super Resolution
+                  </button>
+                  <button
+                    onClick={() => setUpscaleFactor(4)}
+                    className={`py-2 rounded-xl text-xs font-bold border ${
+                      upscaleFactor === 4
+                        ? 'bg-cyan-600 border-cyan-500 text-white shadow'
+                        : 'bg-slate-900 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    4x Ultra Upscale
+                  </button>
+                </div>
+              </div>
+              <div className="p-3 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 text-indigo-300 text-[11px] leading-relaxed">
+                Applies high-fidelity bicubic resampling to synthesize smooth pixel gradients and double/quadruple asset dimensions offline.
+              </div>
+            </div>
+          )}
+
+          {/* GRID SLICER & SPLITTER CONTROLS */}
+          {activeTool === 'grid' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-slate-400 font-semibold">Grid Rows</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={gridRows}
+                    onChange={(e) => setGridRows(Math.max(1, Number(e.target.value)))}
+                    className="w-full px-3 py-1.5 rounded-lg bg-black border border-white/10 text-xs text-white"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] text-slate-400 font-semibold">Grid Columns</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={gridCols}
+                    onChange={(e) => setGridCols(Math.max(1, Number(e.target.value)))}
+                    className="w-full px-3 py-1.5 rounded-lg bg-black border border-white/10 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <button
+                disabled={images.length === 0}
+                onClick={async () => {
+                  if (images.length === 0) return;
+                  const slices = await sliceImageGrid(images[0].file, gridRows, gridCols);
+                  const items = slices.map((s) => ({
+                    filename: s.filename,
+                    blob: s.blob,
+                    url: URL.createObjectURL(s.blob)
+                  }));
+                  setGridSlices(items);
+                  confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
+                }}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-white text-xs font-bold shadow-md flex items-center justify-center gap-1.5"
+              >
+                <GridIcon className="w-4 h-4" />
+                <span>Slice Image ({gridRows}x{gridCols} Tiles)</span>
+              </button>
+
+              {gridSlices.length > 0 && (
+                <div className="space-y-2 pt-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-white">{gridSlices.length} Tiles Sliced!</span>
+                    <button
+                      onClick={async () => {
+                        const zip = new JSZip();
+                        for (const s of gridSlices) {
+                          zip.file(s.filename, s.blob);
+                        }
+                        const zipBlob = await zip.generateAsync({ type: 'blob' });
+                        downloadBlob(zipBlob, `Slices_${images[0]?.name.replace(/\.[^/.]+$/, '')}.zip`);
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-bold flex items-center gap-1"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Download All ZIP</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* AI OBJECT INPAINTING */}
+          {activeTool === 'inpaint' && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <label className="text-slate-300 font-semibold flex items-center gap-1.5">
+                    <Eraser className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Erase Blemish Patch Size ({inpaintBoxSize}%)</span>
+                  </label>
+                  <span className="font-mono text-cyan-400">{inpaintBoxSize}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="60"
+                  value={inpaintBoxSize}
+                  onChange={(e) => setInpaintBoxSize(Number(e.target.value))}
+                  className="w-full accent-cyan-500"
+                />
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed bg-black/30 p-2.5 rounded-xl border border-white/5">
+                Uses client-side boundary harmonic diffusion to synthesize surrounding textures and seamlessly erase tourists, blemishes, or timestamps without cloud uploads.
+              </p>
+            </div>
+          )}
+
+          {/* RETRO DITHERING */}
+          {activeTool === 'dither' && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-slate-400 font-semibold">Error Diffusion Algorithm</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setDitherAlgorithm('floyd-steinberg')}
+                    className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all ${
+                      ditherAlgorithm === 'floyd-steinberg'
+                        ? 'bg-cyan-600 border-cyan-500 text-white shadow-md'
+                        : 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Floyd-Steinberg
+                  </button>
+                  <button
+                    onClick={() => setDitherAlgorithm('bayer')}
+                    className={`py-2 px-2.5 rounded-xl text-xs font-bold border transition-all ${
+                      ditherAlgorithm === 'bayer'
+                        ? 'bg-cyan-600 border-cyan-500 text-white shadow-md'
+                        : 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Bayer / Matrix
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-slate-400 font-semibold">Color Palette</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(['1bit', 'gameboy', 'sepia', 'cmyk'] as const).map((pal) => (
+                    <button
+                      key={pal}
+                      onClick={() => setDitherPalette(pal)}
+                      className={`py-1.5 px-2 rounded-xl text-xs font-bold capitalize border transition-all ${
+                        ditherPalette === pal
+                          ? 'bg-indigo-600 border-indigo-500 text-white'
+                          : 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {pal === '1bit' ? '1-Bit Mono' : pal === 'gameboy' ? 'Game Boy 4-Green' : pal}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* COLOR NEGATIVE */}
+          {activeTool === 'negative' && (
+            <div className="space-y-4">
+              <div className="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/20 space-y-2">
+                <div className="flex items-center gap-2 text-cyan-300 text-xs font-bold">
+                  <Contrast className="w-4 h-4 text-cyan-400" />
+                  <span>Film Negative &amp; Inversion</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Bitwise complemented RGB channels for instant stencil preparation, dark-mode conversions, and analog film scanning analysis.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* VISUAL REGRESSION DIFF */}
+          {activeTool === 'diff' && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <label className="text-slate-300 font-semibold">Diff Sensitivity (Delta-E)</label>
+                  <span className="font-mono text-cyan-400">{Math.round(diffThreshold * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.01"
+                  max="0.4"
+                  step="0.01"
+                  value={diffThreshold}
+                  onChange={(e) => setDiffThreshold(Number(e.target.value))}
+                  className="w-full accent-cyan-500"
+                />
+              </div>
+
+              {images.length >= 2 ? (
+                <button
+                  onClick={async () => {
+                    const res = await diffImagesClient(images[0].file, images[1].file, diffThreshold);
+                    setDiffMismatchPct(res.mismatchPercentage);
+                    setDiffResultUrl(URL.createObjectURL(res.diffBlob));
+                    confetti({ particleCount: 30, spread: 50 });
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-600 to-rose-600 text-white text-xs font-bold shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <SplitSquareVertical className="w-4 h-4" />
+                  <span>Compare Image 1 vs Image 2</span>
+                </button>
+              ) : (
+                <p className="text-[11px] text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+                  ⚠️ Upload at least 2 images to perform visual regression comparison.
+                </p>
+              )}
+
+              {diffMismatchPct !== null && (
+                <div className="p-3 rounded-xl bg-fuchsia-950/20 border border-fuchsia-500/30 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-300">Mismatch:</span>
+                    <span className="font-bold text-fuchsia-400">{diffMismatchPct}%</span>
+                  </div>
+                  {diffResultUrl && (
+                    <div className="space-y-2">
+                      <img src={diffResultUrl} alt="Diff" className="w-full h-32 object-contain rounded-lg bg-black/60 border border-white/10" />
+                      <button
+                        onClick={() => {
+                          const a = document.createElement('a');
+                          a.href = diffResultUrl;
+                          a.download = `Diff-${images[0]?.name.replace(/\.[^/.]+$/, '')}.png`;
+                          a.click();
+                        }}
+                        className="w-full py-1.5 rounded-lg bg-fuchsia-600 text-white text-[11px] font-bold flex items-center justify-center gap-1"
+                      >
+                        <Download className="w-3 h-3" />
+                        <span>Download Diff Mask</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* COLLAGE & STITCHER */}
+          {activeTool === 'stitch' && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] text-slate-400 font-semibold">Stitch Layout</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {(['horizontal', 'vertical', 'grid2x2'] as const).map((orient) => (
+                    <button
+                      key={orient}
+                      onClick={() => setStitchOrientation(orient)}
+                      className={`py-1.5 px-2 rounded-xl text-xs font-bold capitalize border transition-all ${
+                        stitchOrientation === orient
+                          ? 'bg-cyan-600 border-cyan-500 text-white'
+                          : 'bg-black/40 border-white/10 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {orient === 'grid2x2' ? '2x2 Grid' : orient}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <label className="text-slate-300 font-semibold">Border Spacing</label>
+                  <span className="font-mono text-cyan-400">{stitchSpacing}px</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  value={stitchSpacing}
+                  onChange={(e) => setStitchSpacing(Number(e.target.value))}
+                  className="w-full accent-cyan-500"
+                />
+              </div>
+
+              {images.length >= 2 ? (
+                <button
+                  onClick={async () => {
+                    const files = images.map((i) => i.file);
+                    const blob = await stitchImagesClient(files, stitchOrientation, stitchSpacing);
+                    setStitchResultUrl(URL.createObjectURL(blob));
+                    confetti({ particleCount: 35, spread: 60 });
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white text-xs font-bold shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <Columns className="w-4 h-4" />
+                  <span>Stitch {images.length} Images</span>
+                </button>
+              ) : (
+                <p className="text-[11px] text-amber-400 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+                  ⚠️ Upload 2 or more images to assemble a collage or panorama strip.
+                </p>
+              )}
+
+              {stitchResultUrl && (
+                <div className="space-y-2 pt-2">
+                  <img src={stitchResultUrl} alt="Stitched Collage" className="w-full h-32 object-contain rounded-lg bg-black/60 border border-white/10" />
+                  <button
+                    onClick={() => {
+                      const a = document.createElement('a');
+                      a.href = stitchResultUrl;
+                      a.download = `Collage-${Date.now()}.png`;
+                      a.click();
+                    }}
+                    className="w-full py-1.5 rounded-lg bg-teal-600 text-white text-[11px] font-bold flex items-center justify-center gap-1"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>Download Collage Image</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

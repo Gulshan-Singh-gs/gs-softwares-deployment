@@ -1,20 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Header } from './components/Header';
 import { Home } from './pages/Home';
-import { PixelsApp } from './pages/PixelsApp';
-import { CanvasApp } from './pages/CanvasApp';
-import { PdfApp } from './pages/PdfApp';
-import { VideoApp } from './pages/VideoApp';
-import { AudioApp } from './pages/AudioApp';
-import { TextApp } from './pages/TextApp';
-import { SecurityApp } from './pages/SecurityApp';
-import { HashApp } from './pages/HashApp';
-import { BridgeApp } from './pages/BridgeApp';
-import { ArchiveApp } from './pages/ArchiveApp';
-import { QrApp } from './pages/QrApp';
-import { SpreadsheetApp } from './pages/SpreadsheetApp';
-import { EbookApp } from './pages/EbookApp';
-import { PresentationApp } from './pages/PresentationApp';
+
+// Code-split each specialized tool suite via dynamic imports (React.lazy)
+const PixelsApp = lazy(() => import('./pages/PixelsApp').then(m => ({ default: m.PixelsApp })));
+const CanvasApp = lazy(() => import('./pages/CanvasApp').then(m => ({ default: m.CanvasApp })));
+const PdfApp = lazy(() => import('./pages/PdfApp').then(m => ({ default: m.PdfApp })));
+const VideoApp = lazy(() => import('./pages/VideoApp').then(m => ({ default: m.VideoApp })));
+const AudioApp = lazy(() => import('./pages/AudioApp').then(m => ({ default: m.AudioApp })));
+const TextApp = lazy(() => import('./pages/TextApp').then(m => ({ default: m.TextApp })));
+const SecurityApp = lazy(() => import('./pages/SecurityApp').then(m => ({ default: m.SecurityApp })));
+const HashApp = lazy(() => import('./pages/HashApp').then(m => ({ default: m.HashApp })));
+const BridgeApp = lazy(() => import('./pages/BridgeApp').then(m => ({ default: m.BridgeApp })));
+const ArchiveApp = lazy(() => import('./pages/ArchiveApp').then(m => ({ default: m.ArchiveApp })));
+const QrApp = lazy(() => import('./pages/QrApp').then(m => ({ default: m.QrApp })));
+const SpreadsheetApp = lazy(() => import('./pages/SpreadsheetApp').then(m => ({ default: m.SpreadsheetApp })));
+const EbookApp = lazy(() => import('./pages/EbookApp').then(m => ({ default: m.EbookApp })));
+const PresentationApp = lazy(() => import('./pages/PresentationApp').then(m => ({ default: m.PresentationApp })));
+
 import { SettingsModal } from './components/settings/SettingsModal';
 import { PerformanceToast } from './components/settings/PerformanceToast';
 import { PerformanceProvider, usePerformanceTier } from './context/PerformanceContext';
@@ -76,7 +79,14 @@ function AppContent() {
             }}
           />
         ) : (
-          <>
+          <Suspense
+            fallback={
+              <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+                <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+                <p className="text-xs font-mono text-slate-400">Loading Studio Engine...</p>
+              </div>
+            }
+          >
             {currentApp === 'home' && <Home onSelectApp={(app) => setCurrentApp(app)} onSelectLanding={(slug) => { setLandingSlug(slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
             {currentApp === 'pixels' && <PixelsApp />}
             {currentApp === 'canvas' && <CanvasApp onNavigate={(app) => setCurrentApp(app)} />}
@@ -92,7 +102,7 @@ function AppContent() {
             {currentApp === 'spreadsheet' && <SpreadsheetApp />}
             {currentApp === 'ebook' && <EbookApp />}
             {currentApp === 'presentation' && <PresentationApp />}
-          </>
+          </Suspense>
         )}
       </main>
 

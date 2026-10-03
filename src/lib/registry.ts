@@ -87,12 +87,12 @@ export const SUITES_REGISTRY: SuiteDef[] = [
   {
     id: 'video',
     name: 'GS-Video',
-    badge: 'WASM Video',
-    description: 'Trim, transcode, compress, mute, extract audio, and create GIF clips in-browser.',
+    badge: 'Canvas & Stream',
+    description: 'Trim, transcode, compress, mute, extract audio, and create GIF clips in-browser via Canvas & MediaRecorder.',
     iconName: 'Video',
     colorGradient: 'from-purple-600 via-indigo-600 to-blue-600',
     tools: [
-      { id: 'video.trim', suite: 'video', name: 'Video Trimmer', slug: 'video-trimmer', description: 'Frame-accurate video trimming and segment extraction', category: 'edit', accepts: ['video/*'], produces: ['video/mp4', 'video/webm'], weight: 'H', automation: { batchable: true, chainable: true, params: ['start', 'end'] }, privacy: { offline: true, uploads: false }, iconName: 'Scissors' },
+      { id: 'video.trim', suite: 'video', name: 'Video Trimmer', slug: 'video-trimmer', description: 'Frame-accurate video trimming and segment extraction', category: 'edit', accepts: ['video/*'], produces: ['video/webm'], weight: 'H', automation: { batchable: true, chainable: true, params: ['start', 'end'] }, privacy: { offline: true, uploads: false }, iconName: 'Scissors' },
       { id: 'video.gif', suite: 'video', name: 'Video to GIF', slug: 'video-to-gif', description: 'Convert video clips to optimized animated GIFs', category: 'convert', accepts: ['video/*'], produces: ['image/gif'], weight: 'H', automation: { batchable: true, chainable: false, params: ['fps', 'quality'] }, privacy: { offline: true, uploads: false }, iconName: 'Film' }
     ]
   },
@@ -105,7 +105,7 @@ export const SUITES_REGISTRY: SuiteDef[] = [
     colorGradient: 'from-pink-600 via-rose-500 to-amber-500',
     tools: [
       { id: 'audio.player', suite: 'audio', name: 'Audio Player & EQ', slug: 'audio-player', description: 'Audiophile playback with spectrum visualizer and 10-band parametric EQ', category: 'view', accepts: ['audio/*'], produces: [], weight: 'M', automation: { batchable: false, chainable: false, params: [] }, privacy: { offline: true, uploads: false }, iconName: 'Play' },
-      { id: 'audio.trim', suite: 'audio', name: 'Audio Trimmer', slug: 'audio-trimmer', description: 'Cut and export clean MP3/WAV/AAC stems with fade in/out', category: 'edit', accepts: ['audio/*'], produces: ['audio/wav', 'audio/mp3'], weight: 'M', automation: { batchable: true, chainable: true, params: ['start', 'end'] }, privacy: { offline: true, uploads: false }, iconName: 'Scissors' }
+      { id: 'audio.trim', suite: 'audio', name: 'Audio Trimmer', slug: 'audio-trimmer', description: 'Cut and export clean uncompressed 16-bit PCM WAV stems with fade in/out', category: 'edit', accepts: ['audio/*'], produces: ['audio/wav'], weight: 'M', automation: { batchable: true, chainable: true, params: ['start', 'end'] }, privacy: { offline: true, uploads: false }, iconName: 'Scissors' }
     ]
   },
   {

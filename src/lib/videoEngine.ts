@@ -259,27 +259,49 @@ function applyChromaKey(
   ctx.putImageData(imgData, 0, 0);
 }
 
+import { audioBufferToWavBlob } from './audioEngine';
+
 /**
- * 4. AUDIO EXTRACTION (Video -> MP3/AAC)
+ * 4. AUDIO EXTRACTION (Video -> Lossless WAV Audio)
+ * Extracts genuine decoded audio track from video element into standard PCM WAV Blob.
  */
 export async function extractAudioFromVideo(videoElement: HTMLVideoElement): Promise<Blob> {
   return new Promise((resolve, reject) => {
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioCtxClass = window.AudioContext || (window as any).webkitAudioContext;
+      const audioCtx = new AudioCtxClass();
       const destination = audioCtx.createMediaStreamDestination();
       const source = audioCtx.createMediaElementSource(videoElement);
       source.connect(destination);
 
-      const recorder = new MediaRecorder(destination.stream);
+      // Support native audio recorder formats with genuine WAV PCM fallback
+      const supportedMime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : '';
+
+      const recorder = supportedMime ? new MediaRecorder(destination.stream, { mimeType: supportedMime }) : new MediaRecorder(destination.stream);
       const chunks: Blob[] = [];
 
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunks.push(e.data);
       };
 
-      recorder.onstop = () => {
-        audioCtx.close();
-        resolve(new Blob(chunks, { type: 'audio/mp3' }));
+      recorder.onstop = async () => {
+        const rawBlob = new Blob(chunks, { type: supportedMime || 'audio/webm' });
+        try {
+          // Decode recorded stream into raw AudioBuffer and export true uncompressed PCM WAV
+          const arrayBuf = await rawBlob.arrayBuffer();
+          const decoded = await audioCtx.decodeAudioData(arrayBuf);
+          audioCtx.close().catch(() => {});
+          const wavBlob = audioBufferToWavBlob(decoded, 16);
+          resolve(wavBlob);
+        } catch {
+          audioCtx.close().catch(() => {});
+          // Fallback to recorded container with accurate MIME type
+          resolve(rawBlob);
+        }
       };
 
       videoElement.currentTime = 0;

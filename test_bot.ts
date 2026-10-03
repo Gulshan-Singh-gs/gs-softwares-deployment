@@ -83,6 +83,15 @@ async function runDeepPerformanceAuditBot() {
   );
   const page: Page = await browser.newPage();
 
+  // Track network requests to verifiably validate Zero External Server Uploads (Prime Directive D1)
+  const externalRequests: string[] = [];
+  page.on('request', (req) => {
+    const url = req.url();
+    if (!url.startsWith('http://localhost') && !url.startsWith('data:') && !url.startsWith('blob:')) {
+      externalRequests.push(url);
+    }
+  });
+
   const baseUrl = 'http://localhost:5173';
   console.log('\n================================================================');
   console.log('🔬 [GS PERFORMANCE & SWIFTNESS AUDIT BOT] INITIATING BENCHMARKS');
@@ -245,7 +254,12 @@ async function runDeepPerformanceAuditBot() {
 
     console.log(`\n⚡ System Average Execution Latency: ${avgLatency}ms (Real-Time Class)`);
     console.log(`🚀 Peak Single-Task Latency: ${maxLatency}ms (Sub-2000ms threshold compliant)`);
-    console.log(`🛡️ Memory Leaks / Zero Server Requests: CONFIRMED (100% RAM Sovereignty)`);
+    console.log(`📡 External Network Requests Intercepted: ${externalRequests.length} (Verified Target: 0)`);
+    if (externalRequests.length === 0) {
+      console.log(`🛡️ Zero External Server Requests: AUDITED & CONFIRMED (100% Client-Side Air-Gapped)`);
+    } else {
+      console.warn(`⚠️ External Network Requests Detected:`, externalRequests);
+    }
     console.log('=====================================================================\n');
 
   } catch (error) {
