@@ -13,6 +13,7 @@ export const SecurityApp: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [stageMessage, setStageMessage] = useState<string>('');
   const { state, process, reset } = useProcessingState<Blob>();
 
   const handleProcess = async () => {
@@ -27,11 +28,16 @@ export const SecurityApp: React.FC = () => {
     }
 
     try {
+      setStageMessage(mode === 'encrypt' ? 'Deriving key via PBKDF2 (600k rounds)...' : 'Verifying package header...');
       await process(async (updateProgress: (p: number) => void) => {
+        const onProgressWithStage = (p: number, stage?: string) => {
+          if (stage) setStageMessage(stage);
+          updateProgress(p);
+        };
         if (mode === 'encrypt') {
-          return await encryptFile(selectedFile, password, updateProgress);
+          return await encryptFile(selectedFile, password, onProgressWithStage);
         } else {
-          return await decryptFile(selectedFile, password, updateProgress);
+          return await decryptFile(selectedFile, password, onProgressWithStage);
         }
       });
       confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
@@ -142,7 +148,13 @@ export const SecurityApp: React.FC = () => {
               </div>
             )}
 
-            {state.status === 'processing' && <ProgressBar value={50} label="Cryptographic processing in progress..." />}
+            {state.status === 'processing' && (
+              <ProgressBar
+                value={state.progress || 25}
+                label={stageMessage || 'Cryptographic processing in progress...'}
+                color={mode === 'encrypt' ? 'from-emerald-500 to-teal-400' : 'from-cyan-500 to-indigo-400'}
+              />
+            )}
 
             {state.status === 'error' && (
               <div className="p-4 rounded-2xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-3">

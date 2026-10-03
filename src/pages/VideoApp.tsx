@@ -349,11 +349,14 @@ export const VideoApp: React.FC = () => {
     setIsProcessing(true);
     try {
       const audioBlob = await extractAudioFromVideo(videoRef.current);
+      const isWav = audioBlob.type.includes('wav');
+      const ext = isWav ? 'wav' : 'webm';
       const url = URL.createObjectURL(audioBlob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `audio-${video.name.replace(/\.[^/.]+$/, '')}.mp3`;
+      a.download = `audio-${video.name.replace(/\.[^/.]+$/, '')}.${ext}`;
       a.click();
+      URL.revokeObjectURL(url);
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
     } catch (e) {
       console.error('Audio Extraction Error:', e);
@@ -367,7 +370,7 @@ export const VideoApp: React.FC = () => {
     setIsProcessing(true);
     setTimeout(() => {
       setAiSpeechTranscript(
-        `00:00:01,200 --> 00:00:03,500\nWelcome to GS-Video Studio.\n\n00:00:03,600 --> 00:00:06,800\n100% Client-Side WebAssembly Video Processing.`
+        `00:00:01,200 --> 00:00:03,500\nWelcome to GS-Video Studio.\n\n00:00:03,600 --> 00:00:06,800\n100% Client-Side In-Browser Video Processing.`
       );
       setIsProcessing(false);
       confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
@@ -412,7 +415,7 @@ export const VideoApp: React.FC = () => {
           </div>
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">GS-Video Studio</h1>
-            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">WebAssembly Frame-Accurate Editing, Multi-Track, Color Wheels, Chroma, AI Speech &amp; Export</p>
+            <p className="text-xs text-slate-400 mt-0.5 hidden sm:block">Client-Side Canvas Compositing, Timeline Controls, Color Grading, Chroma &amp; Stream Export</p>
           </div>
         </div>
 

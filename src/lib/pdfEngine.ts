@@ -403,6 +403,80 @@ export async function applyTrueRedaction(
 }
 
 /**
+ * 8B. HARD REDACTION VIA FULL STREAM DESTRUCTION (Raster Sanitization)
+ * Renders the target page to an uncompressed high-DPI canvas, paints blackout rectangles
+ * directly onto the pixel raster, and replaces the PDF page stream with the sanitized bitmap.
+ * This completely obliterates underlying font characters, glyph vectors, and content streams.
+ */
+export async function hardRedactPdfPageByRasterization(
+  arrayBuffer: ArrayBuffer,
+  pageIndex: number,
+  rects: PageRect[],
+  dpiScale = 2.0
+): Promise<Uint8Array> {
+  // Load original doc
+  const srcDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+  const pageCount = srcDoc.getPageCount();
+  const targetPageIdx = Math.max(0, Math.min(pageIndex, pageCount - 1));
+
+  // Render target page via pdfjs-dist
+  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer.slice(0)) });
+  const renderedDoc = await loadingTask.promise;
+  const pdfjsPage = await renderedDoc.getPage(targetPageIdx + 1);
+
+  const baseViewport = pdfjsPage.getViewport({ scale: 1.0 });
+  const renderViewport = pdfjsPage.getViewport({ scale: dpiScale });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = renderViewport.width;
+  canvas.height = renderViewport.height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Canvas 2D context unavailable for raster redaction');
+  }
+
+  await pdfjsPage.render({ canvasContext: ctx, viewport: renderViewport, canvas } as any).promise;
+
+  // In PDF coordinates, (0, 0) is bottom-left. Canvas is top-left.
+  // Transform PDF rect (x, y, w, h) to Canvas pixel coordinates:
+  // canvasX = rect.x * dpiScale
+  // canvasY = (baseViewport.height - rect.y - rect.height) * dpiScale
+  ctx.fillStyle = '#000000';
+  rects.forEach((r) => {
+    const rx = r.x * dpiScale;
+    const ry = (baseViewport.height - r.y - r.height) * dpiScale;
+    const rw = r.width * dpiScale;
+    const rh = r.height * dpiScale;
+    ctx.fillRect(rx, ry, rw, rh);
+  });
+
+  const pngDataUrl = canvas.toDataURL('image/png');
+  const base64Data = pngDataUrl.replace(/^data:image\/png;base64,/, '');
+  const pngBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+
+  // Build sanitized document replacing target page
+  const sanitizedDoc = await PDFDocument.create();
+  const embeddedPng = await sanitizedDoc.embedPng(pngBytes.buffer);
+
+  for (let i = 0; i < pageCount; i++) {
+    if (i === targetPageIdx) {
+      const sanitizedPage = sanitizedDoc.addPage([baseViewport.width, baseViewport.height]);
+      sanitizedPage.drawImage(embeddedPng, {
+        x: 0,
+        y: 0,
+        width: baseViewport.width,
+        height: baseViewport.height,
+      });
+    } else {
+      const [copied] = await sanitizedDoc.copyPages(srcDoc, [i]);
+      sanitizedDoc.addPage(copied);
+    }
+  }
+
+  return await sanitizedDoc.save();
+}
+
+/**
  * 9. STAMPS & BATES NUMBERING SUITE
  */
 export async function applyBatesNumbering(

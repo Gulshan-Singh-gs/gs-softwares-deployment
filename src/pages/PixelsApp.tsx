@@ -40,8 +40,7 @@ import {
   Eraser,
   Sparkle,
   SplitSquareVertical,
-  Columns,
-  Contrast
+  Columns
 } from 'lucide-react';
 import JSZip from 'jszip';
 import confetti from 'canvas-confetti';
@@ -56,7 +55,8 @@ import {
   applyDitherFilter,
   invertImageNegative,
   diffImagesClient,
-  stitchImagesClient
+  stitchImagesClient,
+  scrubExifLossless
 } from '../lib/imageEngine';
 import { downloadBlob } from '../lib/fileUtils';
 import { saveWorkspaceFile, getWorkspaceFilesByApp, deleteWorkspaceFile } from '../lib/db';

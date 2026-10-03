@@ -21,13 +21,13 @@ export const LEGACY_PBKDF2_ITERATIONS = 100000;
 export const encryptFile = async (
   file: File,
   password: string,
-  onProgress?: (percent: number) => void
+  onProgress?: (percent: number, stage?: string) => void
 ): Promise<Blob> => {
   if (!password || password.trim().length === 0) {
     throw new Error('Password cannot be empty');
   }
 
-  if (onProgress) onProgress(10);
+  if (onProgress) onProgress(10, 'Deriving AES-256 key via PBKDF2 (600k rounds)...');
 
   // Generate 16-byte random cryptographic salt
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -54,14 +54,14 @@ export const encryptFile = async (
     ['encrypt']
   );
 
-  if (onProgress) onProgress(35);
+  if (onProgress) onProgress(45, 'Encrypting data with AES-256-GCM...');
 
   // Generate 12-byte IV for AES-GCM
   const iv = crypto.getRandomValues(new Uint8Array(12));
 
   // Read file data
   const fileBuffer = await file.arrayBuffer();
-  if (onProgress) onProgress(65);
+  if (onProgress) onProgress(75, 'Authenticating ciphertext & assembling .gsenc container...');
 
   // Encrypt payload (AES-256-GCM authenticated)
   const encrypted = await crypto.subtle.encrypt(
@@ -82,20 +82,20 @@ export const encryptFile = async (
   salt.fill(0);
   iv.fill(0);
 
-  if (onProgress) onProgress(100);
+  if (onProgress) onProgress(100, 'Complete');
   return new Blob([result], { type: 'application/octet-stream' });
 };
 
 export const decryptFile = async (
   encryptedBlob: Blob,
   password: string,
-  onProgress?: (percent: number) => void
+  onProgress?: (percent: number, stage?: string) => void
 ): Promise<Blob> => {
   if (!password || password.trim().length === 0) {
     throw new Error('Password cannot be empty');
   }
 
-  if (onProgress) onProgress(10);
+  if (onProgress) onProgress(15, 'Reading encrypted package header...');
 
   const buffer = await encryptedBlob.arrayBuffer();
   const data = new Uint8Array(buffer);
@@ -144,7 +144,7 @@ export const decryptFile = async (
     iterations = LEGACY_PBKDF2_ITERATIONS;
   }
 
-  if (onProgress) onProgress(40);
+  if (onProgress) onProgress(35, `Deriving key with PBKDF2 (${iterations.toLocaleString()} rounds)...`);
 
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -167,7 +167,7 @@ export const decryptFile = async (
     ['decrypt']
   );
 
-  if (onProgress) onProgress(75);
+  if (onProgress) onProgress(75, 'Authenticating & decrypting ciphertext (AES-256-GCM)...');
 
   try {
     const decrypted = await crypto.subtle.decrypt(
@@ -179,7 +179,7 @@ export const decryptFile = async (
     new Uint8Array(saltBuffer).fill(0);
     new Uint8Array(ivBuffer).fill(0);
 
-    if (onProgress) onProgress(100);
+    if (onProgress) onProgress(100, 'Complete');
     return new Blob([decrypted]);
   } catch {
     new Uint8Array(saltBuffer).fill(0);

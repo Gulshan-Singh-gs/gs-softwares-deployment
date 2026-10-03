@@ -1,6 +1,6 @@
 /**
- * GS-Video Engine: 100% Client-Side WebCodecs & Canvas Video Processing Engine
- * Zero Server Uploads • In-Memory HTML5 Canvas & Web Audio Stream Capturing
+ * GS-Video Engine: 100% Client-Side Canvas 2D & MediaRecorder Video Processing Engine
+ * Zero Server Uploads • In-Memory HTML5 Canvas Compositing & Web Audio Stream Capturing
  */
 
 export interface VideoProcessingOptions {

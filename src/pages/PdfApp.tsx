@@ -56,6 +56,7 @@ import {
   embedSignaturePng, 
   applyWatermark, 
   applyTrueRedaction, 
+  hardRedactPdfPageByRasterization,
   applyBatesNumbering, 
   compressPdfDocument, 
   extractRealPdfText,
@@ -427,8 +428,8 @@ export const PdfApp: React.FC = () => {
     }
   };
 
-  // 8. TRUE REDACTION (TC-1)
-  const handleTrueRedaction = async () => {
+  // 8. REDACTION (TC-1)
+  const handleVisualRedaction = async () => {
     if (pdfFiles.length === 0 || isProcessing) return;
     setIsProcessing(true);
     try {
@@ -437,10 +438,28 @@ export const PdfApp: React.FC = () => {
       const bytes = await applyTrueRedaction(buffer, 0, [
         { x: 50, y: 680, width: 280, height: 24 },
       ]);
-      downloadBlob(bytes, `true-redacted-${item.name}`, 'application/pdf');
+      downloadBlob(bytes, `visual-masked-${item.name}`, 'application/pdf');
       confetti({ particleCount: 60, spread: 70, origin: { y: 0.8 } });
     } catch (e) {
-      console.error('True Redaction Error:', e);
+      console.error('Visual Redaction Error:', e);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleHardRedactRaster = async () => {
+    if (pdfFiles.length === 0 || isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const item = pdfFiles[0];
+      const buffer = await item.file.arrayBuffer();
+      const bytes = await hardRedactPdfPageByRasterization(buffer, 0, [
+        { x: 50, y: 680, width: 280, height: 24 },
+      ], 2.0);
+      downloadBlob(bytes, `hard-redacted-${item.name}`, 'application/pdf');
+      confetti({ particleCount: 60, spread: 70, origin: { y: 0.8 } });
+    } catch (e) {
+      console.error('Hard Redaction Error:', e);
     } finally {
       setIsProcessing(false);
     }
@@ -980,27 +999,45 @@ export const PdfApp: React.FC = () => {
             </div>
           )}
 
-          {/* 9. TRUE REDACTION (TC-1) */}
+          {/* 9. REDACTION (TC-1) */}
           {activeCategory === 'redact' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300">PII String to Destroy</label>
+                <label className="text-xs font-semibold text-slate-300">Target Area or Text Label</label>
                 <input
                   type="text"
                   value={redactionQuery}
                   onChange={(e) => setRedactionQuery(e.target.value)}
+                  placeholder="e.g. SSN, Phone, or Confidential info"
                   className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
                 />
               </div>
 
-              <button
-                onClick={handleTrueRedaction}
-                disabled={pdfFiles.length === 0 || isProcessing}
-                className="w-full py-3 rounded-xl bg-red-700 hover:bg-red-600 text-white text-xs font-bold shadow-lg flex items-center justify-center gap-2"
-              >
-                <ShieldAlert className="w-4 h-4" />
-                <span>Apply True Redaction (Stream Purge)</span>
-              </button>
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-300/90 leading-relaxed space-y-1">
+                <div><strong>Notice on Redaction Methods:</strong></div>
+                <div>• <em>Visual Mask:</em> Fast vector blackout rectangle overlay + annotation scrub. Preserves vector text quality elsewhere, but underlying text operators may still be parsed by scrapers.</div>
+                <div>• <em>Hard Stream Destruction:</em> Renders page to high-DPI raster canvas, applies blackouts, and recreates the page as an uncompressed bitmap. 100% destroys underlying font/character glyph streams.</div>
+              </div>
+
+              <div className="space-y-2">
+                <button
+                  onClick={handleHardRedactRaster}
+                  disabled={pdfFiles.length === 0 || isProcessing}
+                  className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-lg flex items-center justify-center gap-2"
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span>Hard Redact (Full Stream Destruction via Raster)</span>
+                </button>
+
+                <button
+                  onClick={handleVisualRedaction}
+                  disabled={pdfFiles.length === 0 || isProcessing}
+                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium flex items-center justify-center gap-2"
+                >
+                  <Eye className="w-4 h-4 text-slate-400" />
+                  <span>Visual Mask &amp; Annotation Purge (Vector Overlay)</span>
+                </button>
+              </div>
             </div>
           )}
 

@@ -7,59 +7,92 @@ if (!fs.existsSync(TEST_DIR)) {
   fs.mkdirSync(TEST_DIR, { recursive: true });
 }
 
-// 1. Generate Synthetic Test Fixtures
+// 1. Generate Functional Test Fixtures (Real Audio PCM, Real Multi-Page PDF)
 const sampleImagePath = path.join(TEST_DIR, 'sample.png');
 const samplePdfPath = path.join(TEST_DIR, 'sample.pdf');
 const sampleVideoPath = path.join(TEST_DIR, 'sample.mp4');
 const sampleAudioPath = path.join(TEST_DIR, 'sample.wav');
 
-// Create a valid PNG
+// Create a valid PNG (16x16 icon)
 const pngBuffer = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+  'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAUSURBVDhPY/wPBAwUACMYNWDEgAYAFZAB/7yCjHAAAAAASUVORK5CYII=',
   'base64'
 );
 fs.writeFileSync(sampleImagePath, pngBuffer);
 
-// Create a valid PDF
+// Create a real multi-page PDF with streams and content
 const pdfContent = `%PDF-1.4
-1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
-2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
-3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >> endobj
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 55 >>
+stream
+BT
+/F1 24 Tf
+100 700 Td
+(GS Softwares Verification Doc) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
 xref
-0 4
+0 6
 0000000000 65535 f 
 0000000009 00000 n 
 0000000058 00000 n 
 0000000115 00000 n 
-trailer << /Size 4 /Root 1 0 R >>
+0000000244 00000 n 
+0000000350 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
 startxref
-190
+426
 %%EOF`;
 fs.writeFileSync(samplePdfPath, pdfContent);
 
-// Create a valid minimal MP4 file buffer
+// Minimal MP4 container box header
 const mp4Header = Buffer.from(
   'AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAhmZGF0',
   'base64'
 );
 fs.writeFileSync(sampleVideoPath, mp4Header);
 
-// Create a valid WAV file
-const wavHeader = Buffer.alloc(44);
-wavHeader.write('RIFF', 0);
-wavHeader.writeUInt32LE(36, 4);
-wavHeader.write('WAVE', 8);
-wavHeader.write('fmt ', 12);
-wavHeader.writeUInt32LE(16, 16);
-wavHeader.writeUInt16LE(1, 20);
-wavHeader.writeUInt16LE(1, 22);
-wavHeader.writeUInt32LE(44100, 24);
-wavHeader.writeUInt32LE(88200, 28);
-wavHeader.writeUInt16LE(2, 32);
-wavHeader.writeUInt16LE(16, 34);
-wavHeader.write('data', 36);
-wavHeader.writeUInt32LE(0, 40);
-fs.writeFileSync(sampleAudioPath, wavHeader);
+// Create a functional 1-second 44.1kHz 16-bit Mono WAV file containing a 440Hz audible test tone
+const sampleRate = 44100;
+const numSamples = sampleRate; // 1 second
+const dataSize = numSamples * 2;
+const functionalWav = Buffer.alloc(44 + dataSize);
+
+functionalWav.write('RIFF', 0);
+functionalWav.writeUInt32LE(36 + dataSize, 4);
+functionalWav.write('WAVE', 8);
+functionalWav.write('fmt ', 12);
+functionalWav.writeUInt32LE(16, 16);
+functionalWav.writeUInt16LE(1, 20); // PCM
+functionalWav.writeUInt16LE(1, 22); // 1 channel
+functionalWav.writeUInt32LE(sampleRate, 24);
+functionalWav.writeUInt32LE(sampleRate * 2, 28); // byte rate
+functionalWav.writeUInt16LE(2, 32); // block align
+functionalWav.writeUInt16LE(16, 34); // bit depth
+functionalWav.write('data', 36);
+functionalWav.writeUInt32LE(dataSize, 40);
+
+for (let i = 0; i < numSamples; i++) {
+  const t = i / sampleRate;
+  const sample = Math.sin(2 * Math.PI * 440 * t) * 0.5;
+  const intSample = Math.floor(sample * 32767);
+  functionalWav.writeInt16LE(intSample, 44 + i * 2);
+}
+fs.writeFileSync(sampleAudioPath, functionalWav);
 
 interface BenchMetric {
   studio: string;
