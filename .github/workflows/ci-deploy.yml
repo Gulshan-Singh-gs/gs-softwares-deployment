@@ -61,7 +61,7 @@ jobs:
           kill $PREVIEW_PID
 
       - name: Upload Build Artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         with:
           path: dist/
