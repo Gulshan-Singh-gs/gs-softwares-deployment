@@ -37,8 +37,30 @@ import {
   QrCode,
   Table,
   BookOpen,
-  Presentation
+  Presentation,
+  CheckCircle2,
+  FileCheck
 } from 'lucide-react';
+import { inspectFileForRouting, FileSuggestion } from '../lib/fileRouting';
+import { formatBytes } from '../lib/fileUtils';
+import { ToolRegistry } from '../platform';
+
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  Image,
+  PenTool,
+  FileText,
+  Video,
+  Music,
+  FileCode,
+  Archive,
+  QrCode,
+  Table,
+  BookOpen,
+  Presentation,
+  Lock,
+  Sliders,
+  Sparkles
+};
 
 interface HomeProps {
   onSelectApp: (appId: string) => void;
@@ -48,136 +70,37 @@ interface HomeProps {
 export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
   const [activePersonaTab, setActivePersonaTab] = useState<'photographers' | 'developers' | 'social' | 'students'>('photographers');
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'media' | 'documents' | 'developer' | 'security'>('all');
+  const [droppedFile, setDroppedFile] = useState<File | null>(null);
+  const [suggestion, setSuggestion] = useState<FileSuggestion | null>(null);
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  // 14 Dedicated Tool Suites
-  const suiteTiles = [
-    {
-      id: 'pixels',
-      title: 'GS-Pixels',
-      badge: 'Image Studio',
-      desc: 'Compress, crop, resize, convert formats, extract palettes, and scrub EXIF metadata.',
-      icon: Image,
-      gradient: 'from-cyan-600 to-teal-500',
-      toolsCount: '6 Tools'
-    },
-    {
-      id: 'canvas',
-      title: 'GS-Canvas',
-      badge: 'Vector Canvas',
-      desc: 'Endless freehand drawing canvas with shapes, smart smoothing, and layer management.',
-      icon: PenTool,
-      gradient: 'from-blue-600 to-indigo-500',
-      toolsCount: '3 Tools'
-    },
-    {
-      id: 'pdf',
-      title: 'GS-PDF',
-      badge: 'PDF Tools',
-      desc: 'Merge, split, compress, reorder, convert, and stamp PDF files 100% offline.',
-      icon: FileText,
-      gradient: 'from-rose-600 to-pink-500',
-      toolsCount: '5 Tools'
-    },
-    {
-      id: 'video',
-      title: 'GS-Video',
-      badge: 'WASM Video',
-      desc: 'Frame-accurate video trimmer, converter, GIF maker, and audio extractor powered by WebAssembly.',
-      icon: Video,
-      gradient: 'from-purple-600 to-indigo-600',
-      toolsCount: '4 Tools'
-    },
-    {
-      id: 'audio',
-      title: 'GS-Audio',
-      badge: 'WebAudio Studio',
-      desc: 'High-res audio trimmer, 10-band equalizer, format converter, and spectrum visualizer.',
-      icon: Music,
-      gradient: 'from-pink-600 to-rose-500',
-      toolsCount: '3 Tools'
-    },
-    {
-      id: 'text',
-      title: 'GS-Text',
-      badge: 'Code & Diff',
-      desc: 'Side-by-side diff comparator, JSON/YAML formatter, Regex testing studio, and Base64 encoder.',
-      icon: FileCode,
-      gradient: 'from-emerald-600 to-teal-500',
-      toolsCount: '4 Tools'
-    },
-    {
-      id: 'archive',
-      title: 'GS-Archive',
-      badge: 'ZIP & TAR',
-      desc: 'Inspect, compress, extract, and convert multi-file ZIP and TAR archives in-memory.',
-      icon: Archive,
-      gradient: 'from-amber-600 to-orange-500',
-      toolsCount: '3 Tools'
-    },
-    {
-      id: 'qr',
-      title: 'GS-QR & Barcode',
-      badge: 'QR & Barcode Studio',
-      desc: 'Generate custom branded QR codes, WiFi access cards, vCards, and Code128 barcodes.',
-      icon: QrCode,
-      gradient: 'from-violet-600 to-purple-500',
-      toolsCount: '2 Tools'
-    },
-    {
-      id: 'spreadsheet',
-      title: 'GS-Sheets',
-      badge: 'CSV & Data Grid',
-      desc: 'Fast offline spreadsheet viewer, delimiter cleaner, and CSV to JSON/Markdown converter.',
-      icon: Table,
-      gradient: 'from-emerald-600 to-green-500',
-      toolsCount: '2 Tools'
-    },
-    {
-      id: 'ebook',
-      title: 'GS-EBook',
-      badge: 'EPUB Studio',
-      desc: 'Distraction-free EPUB reader and Markdown-to-EPUB 3.0 publication builder.',
-      icon: BookOpen,
-      gradient: 'from-amber-600 to-yellow-500',
-      toolsCount: '2 Tools'
-    },
-    {
-      id: 'presentation',
-      title: 'GS-Slides',
-      badge: 'Deck Studio',
-      desc: 'Markdown to 16:9 slide presenter mode with vector printable PDF handouts.',
-      icon: Presentation,
-      gradient: 'from-indigo-600 to-blue-500',
-      toolsCount: '2 Tools'
-    },
-    {
-      id: 'security',
-      title: 'GS-Security',
-      badge: 'AES-256',
-      desc: 'Client-side PBKDF2 password-protected AES-256-GCM file encryption and decryption.',
-      icon: Lock,
-      gradient: 'from-blue-600 to-indigo-600',
-      toolsCount: '2 Tools'
-    },
-    {
-      id: 'hash',
-      title: 'GS-Hash',
-      badge: 'Checksum & Verify',
-      desc: 'Compute SHA-256, SHA-512, SHA-1, and MD5 file digests for tamper verification.',
-      icon: Sliders,
-      gradient: 'from-teal-600 to-cyan-500',
-      toolsCount: '4 Algorithims'
-    },
-    {
-      id: 'bridge',
-      title: 'GS-Bridge',
-      badge: 'Transmutation',
-      desc: 'Cross-domain transmutation pipeline linking video, audio, image, PDF, and OCR text.',
-      icon: Sparkles,
-      gradient: 'from-amber-500 via-rose-500 to-cyan-500',
-      toolsCount: 'Transmute Pipeline'
+  const handleProcessFile = (file: File) => {
+    setDroppedFile(file);
+    const suggested = inspectFileForRouting(file);
+    setSuggestion(suggested);
+  };
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleProcessFile(e.dataTransfer.files[0]);
     }
-  ];
+  };
+
+  // Derive 14 Dedicated Tool Suites dynamically from canonical ToolRegistry
+  const suiteTiles = ToolRegistry.listStudios().map((studio) => ({
+    id: studio.id,
+    title: studio.name,
+    badge: studio.badge,
+    category: studio.category,
+    desc: studio.description,
+    icon: ICON_MAP[studio.iconName] || Sparkles,
+    gradient: studio.gradient,
+    toolsCount: studio.toolsCountLabel
+  }));
 
   const comparisonRows = [
     { feature: 'File Upload Required?', gs: 'No (100% Local)', gsIcon: X, gsColor: 'text-rose-400 font-medium', typical: 'Yes (Uploaded to Cloud)', typicalIcon: Check, typicalColor: 'text-emerald-400/90 font-medium' },
@@ -242,23 +165,105 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
           </div>
         </div>
 
-        {/* Hero Interactive Dropzone Card */}
+        {/* Hero Interactive Smart Dropzone Card */}
         <div className="lg:col-span-5">
-          <div 
-            onClick={() => onSelectApp('pixels')}
-            className="neu-card p-8 rounded-3xl text-center flex flex-col items-center justify-center gap-5 cursor-pointer group hover:scale-[1.01] transition-all min-h-[300px]"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-cyan-600/10 text-cyan-600 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
-              <UploadCloud className="w-8 h-8" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                handleProcessFile(e.target.files[0]);
+              }
+            }}
+            className="hidden"
+          />
+
+          {!droppedFile ? (
+            <div 
+              onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={handleFileDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`neu-card p-8 rounded-3xl text-center flex flex-col items-center justify-center gap-5 cursor-pointer group transition-all min-h-[310px] border-2 border-dashed ${
+                isDragOver ? 'border-cyan-400 bg-cyan-500/10 scale-[1.01]' : 'border-slate-700/60 hover:border-cyan-500/40'
+              }`}
+            >
+              <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                <UploadCloud className="w-8 h-8" />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-xl font-extrabold tracking-tight">Drop any file here</h3>
+                <p className="text-xs opacity-75 max-w-xs mx-auto">
+                  We inspect the file format locally and suggest the exact studio workflow instantly.
+                </p>
+              </div>
+              <button 
+                type="button"
+                className="px-6 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all"
+              >
+                Choose Local File
+              </button>
             </div>
-            <div className="space-y-1">
-              <h3 className="text-xl font-extrabold">Drop any file here</h3>
-              <p className="text-xs opacity-75">We will suggest the right tool instantly. Nothing ever leaves your device.</p>
+          ) : (
+            <div className="neu-card p-6 sm:p-7 rounded-3xl text-left space-y-4 border border-cyan-500/40 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-700/40">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+                    <FileCheck className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-sm tracking-tight truncate">{droppedFile.name}</h4>
+                    <p className="text-xs text-slate-400">{formatBytes(droppedFile.size)} • {suggestion?.reason}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setDroppedFile(null); setSuggestion(null); }}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white"
+                  title="Remove file"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {suggestion && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-300">Suggested Studio:</span>
+                    <span className="font-bold text-cyan-400 px-2 py-0.5 rounded-full bg-cyan-500/10">
+                      {suggestion.appName}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-400 font-medium">What would you like to accomplish?</p>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {suggestion.actions.map((act, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => onSelectApp(suggestion.appId)}
+                        className="flex items-center justify-between p-2.5 rounded-xl neu-btn text-xs font-semibold text-slate-200 hover:text-white hover:border-cyan-500/40 transition-all group"
+                      >
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                          {act.label}
+                        </span>
+                        <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-1 group-hover:opacity-100 transition-all text-cyan-400" />
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between">
+                    <button
+                      onClick={() => onSelectApp(suggestion.appId)}
+                      className="w-full py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-bold shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <span>Open in {suggestion.appName}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            <button className="px-6 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold shadow-lg shadow-cyan-500/25 transition-all">
-              Choose File
-            </button>
-          </div>
+          )}
         </div>
       </section>
 
@@ -297,7 +302,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
 
       {/* 3. THE STUDIO TOOL SUITES GRID */}
       <section className="space-y-8 text-center">
-        <div className="space-y-2 max-w-2xl mx-auto">
+        <div className="space-y-4 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-inset text-cyan-400 text-xs font-bold uppercase tracking-wider mb-1">
             <Layers className="w-3.5 h-3.5" /> 14 Complete Tool Suites
           </div>
@@ -305,10 +310,29 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
           <p className="text-sm font-medium opacity-80">
             Dedicated client-side creative, document, media, and security suites running directly in your browser.
           </p>
+
+          {/* Segmented Category Filter Navigation */}
+          <div className="inline-flex items-center gap-1 p-1 rounded-2xl neu-inset">
+            {(['all', 'media', 'documents', 'developer', 'security'] as const).map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
+                  selectedCategory === cat
+                    ? 'bg-cyan-500 text-black shadow-md font-extrabold'
+                    : 'opacity-70 hover:opacity-100 text-slate-300'
+                }`}
+              >
+                {cat === 'all' ? 'All 14 Suites' : cat}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 text-left">
-          {suiteTiles.map((suite) => {
+          {suiteTiles
+            .filter((s) => selectedCategory === 'all' || s.category === selectedCategory)
+            .map((suite) => {
             const Icon = suite.icon;
             return (
               <div

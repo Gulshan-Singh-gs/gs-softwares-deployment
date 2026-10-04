@@ -2,28 +2,14 @@ import React, { useState, Suspense, lazy } from 'react';
 import { Header } from './components/Header';
 import { Home } from './pages/Home';
 
-// Code-split each specialized tool suite via dynamic imports (React.lazy)
-const PixelsApp = lazy(() => import('./pages/PixelsApp').then(m => ({ default: m.PixelsApp })));
-const CanvasApp = lazy(() => import('./pages/CanvasApp').then(m => ({ default: m.CanvasApp })));
-const PdfApp = lazy(() => import('./pages/PdfApp').then(m => ({ default: m.PdfApp })));
-const VideoApp = lazy(() => import('./pages/VideoApp').then(m => ({ default: m.VideoApp })));
-const AudioApp = lazy(() => import('./pages/AudioApp').then(m => ({ default: m.AudioApp })));
-const TextApp = lazy(() => import('./pages/TextApp').then(m => ({ default: m.TextApp })));
-const SecurityApp = lazy(() => import('./pages/SecurityApp').then(m => ({ default: m.SecurityApp })));
-const HashApp = lazy(() => import('./pages/HashApp').then(m => ({ default: m.HashApp })));
-const BridgeApp = lazy(() => import('./pages/BridgeApp').then(m => ({ default: m.BridgeApp })));
-const ArchiveApp = lazy(() => import('./pages/ArchiveApp').then(m => ({ default: m.ArchiveApp })));
-const QrApp = lazy(() => import('./pages/QrApp').then(m => ({ default: m.QrApp })));
-const SpreadsheetApp = lazy(() => import('./pages/SpreadsheetApp').then(m => ({ default: m.SpreadsheetApp })));
-const EbookApp = lazy(() => import('./pages/EbookApp').then(m => ({ default: m.EbookApp })));
-const PresentationApp = lazy(() => import('./pages/PresentationApp').then(m => ({ default: m.PresentationApp })));
-
 import { SettingsModal } from './components/settings/SettingsModal';
 import { PerformanceToast } from './components/settings/PerformanceToast';
 import { PerformanceProvider, usePerformanceTier } from './context/PerformanceContext';
 import { ToolLandingPage } from './components/ToolLandingPage';
 import { TOOLS_LANDING_DATA } from './lib/seoLandingData';
 import { OpenSourceNoticesModal } from './components/OpenSourceNoticesModal';
+import { CommandPalette } from './components/CommandPalette';
+import { ToolRegistry, StudioId } from './platform';
 import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap, Award } from 'lucide-react';
 
 function AppContent() {
@@ -31,6 +17,7 @@ function AppContent() {
   const [landingSlug, setLandingSlug] = useState<string | null>(null);
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
   const [noticesModalOpen, setNoticesModalOpen] = useState<boolean>(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState<boolean>(false);
   const [showFooter, setShowFooter] = useState<boolean>(() => {
     return localStorage.getItem('gs_show_footer') !== 'false';
   });
@@ -43,6 +30,17 @@ function AppContent() {
       return next;
     });
   };
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLaunchTool = (appId: string) => {
     setLandingSlug(null);
@@ -64,6 +62,7 @@ function AppContent() {
         }}
         onOpenAbout={() => setAboutModalOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -87,27 +86,45 @@ function AppContent() {
               </div>
             }
           >
-            {currentApp === 'home' && <Home onSelectApp={(app) => setCurrentApp(app)} onSelectLanding={(slug) => { setLandingSlug(slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />}
-            {currentApp === 'pixels' && <PixelsApp />}
-            {currentApp === 'canvas' && <CanvasApp onNavigate={(app) => setCurrentApp(app)} />}
-            {currentApp === 'pdf' && <PdfApp />}
-            {currentApp === 'video' && <VideoApp />}
-            {currentApp === 'audio' && <AudioApp />}
-            {currentApp === 'text' && <TextApp />}
-            {currentApp === 'security' && <SecurityApp />}
-            {currentApp === 'hash' && <HashApp />}
-            {currentApp === 'bridge' && <BridgeApp onNavigate={(app) => setCurrentApp(app)} />}
-            {currentApp === 'archive' && <ArchiveApp />}
-            {currentApp === 'qr' && <QrApp />}
-            {currentApp === 'spreadsheet' && <SpreadsheetApp />}
-            {currentApp === 'ebook' && <EbookApp />}
-            {currentApp === 'presentation' && <PresentationApp />}
+            {currentApp === 'home' ? (
+              <Home 
+                onSelectApp={(app) => setCurrentApp(app)} 
+                onSelectLanding={(slug) => { setLandingSlug(slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+              />
+            ) : ToolRegistry.isRegisteredStudio(currentApp) ? (
+              (() => {
+                const studio = ToolRegistry.getStudio(currentApp);
+                if (!studio) return null;
+                const StudioComponent = studio.component;
+                return (
+                  <StudioComponent 
+                    onNavigate={(app: string) => {
+                      setLandingSlug(null);
+                      setCurrentApp(app);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }} 
+                  />
+                );
+              })()
+            ) : (
+              <Home 
+                onSelectApp={(app) => setCurrentApp(app)} 
+                onSelectLanding={(slug) => { setLandingSlug(slug); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+              />
+            )}
           </Suspense>
         )}
       </main>
 
       {/* Global Performance Toast Notification */}
       <PerformanceToast />
+
+      {/* Global Command Palette (⌘K) */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSelectApp={(appId) => handleLaunchTool(appId)}
+      />
 
       {/* Global Settings & Performance Modal */}
       <SettingsModal

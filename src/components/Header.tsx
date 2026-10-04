@@ -27,9 +27,28 @@ import {
   Presentation,
   ChevronDown,
   Layers,
-  Check
+  Check,
+  Search
 } from 'lucide-react';
 import { usePerformanceTier } from '../context/PerformanceContext';
+import { ToolRegistry } from '../platform';
+
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
+  Image,
+  PenTool,
+  FileText,
+  Video,
+  Music,
+  FileCode,
+  Archive,
+  QrCode,
+  Table,
+  BookOpen,
+  Presentation,
+  Lock,
+  Sliders,
+  Sparkles
+};
 
 export type ThemeMode = 'light' | 'semi' | 'dark';
 
@@ -40,9 +59,10 @@ interface HeaderProps {
   onNavigate: (app: string) => void;
   onOpenAbout: () => void;
   onOpenSettings?: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, onToggleFooter, onNavigate, onOpenAbout, onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, onToggleFooter, onNavigate, onOpenAbout, onOpenSettings, onOpenCommandPalette }) => {
   const { tier, setIsSettingsOpen } = usePerformanceTier();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -130,20 +150,19 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, o
 
   const navItems = [
     { id: 'home', label: 'Suite Hub', icon: Sparkles, badge: 'Overview', group: 'Core' },
-    { id: 'pixels', label: 'GS-Pixels', icon: Image, badge: 'Image Studio', group: 'Media & Creative' },
-    { id: 'canvas', label: 'GS-Canvas', icon: PenTool, badge: 'Vector Canvas', group: 'Media & Creative' },
-    { id: 'video', label: 'GS-Video', icon: Video, badge: 'WASM Video', group: 'Media & Creative' },
-    { id: 'audio', label: 'GS-Audio', icon: Music, badge: 'WebAudio', group: 'Media & Creative' },
-    { id: 'pdf', label: 'GS-PDF', icon: FileText, badge: 'PDF Tools', group: 'Documents & Data' },
-    { id: 'spreadsheet', label: 'GS-Sheets', icon: Table, badge: 'CSV & Grid', group: 'Documents & Data' },
-    { id: 'presentation', label: 'GS-Slides', icon: Presentation, badge: 'Deck Studio', group: 'Documents & Data' },
-    { id: 'ebook', label: 'GS-EBook', icon: BookOpen, badge: 'EPUB Studio', group: 'Documents & Data' },
-    { id: 'text', label: 'GS-Text', icon: FileCode, badge: 'Code & Diff', group: 'Developer & System' },
-    { id: 'archive', label: 'GS-Archive', icon: Archive, badge: 'ZIP & TAR', group: 'Developer & System' },
-    { id: 'qr', label: 'GS-QR', icon: QrCode, badge: 'QR & Barcode', group: 'Developer & System' },
-    { id: 'security', label: 'GS-Security', icon: Lock, badge: 'AES-256', group: 'Security & Integrity' },
-    { id: 'hash', label: 'GS-Hash', icon: Sliders, badge: 'Checksum', group: 'Security & Integrity' },
-    { id: 'bridge', label: 'GS-Bridge', icon: Sparkles, badge: 'Transmutation', group: 'Security & Integrity' },
+    ...ToolRegistry.listStudios().map((studio) => {
+      let group = 'Media & Creative';
+      if (studio.category === 'documents') group = 'Documents & Data';
+      else if (studio.category === 'developer') group = 'Developer & System';
+      else if (studio.category === 'security') group = 'Security & Integrity';
+      return {
+        id: studio.id,
+        label: studio.name,
+        icon: ICON_MAP[studio.iconName] || Sparkles,
+        badge: studio.badge,
+        group
+      };
+    })
   ];
 
   const currentActiveItem = navItems.find((item) => item.id === currentApp) || navItems[0];
@@ -267,6 +286,21 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, o
           {/* Controls & Action Badges */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             
+            {/* Command Palette Trigger */}
+            {onOpenCommandPalette && (
+              <button
+                onClick={onOpenCommandPalette}
+                className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 rounded-xl neu-btn text-xs font-medium text-slate-300 hover:text-white transition-all group"
+                title="Search Tools & Workflows (Ctrl+K / ⌘K)"
+              >
+                <Search className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline">Search</span>
+                <kbd className="hidden md:inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded neu-inset font-mono text-slate-400">
+                  ⌘K
+                </kbd>
+              </button>
+            )}
+
             {/* 3-Mode Soft Neumorphic Theme Switcher */}
             <div className="flex items-center gap-0.5 sm:gap-1 neu-inset p-0.5 sm:p-1 rounded-xl sm:rounded-2xl">
               <button
