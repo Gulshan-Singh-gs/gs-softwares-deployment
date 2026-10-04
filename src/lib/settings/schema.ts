@@ -214,6 +214,46 @@ export const SETTINGS_SCHEMA: SettingDefinition[] = [
     step: 5,
     unit: 's',
   },
+  {
+    key: 'general.systemNotifications',
+    category: 'general',
+    label: 'System Task Notifications',
+    description: 'Local device alerts when background exports or conversions complete. Never sent over the internet.',
+    type: 'enum',
+    default: 'background',
+    options: [
+      { value: 'off', label: 'Disabled' },
+      { value: 'background', label: 'Only When Tab is Hidden (Recommended)' },
+      { value: 'always', label: 'Always Notify' },
+    ],
+  },
+  {
+    key: 'general.haptics',
+    category: 'general',
+    label: 'Device Haptic Feedback',
+    description: 'Vibration pulses on completion, warning, or error (mobile and supported trackpads).',
+    type: 'boolean',
+    default: true,
+  },
+  {
+    key: 'general.showFileNames',
+    category: 'general',
+    label: 'Show Filenames in Notifications',
+    description: 'If disabled, notification banners use generic privacy titles with zero file names.',
+    type: 'boolean',
+    default: false,
+  },
+  {
+    key: 'general.batchSummaryThreshold',
+    category: 'general',
+    label: 'Batch Summary Notification Threshold',
+    description: 'Number of concurrent items that triggers a single bundled summary notification instead of individual cards.',
+    type: 'number',
+    default: 4,
+    min: 2,
+    max: 20,
+    step: 1,
+  },
 
   // ─────────────────────────────────────────────────────────────
   // 4. PRIVACY & SECURITY

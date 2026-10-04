@@ -126,9 +126,9 @@ export const SecurityApp: React.FC = () => {
 
             <FileDropZone
               multiple={false}
-              maxSizeMB={500}
+              maxSizeMB={50000}
               title={mode === 'encrypt' ? 'Drop any file to encrypt' : 'Drop .gsenc file to decrypt'}
-              subtitle="Supports images, PDFs, archives, audio, video & documents (up to 500MB)"
+              subtitle="Streaming engine handles multi-gigabyte archives, videos & ISOs with flat RAM"
               iconColor={mode === 'encrypt' ? 'text-emerald-400' : 'text-cyan-400'}
               onFilesSelected={(files) => {
                 setSelectedFile(files[0]);

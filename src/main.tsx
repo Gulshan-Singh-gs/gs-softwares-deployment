@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './lib/pwa/installPrompt'; // Earliest beforeinstallprompt capture
 import App from './App';
 import './index.css';
 

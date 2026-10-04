@@ -10,6 +10,8 @@ import { TOOLS_LANDING_DATA } from './lib/seoLandingData';
 import { OpenSourceNoticesModal } from './components/OpenSourceNoticesModal';
 import { CommandPalette } from './components/CommandPalette';
 import { ToolRegistry, StudioId } from './platform';
+import { InstallBanner } from './components/InstallBanner';
+import { GlobalToastRegion } from './components/GlobalToastRegion';
 import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap, Award } from 'lucide-react';
 
 function AppContent() {
@@ -118,6 +120,10 @@ function AppContent() {
 
       {/* Global Performance Toast Notification */}
       <PerformanceToast />
+
+      {/* Global PWA Install Promotion Banner & Local Feedback Toast Region */}
+      {currentApp === 'home' && <InstallBanner />}
+      <GlobalToastRegion />
 
       {/* Global Command Palette (⌘K) */}
       <CommandPalette

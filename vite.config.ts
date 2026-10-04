@@ -14,6 +14,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'robots.txt', 'icons/*.png'],
       manifest: {
+        id: '/gs-suite',
         name: 'GS Softwares Suite',
         short_name: 'GS Suite',
         description: 'High-performance 100% Client-Side WebAssembly PWA Tools for Images, PDFs, Video, Audio, and Text.',
@@ -21,16 +22,19 @@ export default defineConfig({
         background_color: '#000000',
         display: 'standalone',
         orientation: 'portrait',
+        start_url: './',
         icons: [
           {
-            src: 'favicon.png',
+            src: 'icons/icon-192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
-            src: 'favicon.png',
+            src: 'icons/icon-512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       },

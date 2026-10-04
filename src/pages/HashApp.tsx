@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Hash, Copy, Check, Shield, FileCheck, RefreshCw, Sparkles, AlertCircle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Hash, Copy, Check, Shield, FileCheck, RefreshCw, Sparkles, AlertCircle, XCircle } from 'lucide-react';
 import { FileDropZone } from '../components/shared/FileDropZone';
 import { ProgressBar } from '../components/shared/ProgressBar';
 import { generateHash } from '../lib/cryptoEngine';
@@ -11,10 +11,13 @@ export const HashApp: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [generatedHash, setGeneratedHash] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [progressPercent, setProgressPercent] = useState<number>(0);
+  const [throughput, setThroughput] = useState<number>(0);
   const [copied, setCopied] = useState<boolean>(false);
   const [compareHash, setCompareHash] = useState<string>('');
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Manifest Verification states (HSH-N-01)
+  // Manifest Verification states
   const [activeTab, setActiveTab] = useState<'single' | 'manifest'>('single');
   const [manifestText, setManifestText] = useState<string>('');
   const [manifestFiles, setManifestFiles] = useState<File[]>([]);
@@ -28,17 +31,46 @@ export const HashApp: React.FC = () => {
     await computeHash(file, algorithm);
   };
 
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsProcessing(false);
+    setProgressPercent(0);
+  };
+
   const computeHash = async (file: File, algo: 'MD5' | 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512') => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setIsProcessing(true);
+    setProgressPercent(0);
+    setThroughput(0);
     setGeneratedHash('');
+
     try {
-      const hash = await generateHash(file, algo);
+      const hash = await generateHash(
+        file,
+        algo,
+        (progress) => {
+          setProgressPercent(progress.percent);
+          setThroughput(progress.throughputMBs);
+        },
+        controller.signal
+      );
       setGeneratedHash(hash);
       confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 } });
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        console.error('Hash calculation error:', err);
+      }
     } finally {
       setIsProcessing(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -73,7 +105,7 @@ export const HashApp: React.FC = () => {
         continue;
       }
 
-      // Determine algorithm by length
+      // Determine algorithm by digest length
       let algo: 'MD5' | 'SHA-1' | 'SHA-256' | 'SHA-512' = 'SHA-256';
       if (entry.hash.length === 32) algo = 'MD5';
       else if (entry.hash.length === 40) algo = 'SHA-1';
@@ -127,11 +159,14 @@ export const HashApp: React.FC = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Cryptographic Hash Generator</h1>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                Checksum &amp; Integrity
+                Streaming Web Worker
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                Flat RAM (&lt;64MB)
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300 mt-1">
-              Verify file integrity, generate cryptographic fingerprints, and detect data tampering entirely in your browser.
+              Verify file integrity, generate cryptographic fingerprints, and detect data tampering entirely in your browser with multi-gigabyte streaming support.
             </p>
           </div>
         </div>
@@ -161,14 +196,14 @@ export const HashApp: React.FC = () => {
         </div>
       </div>
 
-      {/* Honest Cryptographic Collision Warning (HSH-U-01) */}
+      {/* Honest Cryptographic Collision Warning */}
       {(algorithm === 'MD5' || algorithm === 'SHA-1') && activeTab === 'single' && (
         <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold">Cryptographic Collision Resistance Notice ({algorithm})</p>
+            <p className="font-bold">Integrity Only Notice ({algorithm} — Not for Cryptographic Security)</p>
             <p className="text-amber-200/80 leading-relaxed">
-              {algorithm} is cryptographically broken for collision resistance. It should only be used to verify accidental file corruption or compare legacy checksums. For security against intentional tampering, use <strong>SHA-256</strong> or <strong>SHA-512</strong>.
+              {algorithm} is cryptographically broken for collision resistance. It is provided strictly for non-cryptographic checksum comparison and accidental corruption detection. For security against intentional tampering, use <strong>SHA-256</strong> or <strong>SHA-512</strong>.
             </p>
           </div>
         </div>
@@ -186,9 +221,9 @@ export const HashApp: React.FC = () => {
 
               <FileDropZone
                 multiple={false}
-                maxSizeMB={500}
+                maxSizeMB={50000} // High limit: Streaming worker handles multi-gigabyte files
                 title="Drop any file here to compute hash"
-                subtitle="Supports software binaries, media, ISOs, documents (up to 500MB)"
+                subtitle="Streaming engine handles multi-gigabyte ISOs, video, binaries with flat memory"
                 iconColor="text-cyan-400"
                 onFilesSelected={handleFileSelect}
               />
@@ -199,17 +234,36 @@ export const HashApp: React.FC = () => {
                     <p className="text-xs font-bold text-white truncate">{selectedFile.name}</p>
                     <p className="text-[11px] text-slate-400 font-mono">{formatBytes(selectedFile.size)}</p>
                   </div>
-                  <button
-                    onClick={() => computeHash(selectedFile, algorithm)}
-                    className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 shrink-0"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Re-calculate</span>
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isProcessing && (
+                      <button
+                        onClick={handleCancel}
+                        className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold border border-rose-500/30 transition-all flex items-center gap-1"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>Cancel</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => computeHash(selectedFile, algorithm)}
+                      disabled={isProcessing}
+                      className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isProcessing ? 'animate-spin' : ''}`} />
+                      <span>Re-calculate</span>
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {isProcessing && <ProgressBar value={60} label="Computing cryptographic checksum..." />}
+              {isProcessing && (
+                <div className="space-y-2">
+                  <ProgressBar
+                    value={progressPercent}
+                    label={`Streaming ${algorithm} digest${throughput > 0 ? ` (${throughput} MB/s)` : ''}...`}
+                  />
+                </div>
+              )}
 
               {generatedHash && !isProcessing && (
                 <div className="space-y-4 pt-2">
@@ -289,7 +343,10 @@ export const HashApp: React.FC = () => {
                         : 'neu-btn text-slate-400 hover:text-white'
                     }`}
                   >
-                    {algo}
+                    <div>{algo}</div>
+                    <span className="text-[9px] font-normal opacity-70">
+                      {algo === 'MD5' || algo === 'SHA-1' ? 'Integrity' : 'Secure'}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -297,10 +354,10 @@ export const HashApp: React.FC = () => {
               <div className="p-3.5 rounded-2xl neu-inset space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
                 <p className="font-bold text-slate-300 flex items-center gap-1">
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Cryptographic Security</span>
+                  <span>Streaming Web Worker Engine</span>
                 </p>
                 <p>
-                  Calculations execute on your local CPU cores via the native Web Crypto API (<code className="text-cyan-300">crypto.subtle.digest</code>) and accelerated pure client algorithms.
+                  Digests execute off the main thread in a dedicated Web Worker using chunked stream slices, ensuring the UI remains 60FPS responsive even with 10GB+ files.
                 </p>
               </div>
             </div>
@@ -308,7 +365,7 @@ export const HashApp: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 2: Checksum Manifest Verification (HSH-N-01) */}
+      {/* Tab 2: Checksum Manifest Verification */}
       {activeTab === 'manifest' && (
         <div className="space-y-6">
           <div className="neu-card p-6 sm:p-8 rounded-3xl space-y-6">
@@ -317,7 +374,7 @@ export const HashApp: React.FC = () => {
                 <Shield className="w-4 h-4 text-purple-400" />
                 <span>Verify sha256sum / MD5SUMS Manifest</span>
               </h3>
-              <span className="text-xs text-slate-400">HSH-N-01 Local Batch Verification</span>
+              <span className="text-xs text-slate-400">Batch Verification</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -338,59 +395,74 @@ export const HashApp: React.FC = () => {
               {/* Files to verify */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-300">
-                  2. Select Matching Files to Audit ({manifestFiles.length} loaded)
+                  2. Select Matching Files to Audit
                 </label>
                 <FileDropZone
                   multiple={true}
-                  maxSizeMB={2000}
-                  title="Drop all referenced files here"
-                  subtitle="Select the files listed in the manifest above"
+                  maxSizeMB={50000}
+                  title="Drop all files matching manifest"
+                  subtitle="Multiple files accepted simultaneously"
                   iconColor="text-purple-400"
                   onFilesSelected={(files) => setManifestFiles(files)}
                 />
+                {manifestFiles.length > 0 && (
+                  <p className="text-xs text-purple-300 font-mono">
+                    {manifestFiles.length} file(s) loaded for audit.
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="flex justify-end pt-2">
-              <button
-                disabled={!manifestText.trim() || manifestFiles.length === 0 || isProcessing}
-                onClick={handleVerifyManifest}
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-purple-600/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <FileCheck className="w-4 h-4" />
-                <span>Verify All Manifest Files</span>
-              </button>
-            </div>
+            <button
+              onClick={handleVerifyManifest}
+              disabled={isProcessing || !manifestText.trim() || manifestFiles.length === 0}
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-30 disabled:hover:from-purple-600 text-white text-xs font-bold transition-all shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${isProcessing ? 'animate-spin' : ''}`} />
+              <span>Verify Manifest Checksums ({manifestFiles.length} files)</span>
+            </button>
 
-            {isProcessing && <ProgressBar value={75} label="Auditing directory manifest checksums against local files..." />}
-
-            {manifestResults.length > 0 && !isProcessing && (
+            {/* Manifest Results Table */}
+            {manifestResults.length > 0 && (
               <div className="space-y-3 pt-4 border-t border-slate-800">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Verification Audit Report</h4>
-                <div className="space-y-2">
-                  {manifestResults.map((r, i) => (
-                    <div
-                      key={i}
-                      className={`p-3.5 rounded-2xl text-xs flex flex-col md:flex-row md:items-center justify-between gap-2 border ${
-                        r.status === 'match'
-                          ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                          : r.status === 'missing'
-                          ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-                          : 'bg-rose-500/15 border-rose-500/30 text-rose-300'
-                      }`}
-                    >
-                      <div className="space-y-0.5 truncate">
-                        <p className="font-bold font-mono text-white">{r.filename}</p>
-                        <p className="text-[11px] opacity-80 font-mono truncate">Expected: {r.expected}</p>
-                        {r.status !== 'missing' && (
-                          <p className="text-[11px] opacity-80 font-mono truncate">Calculated: {r.actual}</p>
-                        )}
-                      </div>
-                      <span className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase shrink-0 self-start md:self-auto border border-current">
-                        {r.status === 'match' ? 'VERIFIED ✓' : r.status === 'missing' ? 'FILE MISSING ?' : 'CHECKSUM MISMATCH ✗'}
-                      </span>
-                    </div>
-                  ))}
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Audit Results</h4>
+                <div className="overflow-x-auto rounded-2xl border border-slate-800">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-900/60 text-slate-400 uppercase text-[10px]">
+                      <tr>
+                        <th className="p-3">Filename</th>
+                        <th className="p-3">Expected Hash</th>
+                        <th className="p-3">Actual Hash</th>
+                        <th className="p-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                      {manifestResults.map((r, i) => (
+                        <tr key={i} className="hover:bg-slate-900/30">
+                          <td className="p-3 font-sans font-medium text-white">{r.filename}</td>
+                          <td className="p-3 truncate max-w-xs" title={r.expected}>{r.expected}</td>
+                          <td className="p-3 truncate max-w-xs" title={r.actual}>{r.actual}</td>
+                          <td className="p-3 font-sans">
+                            {r.status === 'match' && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">
+                                Match
+                              </span>
+                            )}
+                            {r.status === 'mismatch' && (
+                              <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 font-bold text-[10px]">
+                                Mismatch
+                              </span>
+                            )}
+                            {r.status === 'missing' && (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold text-[10px]">
+                                Missing File
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

@@ -83,6 +83,60 @@ export const OPEN_SOURCE_NOTICES: OpenSourceNotice[] = [
     sourceUrl: 'https://github.com/lucide-icons/lucide',
     purpose: 'Clean, accessible SVG iconography for all 14 studio suites',
     localVendoring: 'Inline SVG tree-shaken assets'
+  },
+  {
+    name: 'GS-Streaming-Crypto & MD5 Engine',
+    version: '2.1.0',
+    license: 'MIT',
+    spdx: 'MIT',
+    sourceUrl: 'https://github.com/gulshan-singh-gs/gs-softwares-deployment',
+    purpose: 'Off-thread streaming chunked MD5 & AES-256-GCM authenticated container with flat memory',
+    localVendoring: 'Self-hosted dedicated Web Workers (hash.worker.ts, crypto.worker.ts)'
+  },
+  {
+    name: 'GS-Lanczos-3 Resampler & Image Worker Pool',
+    version: '2.2.0',
+    license: 'MIT',
+    spdx: 'MIT',
+    sourceUrl: 'https://github.com/gulshan-singh-gs/gs-softwares-deployment',
+    purpose: 'Off-thread 2-pass Lanczos-3 separable sinc downsampling with AbortSignal worker pool',
+    localVendoring: 'Self-hosted image.worker.ts & lanczosResampler.ts'
+  },
+  {
+    name: 'GS-GIF89a NeuQuant/Median-Cut Quantizer',
+    version: '2.2.0',
+    license: 'MIT',
+    spdx: 'MIT',
+    sourceUrl: 'https://github.com/gulshan-singh-gs/gs-softwares-deployment',
+    purpose: 'Pure client-side color quantization and multi-frame animated GIF89a binary encoder',
+    localVendoring: 'Self-hosted gifEncoder.ts & videoRemux.ts with OPFS cleanup'
+  },
+  {
+    name: 'GS-ITU-R BS.1770 EBU R128 Loudness DSP',
+    version: '2.3.0',
+    license: 'MIT',
+    spdx: 'MIT',
+    sourceUrl: 'https://github.com/gulshan-singh-gs/gs-softwares-deployment',
+    purpose: 'Cleanroom reimplementation of K-weighting filters, gated integrated LUFS metering & normalization',
+    localVendoring: 'Self-hosted ebuLoudness.ts'
+  },
+  {
+    name: 'GS-Canvas E2EE Web Crypto AES-GCM Engine',
+    version: '2.3.0',
+    license: 'MIT',
+    spdx: 'MIT',
+    sourceUrl: 'https://github.com/gulshan-singh-gs/gs-softwares-deployment',
+    purpose: 'Zero-server peer URL hash encrypted scene serialization and decryption',
+    localVendoring: 'Self-hosted e2eeSharing.ts'
+  },
+  {
+    name: 'GS-ReDoS Defense & Archive Security Guard',
+    version: '2.3.0',
+    license: 'MIT',
+    spdx: 'MIT',
+    sourceUrl: 'https://github.com/gulshan-singh-gs/gs-softwares-deployment',
+    purpose: 'Time-bounded regex execution and Zip Slip / decompression-bomb path validation',
+    localVendoring: 'Self-hosted safeRegexEngine.ts & archiveSecurity.ts'
   }
 ];
 
