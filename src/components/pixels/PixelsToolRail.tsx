@@ -202,17 +202,17 @@ export const PixelsToolRail: React.FC<PixelsToolRailProps> = ({
   return (
     <aside
       aria-label="Image editing tools"
-      className="w-16 md:w-20 bg-slate-950/80 backdrop-blur-md border-r border-slate-800/80 flex flex-col items-center py-3 select-none z-20 shrink-0"
+      className="w-16 md:w-20 border-r border-slate-500/20 backdrop-blur-xl bg-slate-900/30 flex flex-col items-center py-3 select-none z-20 shrink-0"
     >
       {/* Mini App Badge */}
       <div className="mb-3 flex flex-col items-center">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-cyan-600/30">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
           <Wand2 className="w-4 h-4" />
         </div>
         <span className="text-[9px] font-bold tracking-wider text-cyan-400 mt-1 uppercase">GS-PX</span>
       </div>
 
-      <div className="w-8 h-[1px] bg-slate-800/80 mb-2" />
+      <div className="w-8 h-[1px] bg-slate-500/20 mb-2" />
 
       {/* Tool Rail Navigation List */}
       <nav className="w-full flex-1 overflow-y-auto no-scrollbar space-y-1.5 px-2">

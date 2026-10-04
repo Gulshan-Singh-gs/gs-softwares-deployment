@@ -1,0 +1,16 @@
+{
+  "app.title": "برمجيات GS",
+  "app.tagline": "استوديو الملفات الخاص داخل المتصفح",
+  "app.airgapped": "خاص 100% • يعمل بالكامل على جهازك",
+  "common.open": "فتح",
+  "common.save": "حفظ",
+  "common.export": "تصدير",
+  "common.cancel": "إلغاء",
+  "common.close": "إغلاق",
+  "common.delete": "حذف",
+  "common.settings": "الإعدادات",
+  "common.offline": "غير متصل",
+  "common.processing": "جارٍ المعالجة...",
+  "install.prompt": "تثبيت برمجيات GS",
+  "install.desc": "يعمل دون اتصال بالإنترنت بسرعة فائقة ووصول مباشر من شاشتك الرئيسية."
+}

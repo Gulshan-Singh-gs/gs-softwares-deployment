@@ -26,7 +26,7 @@ export const PixelsStatusBar: React.FC<PixelsStatusBarProps> = ({
   return (
     <footer
       aria-label="Image workstation status"
-      className="h-8 bg-slate-950 border-t border-slate-800/80 px-4 flex items-center justify-between text-[11px] text-slate-400 select-none z-20 shrink-0 font-mono"
+      className="h-8 border-t border-slate-500/20 backdrop-blur-xl bg-slate-900/40 px-4 flex items-center justify-between text-[11px] text-slate-400 select-none z-20 shrink-0 font-mono"
     >
       {/* Left: Security & Local Air-gap indicator */}
       <div className="flex items-center gap-3">
@@ -36,7 +36,7 @@ export const PixelsStatusBar: React.FC<PixelsStatusBarProps> = ({
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
         </div>
 
-        <div className="hidden md:flex items-center gap-1.5 text-slate-400 border-l border-slate-800 pl-3">
+        <div className="hidden md:flex items-center gap-1.5 text-slate-400 border-l border-slate-500/20 pl-3">
           <Cpu className="w-3 h-3 text-cyan-400" />
           <span>WebWorker / Canvas2D</span>
         </div>

@@ -909,7 +909,7 @@ export const PixelsApp: React.FC = () => {
     : 0;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] w-full overflow-hidden bg-slate-950 text-slate-100">
+    <div className="flex flex-col h-[calc(100vh-4.25rem)] w-full overflow-hidden transition-colors duration-300">
       {/* Hidden File Picker Input */}
       <input
         ref={fileInputRef}

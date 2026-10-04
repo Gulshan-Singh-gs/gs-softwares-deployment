@@ -1,0 +1,16 @@
+{
+  "app.title": "GS Softwares",
+  "app.tagline": "Private In-Browser File Studio",
+  "app.airgapped": "100% Private • Runs on Your Device",
+  "common.open": "Open",
+  "common.save": "Save",
+  "common.export": "Export",
+  "common.cancel": "Cancel",
+  "common.close": "Close",
+  "common.delete": "Delete",
+  "common.settings": "Settings",
+  "common.offline": "Offline",
+  "common.processing": "Processing...",
+  "install.prompt": "Install GS Softwares",
+  "install.desc": "Run 100% offline with zero latency, native haptics, and instant access."
+}

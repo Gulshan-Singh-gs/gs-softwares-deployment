@@ -68,31 +68,31 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
   const originalUrl = asset.previewUrl;
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-950/60 relative select-none">
+    <div className="flex-1 flex flex-col h-full overflow-hidden relative select-none">
       {/* Canvas Top Micro-Toolbar */}
-      <div className="h-10 px-4 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur flex items-center justify-between text-xs text-slate-300 z-10 shrink-0">
+      <div className="h-10 px-4 border-b border-slate-500/20 backdrop-blur-xl bg-slate-900/30 flex items-center justify-between text-xs z-10 shrink-0">
         {/* Left: View Mode Toggle */}
-        <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
+        <div className="flex items-center gap-1 bg-slate-900/60 p-0.5 rounded-xl border border-slate-500/20 shadow-sm">
           <button
             onClick={() => setViewMode('processed')}
-            className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${
-              viewMode === 'processed' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+              viewMode === 'processed' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
           >
             Processed
           </button>
           <button
             onClick={() => setViewMode('original')}
-            className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all ${
-              viewMode === 'original' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+              viewMode === 'original' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
           >
             Original
           </button>
           <button
             onClick={() => setViewMode('split')}
-            className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all flex items-center gap-1 ${
-              viewMode === 'split' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+            className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
+              viewMode === 'split' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
             title="Interactive Split Comparison Slider"
           >
@@ -103,9 +103,9 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
 
         {/* Center: File metadata tag */}
         <div className="hidden sm:flex items-center gap-2 text-slate-400 text-[11px]">
-          <span className="font-mono text-cyan-400">{asset.width} × {asset.height} px</span>
-          <span>•</span>
-          <span className="truncate max-w-[140px]">{asset.name}</span>
+          <span className="font-mono text-cyan-400 font-semibold">{asset.width} × {asset.height} px</span>
+          <span className="opacity-40">•</span>
+          <span className="truncate max-w-[160px] opacity-80">{asset.name}</span>
         </div>
 
         {/* Right: Zoom Controls */}

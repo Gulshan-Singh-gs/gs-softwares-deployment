@@ -97,12 +97,12 @@ export const PixelsInspector: React.FC<PixelsInspectorProps> = ({
   return (
     <aside
       aria-label="Inspector controls"
-      className="w-80 lg:w-96 bg-slate-950/85 backdrop-blur-md border-l border-slate-800/80 flex flex-col h-full overflow-hidden select-none z-20 shrink-0"
+      className="w-80 lg:w-96 backdrop-blur-xl bg-slate-900/30 border-l border-slate-500/20 flex flex-col h-full overflow-hidden select-none z-20 shrink-0"
     >
       {/* Inspector Header */}
-      <div className="p-4 border-b border-slate-800/80 bg-slate-900/40 flex items-center justify-between shrink-0">
+      <div className="p-4 border-b border-slate-500/20 bg-slate-900/40 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-sm">
             <activeMeta.icon className="w-4 h-4" />
           </div>
           <div>
@@ -118,7 +118,7 @@ export const PixelsInspector: React.FC<PixelsInspectorProps> = ({
         {allAssets.length > 1 && (
           <button
             onClick={onApplySettingsToAll}
-            className="p-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 transition-colors"
+            className="p-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 transition-colors shadow-sm"
             title="Apply these parameters to all loaded assets"
           >
             <Sparkles className="w-3.5 h-3.5" />
