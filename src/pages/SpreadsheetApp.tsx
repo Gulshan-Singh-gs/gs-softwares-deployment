@@ -152,21 +152,21 @@ export const SpreadsheetApp: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => handleDownload('csv')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition-all min-h-[44px] sm:min-h-0"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export CSV</span>
           </button>
           <button
             onClick={() => handleCopyFormatted('json')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl neu-btn text-cyan-400 hover:text-white text-xs font-bold transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl neu-btn text-cyan-400 hover:text-white text-xs font-bold transition-all min-h-[44px] sm:min-h-0"
           >
             {copiedFormat === 'json' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Code className="w-3.5 h-3.5" />}
             <span>{copiedFormat === 'json' ? 'JSON Copied!' : 'Copy JSON'}</span>
           </button>
           <button
             onClick={() => handleCopyFormatted('md')}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl neu-btn text-purple-400 hover:text-white text-xs font-bold transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl neu-btn text-purple-400 hover:text-white text-xs font-bold transition-all min-h-[44px] sm:min-h-0"
           >
             {copiedFormat === 'md' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <FileText className="w-3.5 h-3.5" />}
             <span>{copiedFormat === 'md' ? 'Markdown Copied!' : 'Copy MD Table'}</span>
@@ -222,18 +222,18 @@ export const SpreadsheetApp: React.FC = () => {
             </div>
           </div>
 
-          {/* Interactive Editable Table */}
-          <div className="overflow-x-auto overflow-y-auto max-h-[460px] rounded-2xl neu-inset p-2">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
+          {/* Interactive Editable Table with contained horizontal scrolling & sticky header */}
+          <div className="overflow-x-auto overflow-y-auto max-h-[460px] rounded-2xl neu-inset p-2 -mx-2 sm:mx-0">
+            <table className="w-full text-left text-xs border-collapse min-w-[500px]">
+              <thead className="sticky top-0 bg-slate-900/90 backdrop-blur-md z-10">
                 <tr className="border-b border-slate-700/60 text-slate-400 font-extrabold uppercase text-[10px] tracking-wider">
                   <th className="p-2.5 w-10 text-center">#</th>
                   {headers.map((h, i) => (
-                    <th key={i} className="p-2.5 min-w-[120px]">
+                    <th key={i} className="p-2.5 min-w-[140px]">
                       {h}
                     </th>
                   ))}
-                  <th className="p-2.5 w-12 text-center">Action</th>
+                  <th className="p-2.5 w-14 text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-mono">
@@ -246,17 +246,18 @@ export const SpreadsheetApp: React.FC = () => {
                           type="text"
                           value={cell}
                           onChange={(e) => handleCellChange(rIdx, cIdx, e.target.value)}
-                          className="w-full px-2 py-1 bg-transparent hover:bg-slate-800/60 focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 rounded-lg text-slate-200 text-xs transition-all outline-none"
+                          className="w-full px-2.5 py-1.5 bg-transparent hover:bg-slate-800/60 focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500 rounded-lg text-slate-200 text-xs transition-all outline-none min-h-[36px]"
                         />
                       </td>
                     ))}
                     <td className="p-2 text-center">
                       <button
                         onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== rIdx))}
-                        className="text-slate-600 hover:text-rose-400 transition-colors p-1"
+                        className="text-slate-500 hover:text-rose-400 transition-colors p-2 rounded-lg hover:bg-rose-500/10 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 inline-flex items-center justify-center"
                         title="Delete row"
+                        aria-label={`Delete row ${rIdx + 1}`}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                       </button>
                     </td>
                   </tr>

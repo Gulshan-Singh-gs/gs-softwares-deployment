@@ -9,6 +9,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test:bot": "tsx test_bot.ts",
+    "check:viewport": "npx tsx tools/check-viewport.ts",
+    "check:tap-targets": "npx tsx tools/check-tap-targets.ts",
+    "check:responsive": "npx tsx tools/check-responsive-css.ts",
     "audit": "npm audit --audit-level=high"
   },
   "engines": {

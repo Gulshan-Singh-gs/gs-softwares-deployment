@@ -24,7 +24,8 @@ import {
   Download,
   RotateCcw,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  X
 } from 'lucide-react';
 import {
   PixelCapability,
@@ -62,6 +63,7 @@ interface PixelsInspectorProps {
   stitchResultUrl: string | null;
   onDownloadZip: () => void;
   showToast: (msg: string) => void;
+  onClose?: () => void;
 }
 
 export const PixelsInspector: React.FC<PixelsInspectorProps> = ({
@@ -88,6 +90,7 @@ export const PixelsInspector: React.FC<PixelsInspectorProps> = ({
   stitchResultUrl,
   onDownloadZip,
   showToast,
+  onClose,
 }) => {
   const [filterSearch, setFilterSearch] = useState<string>('');
   const [paletteMenuOpen, setPaletteMenuOpen] = useState<boolean>(false);
@@ -97,10 +100,10 @@ export const PixelsInspector: React.FC<PixelsInspectorProps> = ({
   return (
     <aside
       aria-label="Inspector controls"
-      className="w-80 lg:w-96 backdrop-blur-xl bg-slate-900/30 border-l border-slate-500/20 flex flex-col h-full overflow-hidden select-none z-20 shrink-0"
+      className="w-full md:w-80 lg:w-96 backdrop-blur-xl bg-slate-900/30 border-t md:border-t-0 md:border-l border-slate-500/20 flex flex-col h-full overflow-hidden select-none z-20 shrink-0"
     >
       {/* Inspector Header */}
-      <div className="p-4 border-b border-slate-500/20 bg-slate-900/40 flex items-center justify-between shrink-0">
+      <div className="p-3.5 sm:p-4 border-b border-slate-500/20 bg-slate-900/40 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-indigo-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-sm">
             <activeMeta.icon className="w-4 h-4" />
@@ -115,15 +118,28 @@ export const PixelsInspector: React.FC<PixelsInspectorProps> = ({
           </div>
         </div>
 
-        {allAssets.length > 1 && (
-          <button
-            onClick={onApplySettingsToAll}
-            className="p-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 transition-colors shadow-sm"
-            title="Apply these parameters to all loaded assets"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-          </button>
-        )}
+        <div className="flex items-center gap-1.5">
+          {allAssets.length > 1 && (
+            <button
+              onClick={onApplySettingsToAll}
+              className="p-1.5 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 transition-colors shadow-sm min-h-[36px] min-w-[36px] flex items-center justify-center"
+              title="Apply these parameters to all loaded assets"
+              aria-label="Apply parameters to all assets"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-xl neu-btn text-slate-400 hover:text-white transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+              title="Close panel"
+              aria-label="Close Inspector panel"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Inspector Body (Scrollable controls) */}

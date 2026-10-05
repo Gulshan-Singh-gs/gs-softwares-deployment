@@ -917,36 +917,36 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
 
       {/* TOP HEADER CONTROLS BAR (Hidden in Hide UI Mode) */}
       {!isZenMode && (
-        <header className="absolute top-3 left-4 right-4 z-20 flex items-center justify-between pointer-events-none gap-2 flex-wrap sm:flex-nowrap">
+        <header className="absolute top-2 sm:top-3 left-2 sm:left-4 right-2 sm:right-4 z-20 flex items-center justify-between pointer-events-none gap-1 sm:gap-2 overflow-hidden">
           {/* Left: Project Name & Quick Tools */}
-          <div className="flex items-center gap-2 pointer-events-auto canvas-studio-panel px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur-xl border border-slate-700/60">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-md">
-              <Sparkles className="w-4 h-4" />
+          <div className="flex items-center gap-1 sm:gap-2 pointer-events-auto canvas-studio-panel px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl shadow-xl backdrop-blur-xl border border-slate-700/60 min-w-0 shrink">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-md shrink-0">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
 
-            <div className="min-w-0 pr-2">
+            <div className="min-w-0 pr-1">
               <input
                 type="text"
                 value={project.name}
                 onChange={e => setProject(prev => ({ ...prev, name: e.target.value }))}
-                className="text-xs font-black text-white bg-transparent border-b border-transparent hover:border-slate-500 focus:border-cyan-400 focus:outline-none max-w-[120px] sm:max-w-[200px] truncate"
+                className="text-xs font-black text-white bg-transparent border-b border-transparent hover:border-slate-500 focus:border-cyan-400 focus:outline-none max-w-[80px] xs:max-w-[120px] sm:max-w-[200px] truncate"
                 placeholder="Sketchbook Name"
               />
-              <p className="text-[10px] text-slate-400 font-mono">
+              <p className="text-[9px] sm:text-[10px] text-slate-400 font-mono hidden xs:block">
                 {project.strokes.length} vectors • {project.layers.length} layers
               </p>
             </div>
 
-            <div className="w-px h-6 bg-slate-700/60 mx-0.5" />
+            <div className="hidden sm:block w-px h-6 bg-slate-700/60 mx-0.5" />
 
             {/* Aspect Ratio Constraint Selector */}
             <button
               onClick={() => setShowAspectRatioModal(true)}
-              className="px-2.5 py-1.5 rounded-xl canvas-studio-btn text-cyan-300 hover:text-white flex items-center gap-1.5 text-xs font-bold"
+              className="px-2 py-1.5 rounded-xl canvas-studio-btn text-cyan-300 hover:text-white flex items-center gap-1 text-xs font-bold min-h-[36px] sm:min-h-0"
               title="Canvas Aspect Ratio & Sheet Preset (A4, 16:9, etc.)"
             >
-              <RectangleHorizontal className="w-4 h-4 text-cyan-400" />
-              <span className="hidden sm:inline capitalize">
+              <RectangleHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+              <span className="hidden md:inline capitalize">
                 {project.aspectRatio === 'infinite' ? 'Infinite' : project.aspectRatio.replace('-', ' ')}
               </span>
             </button>
@@ -954,25 +954,25 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* Insert Image Button */}
             <button
               onClick={() => imageFileInputRef.current?.click()}
-              className="p-1.5 rounded-xl canvas-studio-btn text-emerald-400 hover:text-emerald-300"
+              className="p-1.5 rounded-xl canvas-studio-btn text-emerald-400 hover:text-emerald-300 min-h-[36px] min-w-[36px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
               title="Upload File / Image to Canvas"
             >
-              <ImageIcon className="w-4 h-4" />
+              <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {/* Grid Toggle */}
             <button
               onClick={handleToggleGrid}
-              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white"
+              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white min-h-[36px] min-w-[36px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
               title={`Grid: ${project.grid.type.toUpperCase()}`}
             >
-              <Grid className="w-4 h-4 text-cyan-400" />
+              <Grid className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
             </button>
 
             {/* New Sketch */}
             <button
               onClick={handleNewSketch}
-              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white hidden sm:inline-flex"
+              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white hidden md:inline-flex min-h-[36px] min-w-[36px] items-center justify-center"
               title="New Blank Sketchbook"
             >
               <FilePlus className="w-4 h-4" />
@@ -981,7 +981,7 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
             {/* Open .gscanvas */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white hidden sm:inline-flex"
+              className="p-1.5 rounded-xl canvas-studio-btn text-slate-300 hover:text-white hidden md:inline-flex min-h-[36px] min-w-[36px] items-center justify-center"
               title="Open .gscanvas Project File"
             >
               <FolderOpen className="w-4 h-4" />
@@ -989,45 +989,45 @@ export const CanvasApp: React.FC<CanvasAppProps> = ({ onNavigate }) => {
           </div>
 
           {/* Right: Snapshot, Fullscreen, Hide UI & Export */}
-          <div className="flex items-center gap-2 pointer-events-auto ml-auto">
+          <div className="flex items-center gap-1 sm:gap-2 pointer-events-auto ml-auto shrink-0">
             {/* Snapshot Camera Button */}
             <button
               onClick={() => setShowSnapshotModal(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-cyan-300 hover:text-white shadow-xl backdrop-blur-xl border border-cyan-500/30 hover:scale-105 transition-all"
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-cyan-300 hover:text-white shadow-xl backdrop-blur-xl border border-cyan-500/30 hover:scale-105 transition-all min-h-[36px] sm:min-h-0"
               title="Take Canvas Snapshot & Share (Press S)"
             >
-              <Camera className="w-4 h-4 text-cyan-400" />
+              <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
               <span className="hidden sm:inline">Snapshot</span>
             </button>
 
             {/* Fullscreen Canvas Toggle */}
             <button
               onClick={handleToggleFullscreen}
-              className={`p-2.5 rounded-2xl canvas-studio-panel transition-all shadow-xl backdrop-blur-xl ${
+              className={`p-2 sm:p-2.5 rounded-2xl canvas-studio-panel transition-all shadow-xl backdrop-blur-xl min-h-[36px] min-w-[36px] sm:min-h-0 sm:min-w-0 flex items-center justify-center ${
                 isFullscreen ? 'text-cyan-400 canvas-studio-inset' : 'text-slate-300 hover:text-white'
               }`}
               title={isFullscreen ? 'Exit Full Screen (Press F)' : 'Full Screen Canvas (Press F)'}
             >
-              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              {isFullscreen ? <Minimize className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Maximize className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
 
             {/* Hide UI (Tools Only) Toggle */}
             <button
               onClick={() => setIsZenMode(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-slate-300 hover:text-white shadow-xl backdrop-blur-xl hover:scale-105 transition-all"
+              className="hidden sm:flex items-center gap-1 px-3 py-2 rounded-2xl canvas-studio-panel text-xs font-bold text-slate-300 hover:text-white shadow-xl backdrop-blur-xl hover:scale-105 transition-all min-h-[36px] sm:min-h-0"
               title="Hide UI - Tools Only (Press Tab or U)"
             >
-              <EyeOff className="w-4 h-4 text-cyan-400" />
-              <span className="hidden sm:inline">Hide UI</span>
+              <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+              <span className="hidden md:inline">Hide UI</span>
             </button>
 
             {/* Main Export Button */}
             <button
               onClick={() => setShowExportModal(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-500 hover:from-cyan-500 hover:to-emerald-400 text-white text-xs font-extrabold shadow-lg shadow-cyan-600/30 transition-all hover:scale-105"
+              className="flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-500 hover:from-cyan-500 hover:to-emerald-400 text-white text-xs font-extrabold shadow-lg shadow-cyan-600/30 transition-all hover:scale-105 min-h-[36px] sm:min-h-0"
             >
-              <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export</span>
+              <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Export</span>
             </button>
           </div>
         </header>

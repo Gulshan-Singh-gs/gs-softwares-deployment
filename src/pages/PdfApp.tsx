@@ -650,7 +650,7 @@ export const PdfApp: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold transition-all shadow-md"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-bold transition-all shadow-md min-h-[44px]"
           >
             <Plus className="w-4 h-4" />
             <span>Add PDF Documents</span>
@@ -667,7 +667,7 @@ export const PdfApp: React.FC = () => {
           {pdfFiles.length > 0 && (
             <button
               onClick={() => setPdfFiles([])}
-              className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-xl border border-rose-500/20 transition-colors"
+              className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-xl border border-rose-500/20 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Clear active queue"
             >
               <Trash2 className="w-5 h-5" />
@@ -677,7 +677,7 @@ export const PdfApp: React.FC = () => {
       </div>
 
       {/* 15 Major Categories Ribbon Navigation */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-glow">
+      <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-glow -mx-4 px-4 sm:mx-0 sm:px-0">
         {categories.map((cat) => {
           const Icon = cat.icon;
           const isActive = activeCategory === cat.id;
@@ -685,7 +685,7 @@ export const PdfApp: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px] sm:min-h-0 ${
                 isActive
                   ? 'bg-gradient-to-r from-rose-600 to-amber-600 text-white shadow-md shadow-rose-600/30'
                   : 'glass-panel text-slate-400 hover:text-slate-200 hover:bg-slate-800'

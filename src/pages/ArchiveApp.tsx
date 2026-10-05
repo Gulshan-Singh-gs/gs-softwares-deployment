@@ -170,7 +170,7 @@ export const ArchiveApp: React.FC = () => {
         <div className="flex items-center p-1 rounded-2xl neu-inset gap-1 self-start sm:self-auto">
           <button
             onClick={() => { setActiveTab('extract'); reset(); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               activeTab === 'extract'
                 ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -181,7 +181,7 @@ export const ArchiveApp: React.FC = () => {
           </button>
           <button
             onClick={() => { setActiveTab('create'); reset(); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               activeTab === 'create'
                 ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -327,17 +327,19 @@ export const ArchiveApp: React.FC = () => {
                           <>
                             <button
                               onClick={() => handlePreviewText(item)}
-                              className="p-1.5 rounded-lg neu-btn text-slate-400 hover:text-white"
+                              className="p-2 sm:p-1.5 rounded-lg neu-btn text-slate-400 hover:text-white min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
                               title="Preview text"
+                              aria-label={`Preview text for ${item.name}`}
                             >
-                              <Eye className="w-3.5 h-3.5" />
+                              <Eye className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                             </button>
                             <button
                               onClick={() => handleExtractSingle(item)}
-                              className="p-1.5 rounded-lg neu-btn text-amber-400 hover:text-amber-300"
+                              className="p-2 sm:p-1.5 rounded-lg neu-btn text-amber-400 hover:text-amber-300 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
                               title="Extract this file"
+                              aria-label={`Extract ${item.name}`}
                             >
-                              <Download className="w-3.5 h-3.5" />
+                              <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                             </button>
                           </>
                         )}

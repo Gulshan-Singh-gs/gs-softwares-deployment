@@ -60,6 +60,17 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
     setSplitPos(pct);
   };
 
+  const lastTapRef = useRef<number>(0);
+
+  // Handle double-tap to reset zoom
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      setZoom(100);
+    }
+    lastTapRef.current = now;
+  };
+
   if (!asset) {
     return null;
   }
@@ -70,12 +81,12 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden relative select-none">
       {/* Canvas Top Micro-Toolbar */}
-      <div className="h-10 px-4 border-b border-slate-500/20 backdrop-blur-xl bg-slate-900/30 flex items-center justify-between text-xs z-10 shrink-0">
+      <div className="h-10 px-2 sm:px-4 border-b border-slate-500/20 backdrop-blur-xl bg-slate-900/30 flex items-center justify-between text-xs z-10 shrink-0 gap-1 overflow-x-auto no-scrollbar">
         {/* Left: View Mode Toggle */}
-        <div className="flex items-center gap-1 bg-slate-900/60 p-0.5 rounded-xl border border-slate-500/20 shadow-sm">
+        <div className="flex items-center gap-0.5 sm:gap-1 bg-slate-900/60 p-0.5 rounded-xl border border-slate-500/20 shadow-sm shrink-0">
           <button
             onClick={() => setViewMode('processed')}
-            className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+            className={`px-2.5 sm:px-3 py-1 rounded-lg text-[11px] font-semibold transition-all min-h-[36px] sm:min-h-0 ${
               viewMode === 'processed' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -83,7 +94,7 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
           </button>
           <button
             onClick={() => setViewMode('original')}
-            className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+            className={`px-2.5 sm:px-3 py-1 rounded-lg text-[11px] font-semibold transition-all min-h-[36px] sm:min-h-0 ${
               viewMode === 'original' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -91,7 +102,7 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
           </button>
           <button
             onClick={() => setViewMode('split')}
-            className={`px-3 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-2.5 sm:px-3 py-1 rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 min-h-[36px] sm:min-h-0 ${
               viewMode === 'split' ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
             title="Interactive Split Comparison Slider"
@@ -102,53 +113,59 @@ export const PixelsCanvas: React.FC<PixelsCanvasProps> = ({
         </div>
 
         {/* Center: File metadata tag */}
-        <div className="hidden sm:flex items-center gap-2 text-slate-400 text-[11px]">
+        <div className="hidden lg:flex items-center gap-2 text-slate-400 text-[11px] shrink-0">
           <span className="font-mono text-cyan-400 font-semibold">{asset.width} × {asset.height} px</span>
           <span className="opacity-40">•</span>
-          <span className="truncate max-w-[160px] opacity-80">{asset.name}</span>
+          <span className="truncate max-w-[140px] opacity-80">{asset.name}</span>
         </div>
 
-        {/* Right: Zoom Controls */}
-        <div className="flex items-center gap-1">
+        {/* Right: Zoom Controls (With min 44px tap target padding on touch) */}
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 ml-auto">
           <button
             onClick={() => setZoom((z) => Math.max(25, z - 25))}
-            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
             title="Zoom out"
+            aria-label="Zoom out"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setZoom(100)}
-            className="px-2 py-0.5 rounded text-[11px] font-mono text-cyan-300 hover:bg-slate-800"
-            title="Reset to 100%"
+            className="px-2 py-0.5 rounded text-[11px] font-mono text-cyan-300 hover:bg-slate-800 min-h-[44px] sm:min-h-0 flex items-center justify-center"
+            title="Reset zoom to 100%"
+            aria-label="Reset zoom"
           >
             {zoom}%
           </button>
           <button
             onClick={() => setZoom((z) => Math.min(400, z + 25))}
-            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
             title="Zoom in"
+            aria-label="Zoom in"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => setZoom(100)}
-            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
             title="Fit to Screen"
+            aria-label="Fit to Screen"
           >
             <Maximize className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Main Viewport */}
+      {/* Main Viewport (Touch action pinch-zoom and double-tap zoom reset) */}
       <div
         ref={containerRef}
+        onClick={handleDoubleTap}
         onMouseMove={handleSplitMouseMove}
         onTouchMove={handleTouchMove}
         onMouseUp={() => setIsDraggingSplit(false)}
         onTouchEnd={() => setIsDraggingSplit(false)}
-        className="flex-1 relative overflow-auto flex items-center justify-center p-4 sm:p-8 checkered-bg"
+        style={{ touchAction: 'pan-x pan-y pinch-zoom' }}
+        className="flex-1 relative overflow-auto flex items-center justify-center p-3 sm:p-8 checkered-bg overscroll-contain"
       >
         <div
           className="relative transition-transform duration-75 max-w-full max-h-full flex items-center justify-center shadow-2xl rounded-lg overflow-hidden border border-white/10"

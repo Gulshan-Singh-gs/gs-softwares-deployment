@@ -51,7 +51,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300 selection:bg-indigo-500/30 selection:text-indigo-500">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col transition-colors duration-300 selection:bg-indigo-500/30 selection:text-indigo-500 overflow-x-hidden pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)]">
       {/* Global Navigation Header */}
       <Header
         currentApp={landingSlug ? '' : currentApp}
@@ -342,11 +342,12 @@ function AppContent() {
 
       {/* About & Privacy Modal */}
       {aboutModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-          <div className="neu-card p-6 rounded-3xl max-w-lg w-full space-y-5 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md">
+          <div className="neu-card p-5 sm:p-6 rounded-none sm:rounded-3xl max-w-lg w-full h-full sm:h-auto max-h-[100dvh] space-y-5 shadow-2xl relative border-0 sm:border border-slate-500/20 pt-[env(safe-area-inset-top,0px)] pb-[calc(env(safe-area-inset-bottom,0px)+8px)] flex flex-col justify-between sm:justify-start">
             <button
               onClick={() => setAboutModalOpen(false)}
-              className="absolute top-5 right-5 p-1.5 rounded-lg opacity-70 hover:opacity-100"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-xl opacity-70 hover:opacity-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Close about modal"
             >
               <X className="w-5 h-5" />
             </button>

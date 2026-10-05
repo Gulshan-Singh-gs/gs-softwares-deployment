@@ -200,22 +200,70 @@ export const PixelsToolRail: React.FC<PixelsToolRailProps> = ({
   onSelectCapability,
 }) => {
   return (
-    <aside
-      aria-label="Image editing tools"
-      className="w-16 md:w-20 border-r border-slate-500/20 backdrop-blur-xl bg-slate-900/30 flex flex-col items-center py-3 select-none z-20 shrink-0"
-    >
-      {/* Mini App Badge */}
-      <div className="mb-3 flex flex-col items-center">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
-          <Wand2 className="w-4 h-4" />
+    <>
+      {/* Desktop / Tablet Vertical Tool Rail (>=768px) */}
+      <aside
+        aria-label="Image editing tools"
+        className="hidden md:flex w-16 lg:w-20 border-r border-slate-500/20 backdrop-blur-xl bg-slate-900/30 flex-col items-center py-3 select-none z-20 shrink-0"
+      >
+        {/* Mini App Badge */}
+        <div className="mb-3 flex flex-col items-center">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+            <Wand2 className="w-4 h-4" />
+          </div>
+          <span className="text-[9px] font-bold tracking-wider text-cyan-400 mt-1 uppercase">GS-PX</span>
         </div>
-        <span className="text-[9px] font-bold tracking-wider text-cyan-400 mt-1 uppercase">GS-PX</span>
-      </div>
 
-      <div className="w-8 h-[1px] bg-slate-500/20 mb-2" />
+        <div className="w-8 h-[1px] bg-slate-500/20 mb-2" />
 
-      {/* Tool Rail Navigation List */}
-      <nav className="w-full flex-1 overflow-y-auto no-scrollbar space-y-1.5 px-2">
+        {/* Tool Rail Navigation List */}
+        <nav className="w-full flex-1 overflow-y-auto no-scrollbar space-y-1.5 px-2">
+          {CAPABILITIES.map((cap) => {
+            const Icon = cap.icon;
+            const isActive = activeCapability === cap.id;
+
+            return (
+              <button
+                key={cap.id}
+                onClick={() => onSelectCapability(cap.id)}
+                title={`${cap.name} — ${cap.tagline}`}
+                aria-label={cap.name}
+                aria-pressed={isActive}
+                className={`w-full group relative flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all min-h-[44px] ${
+                  isActive
+                    ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/10'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
+                }`}
+              >
+                {/* Active Indicator Bar */}
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r bg-cyan-400 shadow-sm shadow-cyan-400" />
+                )}
+
+                <div className="relative">
+                  <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-cyan-400' : 'text-slate-400 group-hover:text-slate-200'}`} />
+                  {cap.badge && (
+                    <span className="absolute -top-1.5 -right-2 text-[8px] font-black px-1 py-0.2 rounded bg-cyan-500 text-black leading-tight">
+                      {cap.badge}
+                    </span>
+                  )}
+                </div>
+
+                <span className={`text-[9px] font-medium tracking-tight mt-1 truncate max-w-full leading-none ${isActive ? 'font-bold text-cyan-300' : 'text-slate-400'}`}>
+                  {cap.shortName}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+      </aside>
+
+      {/* Mobile Bottom Tab Bar (<768px, Track A3 & B2) */}
+      <nav
+        aria-label="Mobile image editing tools bar"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="md:hidden w-full border-t border-slate-500/20 backdrop-blur-2xl bg-slate-950/85 flex items-center overflow-x-auto no-scrollbar py-1.5 px-2 gap-1 select-none z-30 shrink-0"
+      >
         {CAPABILITIES.map((cap) => {
           const Icon = cap.icon;
           const isActive = activeCapability === cap.id;
@@ -227,33 +275,27 @@ export const PixelsToolRail: React.FC<PixelsToolRailProps> = ({
               title={`${cap.name} — ${cap.tagline}`}
               aria-label={cap.name}
               aria-pressed={isActive}
-              className={`w-full group relative flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all ${
+              className={`flex flex-col items-center justify-center px-3 py-1.5 rounded-xl transition-all shrink-0 min-h-[44px] min-w-[56px] relative ${
                 isActive
-                  ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-sm shadow-cyan-500/10'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 border border-transparent'
+                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
               }`}
             >
-              {/* Active Indicator Bar */}
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r bg-cyan-400 shadow-sm shadow-cyan-400" />
-              )}
-
               <div className="relative">
-                <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-cyan-400' : 'text-slate-400 group-hover:text-slate-200'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400 scale-110' : 'text-slate-400'}`} />
                 {cap.badge && (
-                  <span className="absolute -top-1.5 -right-2 text-[8px] font-black px-1 py-0.2 rounded bg-cyan-500 text-black leading-tight">
+                  <span className="absolute -top-1.5 -right-2 text-[7px] font-black px-0.5 rounded bg-cyan-500 text-black leading-tight">
                     {cap.badge}
                   </span>
                 )}
               </div>
-
-              <span className={`text-[9px] font-medium tracking-tight mt-1 truncate max-w-full leading-none ${isActive ? 'font-bold text-cyan-300' : 'text-slate-400'}`}>
+              <span className={`text-[9px] mt-1 leading-none truncate max-w-[52px] ${isActive ? 'font-bold text-cyan-300' : 'text-slate-400'}`}>
                 {cap.shortName}
               </span>
             </button>
           );
         })}
       </nav>
-    </aside>
+    </>
   );
 };

@@ -199,8 +199,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="neu-flat w-full max-w-5xl h-[92vh] max-h-[850px] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-500/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-6 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div
+        style={{ maxHeight: '100dvh' }}
+        className="neu-flat w-full max-w-5xl h-full sm:h-[92vh] sm:max-h-[850px] rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border-0 sm:border border-slate-500/20 pt-[env(safe-area-inset-top,0px)] pb-[calc(env(safe-area-inset-bottom,0px)+8px)]"
+      >
         
         {/* Hidden File Upload for JSON Import */}
         <input

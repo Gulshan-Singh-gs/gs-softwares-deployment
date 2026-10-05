@@ -199,7 +199,7 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
               </div>
               <button 
                 type="button"
-                className="px-6 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all"
+                className="px-6 py-2.5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-black font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all min-h-[44px] flex items-center justify-center"
               >
                 Choose Local File
               </button>
@@ -311,25 +311,28 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
             Dedicated client-side creative, document, media, and security suites running directly in your browser.
           </p>
 
-          {/* Segmented Category Filter Navigation */}
-          <div className="inline-flex items-center gap-1 p-1 rounded-2xl neu-inset">
-            {(['all', 'media', 'documents', 'developer', 'security'] as const).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-cyan-500 text-black shadow-md font-extrabold'
-                    : 'opacity-70 hover:opacity-100 text-slate-300'
-                }`}
-              >
-                {cat === 'all' ? 'All 14 Suites' : cat}
-              </button>
-            ))}
+          {/* Segmented Category Filter Navigation (Contained scroll, zero overflow at 320px) */}
+          <div className="w-full overflow-x-auto no-scrollbar py-1">
+            <div className="inline-flex items-center gap-1 p-1 rounded-2xl neu-inset max-w-full">
+              {(['all', 'media', 'documents', 'developer', 'security'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all whitespace-nowrap min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center ${
+                    selectedCategory === cat
+                      ? 'bg-cyan-500 text-black shadow-md font-extrabold'
+                      : 'opacity-70 hover:opacity-100 text-slate-300'
+                  }`}
+                >
+                  {cat === 'all' ? 'All 14 Suites' : cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 text-left">
+        {/* Studio Grid: Track E1 responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 text-left" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(260px, 100%), 1fr))' }}>
           {suiteTiles
             .filter((s) => selectedCategory === 'all' || s.category === selectedCategory)
             .map((suite) => {
@@ -338,7 +341,15 @@ export const Home: React.FC<HomeProps> = ({ onSelectApp, onSelectLanding }) => {
               <div
                 key={suite.id}
                 onClick={() => onSelectApp(suite.id)}
-                className="group neu-card rounded-3xl p-6 cursor-pointer flex flex-col justify-between hover:scale-[1.02] transition-all space-y-4 border border-slate-500/10 hover:border-cyan-500/30"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectApp(suite.id);
+                  }
+                }}
+                className="group neu-card rounded-3xl p-6 cursor-pointer flex flex-col justify-between hover:scale-[1.02] transition-all space-y-4 border border-slate-500/10 hover:border-cyan-500/30 focus-visible:outline-2 focus-visible:outline-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-500/40 relative overflow-hidden"
               >
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between">

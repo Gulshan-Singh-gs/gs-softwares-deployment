@@ -30,6 +30,8 @@ import { PixelsInspector } from '../components/pixels/PixelsInspector';
 import { PixelsTopBar } from '../components/pixels/PixelsTopBar';
 import { PixelsStatusBar } from '../components/pixels/PixelsStatusBar';
 import { PixelsEmptyState } from '../components/pixels/PixelsEmptyState';
+import { BottomSheet } from '../components/shared/BottomSheet';
+import { Sliders } from 'lucide-react';
 
 const INITIAL_CONFIG: AdjustmentsState = {
   format: 'image/webp',
@@ -85,6 +87,7 @@ export const PixelsApp: React.FC = () => {
   const [config, setConfig] = useState<AdjustmentsState>(INITIAL_CONFIG);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [mobileInspectorOpen, setMobileInspectorOpen] = useState<boolean>(false);
 
   // Advanced Tool Outputs
   const [detailedColors, setDetailedColors] = useState<ExtractedColorItem[]>([]);
@@ -964,7 +967,131 @@ export const PixelsApp: React.FC = () => {
               transformStyle={transformStyle}
             />
 
-            {/* RIGHT CONTEXTUAL INSPECTOR */}
+            {/* DESKTOP INSPECTOR (>=1024px) */}
+            <div className="hidden lg:flex h-full">
+              <PixelsInspector
+                capability={activeCapability}
+                config={config}
+                onChangeConfig={handleUpdateConfig}
+                onResetAdjustments={() => {
+                  setConfig((prev) => ({
+                    ...prev,
+                    brightness: 100,
+                    contrast: 100,
+                    saturation: 100,
+                    blueTone: 0,
+                    skinTone: 0,
+                    tint: 0,
+                    warmth: 0,
+                    straighten: 0,
+                    blur: 0,
+                    grayscale: false,
+                    sepia: false,
+                    invert: false,
+                    rotation: 0,
+                    flipX: false,
+                    flipY: false,
+                  }));
+                  showToast('Reset adjustments');
+                }}
+                asset={currentAsset}
+                allAssets={images}
+                detailedColors={detailedColors}
+                pickedColor={pickedColor}
+                onPickEyedropper={handlePickEyedropper}
+                onExportPaletteImage={handleExportPaletteImage}
+                onCropPreset={handleCropPreset}
+                onApplySettingsToAll={handleApplySettingsToAll}
+                onRunVectorize={handleRunVectorize}
+                vectorSvgResult={vectorSvgResult}
+                onRunGridSlice={handleRunGridSlice}
+                gridSlices={gridSlices}
+                onRunDiff={handleRunDiff}
+                diffMismatchPct={diffMismatchPct}
+                diffResultUrl={diffResultUrl}
+                onRunStitch={handleRunStitch}
+                stitchResultUrl={stitchResultUrl}
+                onDownloadZip={handleDownloadZip}
+                showToast={showToast}
+              />
+            </div>
+
+            {/* TABLET SLIDE-OVER (768px - 1023px) */}
+            {mobileInspectorOpen && (
+              <div className="hidden md:flex lg:hidden fixed inset-y-0 right-0 z-40 w-80 shadow-2xl animate-in slide-in-from-right duration-200">
+                <PixelsInspector
+                  capability={activeCapability}
+                  config={config}
+                  onChangeConfig={handleUpdateConfig}
+                  onResetAdjustments={() => {
+                    setConfig((prev) => ({
+                      ...prev,
+                      brightness: 100,
+                      contrast: 100,
+                      saturation: 100,
+                      blueTone: 0,
+                      skinTone: 0,
+                      tint: 0,
+                      warmth: 0,
+                      straighten: 0,
+                      blur: 0,
+                      grayscale: false,
+                      sepia: false,
+                      invert: false,
+                      rotation: 0,
+                      flipX: false,
+                      flipY: false,
+                    }));
+                    showToast('Reset adjustments');
+                  }}
+                  asset={currentAsset}
+                  allAssets={images}
+                  detailedColors={detailedColors}
+                  pickedColor={pickedColor}
+                  onPickEyedropper={handlePickEyedropper}
+                  onExportPaletteImage={handleExportPaletteImage}
+                  onCropPreset={handleCropPreset}
+                  onApplySettingsToAll={handleApplySettingsToAll}
+                  onRunVectorize={handleRunVectorize}
+                  vectorSvgResult={vectorSvgResult}
+                  onRunGridSlice={handleRunGridSlice}
+                  gridSlices={gridSlices}
+                  onRunDiff={handleRunDiff}
+                  diffMismatchPct={diffMismatchPct}
+                  diffResultUrl={diffResultUrl}
+                  onRunStitch={handleRunStitch}
+                  stitchResultUrl={stitchResultUrl}
+                  onDownloadZip={handleDownloadZip}
+                  showToast={showToast}
+                  onClose={() => setMobileInspectorOpen(false)}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* MOBILE BOTTOM SHEET (<768px, Track A3 & B2) */}
+      <div className="md:hidden">
+        {images.length > 0 && (
+          <div className="fixed bottom-14 right-4 z-40">
+            <button
+              onClick={() => setMobileInspectorOpen((prev) => !prev)}
+              className="px-4 py-2.5 rounded-2xl bg-cyan-500 text-black font-bold text-xs shadow-xl shadow-cyan-500/30 flex items-center gap-2 border border-cyan-300 transition-all hover:scale-105 min-h-[44px]"
+            >
+              <Sliders className="w-4 h-4" />
+              <span>Adjust &amp; Tools</span>
+            </button>
+          </div>
+        )}
+
+        {mobileInspectorOpen && (
+          <BottomSheet
+            isOpen={mobileInspectorOpen}
+            onClose={() => setMobileInspectorOpen(false)}
+            title="Inspector & Parameters"
+            subtitle="Tweak filters, format, crop, and colors"
+          >
             <PixelsInspector
               capability={activeCapability}
               config={config}
@@ -1009,8 +1136,9 @@ export const PixelsApp: React.FC = () => {
               stitchResultUrl={stitchResultUrl}
               onDownloadZip={handleDownloadZip}
               showToast={showToast}
+              onClose={() => setMobileInspectorOpen(false)}
             />
-          </>
+          </BottomSheet>
         )}
       </div>
 

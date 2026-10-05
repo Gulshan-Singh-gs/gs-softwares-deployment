@@ -232,7 +232,7 @@ export const QrApp: React.FC = () => {
         <div className="flex items-center p-1 rounded-2xl neu-inset gap-1 self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('qr')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               activeTab === 'qr'
                 ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -243,7 +243,7 @@ export const QrApp: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('barcode')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               activeTab === 'barcode'
                 ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -601,7 +601,7 @@ export const QrApp: React.FC = () => {
           <div className="w-full space-y-2">
             <button
               onClick={() => handleDownloadImage('png')}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-500 to-indigo-500 hover:opacity-90 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 via-purple-500 to-indigo-500 hover:opacity-90 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 min-h-[44px]"
             >
               <Download className="w-4 h-4" />
               <span>Download PNG ({size}px)</span>
@@ -609,7 +609,7 @@ export const QrApp: React.FC = () => {
 
             <button
               onClick={handleCopy}
-              className="w-full py-2 rounded-xl neu-btn text-slate-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl neu-btn text-slate-300 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-2 min-h-[44px]"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? 'Copied to Clipboard!' : 'Copy Raw Payload'}</span>

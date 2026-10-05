@@ -1,9 +1,14 @@
 @import "tailwindcss";
+@import "./styles/tokens.css";
 
 :root {
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+
+  /* Viewport Height Normalization (Track A1) */
+  --app-height: 100vh;
+  --app-height: 100dvh;
 
   /* Default / Mode 1: Light (Off-White Neumorphism - High Contrast Pure Black Text & Icons) */
   --bg-main: #e2e8f0;
@@ -19,6 +24,35 @@
   --neu-inset-dark: rgba(148, 163, 184, 0.85);
   --neu-inset-light: rgba(255, 255, 255, 0.95);
   --border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Track A1 & A4: iOS PWA Safe Area Root Insets & Shell Height */
+html, body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Universal coarse pointer hit area expansion helper (Track D1) */
+@media (pointer: coarse) {
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* Explicit Mode 1: Light (Pure High-Contrast Black Text & Icons) */

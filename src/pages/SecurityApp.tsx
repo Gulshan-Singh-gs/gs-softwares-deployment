@@ -88,7 +88,7 @@ export const SecurityApp: React.FC = () => {
               setMode('encrypt');
               reset();
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               mode === 'encrypt'
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -102,7 +102,7 @@ export const SecurityApp: React.FC = () => {
               setMode('decrypt');
               reset();
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               mode === 'decrypt'
                 ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'

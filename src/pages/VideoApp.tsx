@@ -426,7 +426,7 @@ export const VideoApp: React.FC = () => {
             <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all min-h-[44px] sm:min-h-0"
               title="Undo last change"
             >
               <Undo2 className="w-3.5 h-3.5" />
@@ -435,7 +435,7 @@ export const VideoApp: React.FC = () => {
             <button
               onClick={handleRedo}
               disabled={historyIndex >= history.length - 1}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all min-h-[44px] sm:min-h-0"
               title="Redo change"
             >
               <Redo2 className="w-3.5 h-3.5" />
@@ -445,7 +445,7 @@ export const VideoApp: React.FC = () => {
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-lg min-h-[44px]"
           >
             <Upload className="w-4 h-4" />
             <span>Open Video File</span>
@@ -464,7 +464,7 @@ export const VideoApp: React.FC = () => {
                 setVideo(null);
                 setResultUrl(null);
               }}
-              className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-2xl neu-inset transition-colors"
+              className="p-2.5 text-rose-400 hover:bg-rose-500/10 rounded-2xl neu-inset transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Clear project"
             >
               <Trash2 className="w-5 h-5" />
@@ -474,7 +474,7 @@ export const VideoApp: React.FC = () => {
       </div>
 
       {/* 16 Master Categories Ribbon */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-glow">
+      <div className="flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-glow -mx-4 px-4 sm:mx-0 sm:px-0">
         {categories.map((cat) => {
           const Icon = cat.icon;
           const isActive = activeCategory === cat.id;
@@ -482,7 +482,7 @@ export const VideoApp: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all min-h-[44px] sm:min-h-0 ${
                 isActive
                   ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-600/30'
                   : 'neu-btn text-slate-400 hover:text-slate-200'
@@ -517,13 +517,13 @@ export const VideoApp: React.FC = () => {
                   onClick={() => {
                     if (videoRef.current) videoRef.current.currentTime -= 1 / 30;
                   }}
-                  className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300"
+                  className="py-2.5 rounded-xl text-xs font-bold neu-btn text-slate-300 min-h-[44px] sm:min-h-0 flex items-center justify-center"
                 >
                   -1 Frame
                 </button>
                 <button
                   onClick={togglePlayback}
-                  className="py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow"
+                  className="py-2.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow min-h-[44px] sm:min-h-0 flex items-center justify-center"
                 >
                   {isPlaying ? 'Pause' : 'Play'}
                 </button>
@@ -531,7 +531,7 @@ export const VideoApp: React.FC = () => {
                   onClick={() => {
                     if (videoRef.current) videoRef.current.currentTime += 1 / 30;
                   }}
-                  className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300"
+                  className="py-2.5 rounded-xl text-xs font-bold neu-btn text-slate-300 min-h-[44px] sm:min-h-0 flex items-center justify-center"
                 >
                   +1 Frame
                 </button>
@@ -589,7 +589,7 @@ export const VideoApp: React.FC = () => {
                     <button
                       key={ratio}
                       onClick={() => setAspectRatio(ratio as any)}
-                      className={`py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 flex items-center justify-center ${
                         aspectRatio === ratio
                           ? 'bg-emerald-600 text-white shadow'
                           : 'neu-btn text-slate-400'
@@ -604,14 +604,14 @@ export const VideoApp: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <button
                   onClick={() => setRotation((r) => (r + 90) % 360)}
-                  className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300 flex items-center justify-center gap-1.5"
+                  className="py-2.5 rounded-xl text-xs font-bold neu-btn text-slate-300 flex items-center justify-center gap-1.5 min-h-[44px] sm:min-h-0"
                 >
                   <RotateCw className="w-3.5 h-3.5" />
                   <span>Rotate 90°</span>
                 </button>
                 <button
                   onClick={() => setFlipX(!flipX)}
-                  className="py-2 rounded-xl text-xs font-bold neu-btn text-slate-300 flex items-center justify-center gap-1.5"
+                  className="py-2.5 rounded-xl text-xs font-bold neu-btn text-slate-300 flex items-center justify-center gap-1.5 min-h-[44px] sm:min-h-0"
                 >
                   <FlipHorizontal className="w-3.5 h-3.5" />
                   <span>Flip Horizontal</span>
@@ -651,7 +651,7 @@ export const VideoApp: React.FC = () => {
                   <button
                     key={spd}
                     onClick={() => setVideoSpeed(spd)}
-                    className={`py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 flex items-center justify-center ${
                       videoSpeed === spd ? 'bg-emerald-600 text-white shadow' : 'neu-btn text-slate-400'
                     }`}
                   >

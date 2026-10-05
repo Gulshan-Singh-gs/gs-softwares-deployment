@@ -149,11 +149,15 @@ export const OpenSourceNoticesModal: React.FC<OpenSourceNoticesModalProps> = ({ 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-      <div className="neu-card p-6 sm:p-8 rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl relative border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-md">
+      <div
+        style={{ maxHeight: '100dvh' }}
+        className="neu-card p-4 sm:p-8 rounded-none sm:rounded-3xl max-w-3xl w-full h-full sm:h-auto max-h-[100dvh] sm:max-h-[85vh] flex flex-col shadow-2xl relative border-0 sm:border border-slate-800 pt-[env(safe-area-inset-top,0px)] pb-[calc(env(safe-area-inset-bottom,0px)+8px)]"
+      >
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-xl opacity-70 hover:opacity-100 hover:bg-slate-800 transition-all text-slate-300 hover:text-white"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-xl opacity-70 hover:opacity-100 hover:bg-slate-800 transition-all text-slate-300 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+          aria-label="Close notices modal"
         >
           <X className="w-5 h-5" />
         </button>

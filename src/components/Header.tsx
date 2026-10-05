@@ -284,67 +284,86 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, o
           </div>
 
           {/* Controls & Action Badges */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             
-            {/* Command Palette Trigger */}
+            {/* Command Palette Trigger (Track E2: visible search button on coarse pointer) */}
             {onOpenCommandPalette && (
               <button
                 onClick={onOpenCommandPalette}
-                className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 rounded-xl neu-btn text-xs font-medium text-slate-300 hover:text-white transition-all group"
+                className="flex items-center justify-center gap-1.5 px-2 py-1.5 sm:px-3 rounded-xl neu-btn text-xs font-medium text-slate-300 hover:text-white transition-all min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0"
                 title="Search Tools & Workflows (Ctrl+K / ⌘K)"
+                aria-label="Search Tools & Workflows"
               >
-                <Search className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline">Search</span>
-                <kbd className="hidden md:inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded neu-inset font-mono text-slate-400">
+                <Search className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <span className="hidden md:inline">Search</span>
+                <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.2 rounded neu-inset font-mono text-slate-400">
                   ⌘K
                 </kbd>
               </button>
             )}
 
-            {/* 3-Mode Soft Neumorphic Theme Switcher */}
-            <div className="flex items-center gap-0.5 sm:gap-1 neu-inset p-0.5 sm:p-1 rounded-xl sm:rounded-2xl">
+            {/* 3-Mode Soft Neumorphic Theme Switcher (Compact cycle button on mobile <480px, expanded on sm+) */}
+            <div className="hidden sm:flex items-center gap-0.5 sm:gap-1 neu-inset p-0.5 sm:p-1 rounded-xl sm:rounded-2xl">
               <button
                 onClick={() => setTheme('light')}
-                className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center justify-center min-w-[32px] min-h-[32px] ${
                   theme === 'light' 
                     ? 'bg-amber-500 text-white shadow-md' 
                     : 'opacity-60 hover:opacity-100'
                 }`}
                 title="Light Mode (Off-White Neumorphism)"
+                aria-label="Light Mode"
               >
                 <Sun className="w-3.5 h-3.5" />
               </button>
               
               <button
                 onClick={() => setTheme('semi')}
-                className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center justify-center min-w-[32px] min-h-[32px] ${
                   theme === 'semi' 
                     ? 'bg-slate-600 text-white shadow-md' 
                     : 'opacity-60 hover:opacity-100'
                 }`}
                 title="Semi-Dark Mode (Slate Grey Neumorphism)"
+                aria-label="Semi-Dark Mode"
               >
                 <CloudSun className="w-3.5 h-3.5" />
               </button>
 
               <button
                 onClick={() => setTheme('dark')}
-                className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                className={`p-1.5 rounded-lg sm:rounded-xl text-xs font-bold transition-all flex items-center justify-center min-w-[32px] min-h-[32px] ${
                   theme === 'dark' 
                     ? 'bg-cyan-600 text-white shadow-md' 
                     : 'opacity-60 hover:opacity-100'
                 }`}
                 title="Dark Mode (Pitch Dark Neumorphism)"
+                aria-label="Dark Mode"
               >
                 <Moon className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Dynamic Install PWA Button (Hidden if PWA is installed or in standalone mode) */}
+            {/* Mobile Single Theme Cycle Toggle on small screens */}
+            <button
+              onClick={() => {
+                const nextTheme: ThemeMode = theme === 'dark' ? 'light' : theme === 'light' ? 'semi' : 'dark';
+                setTheme(nextTheme);
+              }}
+              className="sm:hidden p-2 rounded-xl neu-btn text-cyan-400 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all"
+              title={`Switch Theme (Current: ${theme})`}
+              aria-label={`Switch Theme. Current mode: ${theme}`}
+            >
+              {theme === 'light' && <Sun className="w-4 h-4 text-amber-500" />}
+              {theme === 'semi' && <CloudSun className="w-4 h-4 text-slate-300" />}
+              {theme === 'dark' && <Moon className="w-4 h-4 text-cyan-400" />}
+            </button>
+
+            {/* Dynamic Install PWA Button (Hidden on phone viewports to prevent overflow) */}
             {!isInstalled && (
               <button
                 onClick={handleInstallPWA}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg transition-all"
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg transition-all"
                 title="Install PWA to Desktop / Mobile"
               >
                 <Download className="w-3.5 h-3.5" />
@@ -352,15 +371,16 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, o
               </button>
             )}
 
-            {/* Settings & Performance Action Button */}
+            {/* Settings & Performance Action Button (Padded to 44x44 tap target on coarse pointers) */}
             <button
               onClick={handleOpenSettingsModal}
-              className="p-1.5 sm:p-2 neu-btn rounded-xl transition-colors relative group"
+              className="p-2 neu-btn rounded-xl transition-colors relative group min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Settings & Performance Mode"
+              aria-label="Settings and Performance Mode"
             >
               <Sliders className="w-4 h-4 text-cyan-400 group-hover:rotate-45 transition-transform duration-200" />
               <span
-                className={`absolute top-1 right-1 w-2 h-2 rounded-full ring-2 ring-slate-900 ${
+                className={`absolute top-2 right-2 w-2 h-2 rounded-full ring-2 ring-slate-900 ${
                   tier === 'eco'
                     ? 'bg-emerald-400'
                     : tier === 'balanced'
@@ -370,34 +390,38 @@ export const Header: React.FC<HeaderProps> = ({ currentApp, showFooter = true, o
               />
             </button>
 
-            {/* Footer Visibility Toggle */}
+            {/* Footer Visibility Toggle (Hidden on mobile <768px, footer toggled via menu/settings) */}
             {onToggleFooter && (
               <button
                 onClick={onToggleFooter}
-                className={`p-1.5 sm:p-2 rounded-xl transition-all ${
+                className={`hidden md:flex items-center justify-center p-2 rounded-xl transition-all min-h-[44px] min-w-[44px] ${
                   showFooter ? 'neu-btn opacity-80 hover:opacity-100' : 'neu-inset text-cyan-400 opacity-100 shadow-inner'
                 }`}
                 title={showFooter ? 'Hide Page Footer' : 'Show Page Footer'}
+                aria-label="Toggle Page Footer Visibility"
               >
                 <Layers className="w-4 h-4" />
               </button>
             )}
 
-            {/* Privacy Guarantee Icon */}
+            {/* Privacy Guarantee Icon (Desktop only, available in mobile drawer) */}
             <button
               onClick={onOpenAbout}
-              className="p-1.5 sm:p-2 neu-btn rounded-xl transition-colors"
+              className="hidden sm:flex items-center justify-center p-2 neu-btn rounded-xl transition-colors min-h-[44px] min-w-[44px]"
               title="About & Privacy Guarantee"
+              aria-label="About GS Softwares Suite and Privacy Guarantee"
             >
               <HelpCircle className="w-4 h-4" />
             </button>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu Toggle (Enlarged hit target to 44px) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-1.5 sm:p-2 neu-btn rounded-xl"
+              className="lg:hidden p-2 neu-btn rounded-xl min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Toggle Navigation Menu"
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 

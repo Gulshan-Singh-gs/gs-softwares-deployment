@@ -32,7 +32,8 @@ export const GlobalToastRegion: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 left-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', marginInlineStart: 'env(safe-area-inset-left, 0px)' }}
+      className="fixed inset-inline-start-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
     >
       {toasts.map((toast) => {
         const icon =

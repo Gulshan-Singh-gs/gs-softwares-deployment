@@ -40,4 +40,24 @@
   --token-duration-fast: 150ms;
   --token-duration-normal: 250ms;
   --token-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Breakpoint Tokens (Track A2) */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1440px;
+
+  /* Safe Area Insets (Track A1 & A4) */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-bottom-offset: calc(env(safe-area-inset-bottom, 0px) + 12px);
+
+  /* Fluid Typography & Spacing (Track A2) */
+  --fluid-h1: clamp(1.75rem, 5vw + 0.5rem, 3.5rem);
+  --fluid-h2: clamp(1.35rem, 3.5vw + 0.25rem, 2.25rem);
+  --fluid-h3: clamp(1.1rem, 2vw + 0.2rem, 1.5rem);
+  --fluid-body: clamp(0.875rem, 1vw + 0.5rem, 1rem);
+  --fluid-small: clamp(0.75rem, 0.8vw + 0.4rem, 0.875rem);
 }

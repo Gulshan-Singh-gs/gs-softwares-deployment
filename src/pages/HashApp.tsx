@@ -170,10 +170,10 @@ export const HashApp: React.FC = () => {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 neu-inset p-1.5 rounded-2xl">
+        <div className="flex items-center gap-2 neu-inset p-1.5 rounded-2xl self-start sm:self-auto">
           <button
             onClick={() => setActiveTab('single')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               activeTab === 'single'
                 ? 'bg-gradient-to-r from-cyan-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -184,7 +184,7 @@ export const HashApp: React.FC = () => {
           </button>
           <button
             onClick={() => setActiveTab('manifest')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] sm:min-h-0 ${
               activeTab === 'manifest'
                 ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white'

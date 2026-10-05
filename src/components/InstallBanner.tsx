@@ -89,7 +89,8 @@ export const InstallBanner: React.FC = () => {
       <div 
         role="region"
         aria-label="App installation banner"
-        className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-50 animate-in fade-in slide-in-from-bottom-5 duration-300"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}
+        className="fixed left-4 right-4 md:left-auto md:right-6 md:max-w-md z-50 animate-in fade-in slide-in-from-bottom-5 duration-300"
       >
         <div className="relative overflow-hidden rounded-2xl border border-indigo-500/30 bg-slate-950/90 p-4 shadow-2xl backdrop-blur-xl">
           {/* Subtle gradient background glow */}

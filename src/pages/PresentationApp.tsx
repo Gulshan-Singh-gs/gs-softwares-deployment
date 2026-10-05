@@ -224,10 +224,10 @@ export const PresentationApp: React.FC = () => {
         </div>
 
         {/* Presentation & PDF Triggers */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setPresenterMode(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:opacity-90 text-white text-xs font-bold transition-all shadow-md"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:opacity-90 text-white text-xs font-bold transition-all shadow-md min-h-[44px] sm:min-h-0"
           >
             <Play className="w-4 h-4" />
             <span>Present Fullscreen</span>
@@ -235,7 +235,7 @@ export const PresentationApp: React.FC = () => {
           <button
             onClick={handleExportPdf}
             disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl neu-btn text-xs font-bold text-slate-200 hover:text-white transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl neu-btn text-xs font-bold text-slate-200 hover:text-white transition-all min-h-[44px] sm:min-h-0"
           >
             <Download className="w-4 h-4 text-cyan-400" />
             <span>{isExporting ? 'Exporting...' : 'Export PDF'}</span>
