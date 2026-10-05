@@ -1,0 +1,1111 @@
+# Hash Tool Suite — Non-AI Framework
+
+I’m treating **Hash Tool Suite** as a professional, privacy-first collection of hashing, checksum, HMAC, comparison, encoding, and verification utilities.
+
+The important finding from the research is that this is an excellent fit for the non-AI framework: modern browsers expose cryptographic primitives through the Web Crypto API, including SHA-1, SHA-256, SHA-384, SHA-512 and HMAC; hashing can therefore be performed locally without uploading user data. ([MDN Web Docs][1])
+
+MD5, SHA-1, SHA-3, BLAKE-family algorithms and some other legacy/non-Web-Crypto algorithms require a client-side implementation/library if included. MD5 and SHA-1 should be explicitly marked **legacy/insecure for security purposes**, while retaining them for compatibility and checksum use cases. ([MDN Web Docs][2])
+
+# 1. Product Objective
+
+Build a **professional browser-native Hash & Checksum Suite**.
+
+### Hard constraints
+
+```text
+NO AI
+NO LLM
+NO CLOUD PROCESSING
+NO SERVER-SIDE HASHING
+NO DATA UPLOAD REQUIRED
+NO ACCOUNT REQUIRED
+LOCAL-FIRST
+```
+
+The fundamental architecture is:
+
+```text
+HASH TOOL SUITE
+│
+┌────────────┼────────────┐
+│ │ │
+HASH VERIFY ANALYZE
+│ │ │
+Text/File Compare Inspect
+Hashing Hashes Digests
+│ │ │
+└────────────┼────────────┘
+│
+LOCAL CRYPTO ENGINE
+│
+┌────────────┼────────────┐
+│ │ │
+Web Crypto Client Crypto Encoders
+API Libraries
+│ │ │
+└────────────┼────────────┘
+│
+BROWSER ONLY
+```
+
+# 2. Research → Capability Map
+
+Existing browser hash tools commonly provide:
+
+* Text hashing
+* File hashing
+* MD5
+* SHA-1
+* SHA-256
+* SHA-384
+* SHA-512
+* SHA-3
+* HMAC
+* Checksum comparison
+* Multiple hashes simultaneously
+* Copyable results
+* Local file processing
+* Encoding selection
+* Output formatting
+
+These are all appropriate foundations for the suite. ([MuhammadLab][3])
+
+The suite should go further by organizing them into a coherent **developer/security utility workspace**, rather than creating dozens of disconnected mini-tools.
+
+# 3. Capability Classification
+
+| Capability | Classification |
+| --------------------- | -------------------------- |
+| Text hashing | Browser-native |
+| File hashing | Browser-native |
+| SHA-256 | Web Crypto |
+| SHA-384 | Web Crypto |
+| SHA-512 | Web Crypto |
+| SHA-1 | Web Crypto / legacy |
+| HMAC | Web Crypto |
+| MD5 | Client-side implementation |
+| SHA-3 | Client-side implementation |
+| BLAKE2 | Client-side implementation |
+| CRC32 | Client-side implementation |
+| Hash comparison | Browser-native |
+| Checksum verification | Browser-native |
+| Encoding conversion | Browser-native |
+| Hex conversion | Browser-native |
+| Base64 conversion | Browser-native |
+| Binary inspection | Browser-native |
+| File metadata | Browser-native |
+| Batch hashing | Browser-native |
+| Export report | Browser-native |
+| History | Browser-native |
+| Local storage | Browser-native |
+
+There is **no requirement for a server** in the core architecture.
+
+# 4. Final Tool Taxonomy
+
+## A. Hash Generator
+
+### Text
+
+* Text → MD5
+* Text → SHA-1
+* Text → SHA-256
+* Text → SHA-384
+* Text → SHA-512
+* Text → SHA-3
+* Text → BLAKE2
+* Text → CRC32
+
+### File
+
+* File → MD5
+* File → SHA-1
+* File → SHA-256
+* File → SHA-384
+* File → SHA-512
+* File → SHA-3
+* File → BLAKE2
+* File → CRC32
+
+### Multi-hash
+
+```text
+Input
+│
+├── MD5
+├── SHA-1
+├── SHA-256
+├── SHA-384
+├── SHA-512
+├── SHA-3
+└── BLAKE2
+```
+
+This should be a first-class workflow rather than forcing the user to calculate each digest separately.
+
+# 5. Hash Verification
+
+## Compare two hashes
+
+```text
+Hash A
+┌──────────────────────────┐
+│ abc123... │
+└──────────────────────────┘
+
+Hash B
+┌──────────────────────────┐
+│ abc123... │
+└──────────────────────────┘
+
+[COMPARE]
+
+Result
+✓ MATCH
+```
+
+Or:
+
+```text
+✕ MISMATCH
+
+Difference detected.
+```
+
+### Features
+
+* Case-insensitive comparison
+* Whitespace normalization option
+* Prefix normalization
+* Algorithm detection by digest length where unambiguous
+* Constant-time comparison
+* Copy result
+* Clear result
+
+# 6. File Integrity Verification
+
+This should be one of the suite's flagship tools.
+
+```text
+┌───────────────────────────────────────┐
+│ DROP FILE │
+│ │
+│ installer.exe │
+│ 184.3 MB │
+└───────────────────────────────────────┘
+
+Expected SHA-256
+
+┌───────────────────────────────────────┐
+│ 8e2a.... │
+└───────────────────────────────────────┘
+
+[VERIFY]
+
+✓ FILE INTEGRITY VERIFIED
+```
+
+### Workflow
+
+```text
+File
+│
+▼
+Read locally
+│
+▼
+Calculate digest
+│
+▼
+Compare expected digest
+│
+├── MATCH
+└── MISMATCH
+```
+
+No upload is required.
+
+# 7. HMAC Tool
+
+HMAC is distinct from ordinary hashing because it uses a secret key.
+
+The browser's Web Crypto API supports HMAC with SHA-1, SHA-256, SHA-384 and SHA-512. ([MDN Web Docs][4])
+
+### Interface
+
+```text
+Message
+┌──────────────────────────────┐
+│ │
+└──────────────────────────────┘
+
+Secret Key
+┌──────────────────────────────┐
+│ ••••••••••••• │
+└──────────────────────────────┘
+
+Algorithm
+[ HMAC-SHA-256 ▼ ]
+
+Output
+┌──────────────────────────────┐
+│ 91af.... │
+└──────────────────────────────┘
+```
+
+### Controls
+
+* Message encoding
+* Key encoding
+* Algorithm
+* Output format
+* Copy
+* Clear
+
+# 8. Checksum Suite
+
+Not every checksum is cryptographic.
+
+Include:
+
+* CRC32
+* CRC32C
+* Adler-32
+* MD5
+* SHA family
+* SHA-3
+
+The UI must distinguish:
+
+```text
+CRYPTOGRAPHIC HASH
+CHECKSUM
+KEYED HASH
+LEGACY HASH
+```
+
+This prevents users from incorrectly treating CRC32 as a security mechanism.
+
+# 9. Encoding Tools
+
+A hash suite benefits significantly from an encoding toolbox.
+
+## Text → Bytes
+
+* UTF-8
+* UTF-16
+* ASCII
+* Latin-1
+
+## Bytes → Representation
+
+* Hex
+* Base64
+* Base64URL
+* Binary
+* Decimal byte representation
+
+Example:
+
+```text
+Text
+↓
+UTF-8
+↓
+Bytes
+↓
+SHA-256
+↓
+Hex
+```
+
+# 10. Hash Format Tools
+
+### Hex
+
+```text
+SHA-256
+↓
+64 hexadecimal characters
+```
+
+### Base64
+
+```text
+Digest bytes
+↓
+Base64
+```
+
+### Base64URL
+
+Useful for web tokens and URL-safe representations.
+
+### Output options
+
+* lowercase
+* uppercase
+* prefix
+* no prefix
+* spaced bytes
+* colon-separated bytes
+* Base64
+* Base64URL
+* hexadecimal
+
+# 11. Hash Identifier / Inspector
+
+Paste a hash:
+
+```text
+8f14e45fceea167a5a36dedd4bea2543
+```
+
+The tool analyzes:
+
+```text
+Possible format
+
+Length: 32 hexadecimal characters
+Possible algorithms:
+• MD5
+• Other 128-bit digests
+
+Confidence:
+Ambiguous
+```
+
+Important:
+
+> **Do not claim an algorithm can be uniquely identified when multiple algorithms have the same output length.**
+
+This is an analysis tool, not a magical hash detector.
+
+# 12. File Inspector
+
+When a file is selected:
+
+```text
+FILE INFORMATION
+
+Name
+installer.exe
+
+Size
+184.3 MB
+
+Type
+application/octet-stream
+
+Modified
+Local file metadata
+
+Hashes
+SHA-256
+SHA-512
+MD5
+CRC32
+```
+
+This creates a useful **file fingerprint workspace**.
+
+# 13. Batch Hashing
+
+Drag multiple files:
+
+```text
+FILES
+────────────────────────────────────────
+
+ubuntu.iso 4.2 GB
+app.apk 87 MB
+document.pdf 3.4 MB
+image.zip 1.2 GB
+```
+
+Then:
+
+```text
+[ SHA-256 ] [ SHA-512 ] [ MD5 ]
+
+[ HASH ALL ]
+```
+
+Results:
+
+| File | SHA-256 | SHA-512 |
+| ------------ | ------- | ------- |
+| ubuntu.iso | … | … |
+| app.apk | … | … |
+| document.pdf | … | … |
+
+### Batch operations
+
+* Select all
+* Remove
+* Retry
+* Copy selected
+* Export report
+* Download checksum file
+
+# 14. Checksum Manifest
+
+Generate standard-style checksum output:
+
+```text
+8e2a... ubuntu.iso
+72ab... app.apk
+99fa... document.pdf
+```
+
+Export:
+
+* `.txt`
+* `.sha256`
+* `.sha512`
+* `.json`
+* `.csv`
+
+# 15. Checksum Manifest Verification
+
+Import:
+
+```text
+checksums.sha256
+```
+
+```text
+Manifest
+│
+▼
+Files
+│
+▼
+Hash each file
+│
+▼
+Compare
+│
+┌────┴────┐
+▼ ▼
+MATCH MISMATCH
+```
+
+```text
+✓ ubuntu.iso
+✓ app.apk
+✕ document.pdf
+⚠ missing.iso
+```
+
+This would be one of the more useful professional features.
+
+# 16. Hash History
+
+Local-only history:
+
+```text
+RECENT
+
+SHA-256
+ubuntu.iso
+23:42
+
+HMAC-SHA256
+API message
+23:38
+
+MD5
+archive.zip
+23:31
+```
+
+* Search
+* Filter
+* Delete
+* Copy
+* Re-run
+* Clear history
+
+Sensitive inputs should **not automatically be persisted**.
+
+# 17. Security Information Layer
+
+Every algorithm gets a small status indicator.
+
+```text
+SHA-256
+SECURE / RECOMMENDED
+256-bit digest
+```
+
+```text
+SHA-1
+LEGACY
+Not recommended for collision-resistant security
+```
+
+```text
+MD5
+LEGACY / BROKEN FOR SECURITY
+Useful only for compatibility/non-security checksums
+```
+
+MD5 and SHA-1 should therefore remain available primarily for compatibility and verification, not be presented as modern security choices. ([MDN Web Docs][2])
+
+# 18. Core Architecture
+
+```text
+┌───────────────────────────────────────────────┐
+│ HASH SUITE │
+├───────────────────────────────────────────────┤
+│ UI SHELL │
+│ Navigation │ Toolbar │ Command Palette │
+├───────────────────────────────────────────────┤
+│ TOOL WORKSPACE │
+│ │
+│ Hash │ Verify │ HMAC │ Compare │ Batch │
+├───────────────────────────────────────────────┤
+│ CRYPTO ABSTRACTION │
+│ │
+│ Digest │ HMAC │ Checksums │ Encoders │
+├───────────────────────────────────────────────┤
+│ CRYPTO PROVIDERS │
+│ │
+│ Web Crypto │ Local JS/WASM Algorithms │
+├───────────────────────────────────────────────┤
+│ FILE ENGINE │
+│ │
+│ File API │ Streams │ Chunking │ Metadata │
+├───────────────────────────────────────────────┤
+│ STORAGE │
+│ │
+│ Preferences │ History │ Local Config │
+├───────────────────────────────────────────────┤
+│ EXPORT │
+│ │
+│ TXT │ CSV │ JSON │ Checksum Manifest │
+└───────────────────────────────────────────────┘
+```
+
+# 19. Algorithm Abstraction
+
+The UI should never directly depend on a specific cryptographic implementation.
+
+```text
+HashEngine
+│
+├── SHA256Provider
+├── SHA384Provider
+├── SHA512Provider
+├── SHA1Provider
+├── MD5Provider
+├── SHA3Provider
+├── BLAKE2Provider
+└── CRCProvider
+```
+
+Each provider exposes the same conceptual interface:
+
+```text
+input
+algorithm
+encoding
+outputFormat
+↓
+digest
+```
+
+This allows algorithms to be added without rebuilding the UI.
+
+# 20. Large File Architecture
+
+This matters.
+
+A 4 GB ISO should **not** require loading the entire file into memory.
+
+Use:
+
+```text
+File
+│
+▼
+Readable Stream / Chunks
+│
+├── Chunk 1
+├── Chunk 2
+├── Chunk 3
+├── ...
+└── Chunk N
+│
+▼
+Incremental Hash Engine
+│
+▼
+Digest
+```
+
+However, the native `SubtleCrypto.digest()` API itself does not provide streaming digest updates; it takes the complete data buffer. ([MDN Web Docs][2])
+
+Therefore:
+
+* use native Web Crypto for manageable buffers;
+* use a client-side incremental implementation/WASM provider for genuinely large files;
+* process work in Web Workers;
+* never block the main UI thread.
+
+# 21. Desktop UI
+
+```text
+┌───────────────────────────────────────────────────────────────┐
+│ Hash Suite │ File │ Tools │ View │ Settings │
+├───────────────┬───────────────────────────────────┬───────────┤
+│ │ │ │
+│ TOOL RAIL │ WORKSPACE │ INSPECTOR │
+│ │ │ │
+│ Hash │ ┌─────────────────────────┐ │ Algorithm │
+│ Verify │ │ │ │ Encoding │
+│ Compare │ │ INPUT │ │ Output │
+│ HMAC │ │ │ │ Security │
+│ Batch │ └─────────────────────────┘ │ │
+│ Checksum │ │ │
+│ Encode │ ┌─────────────────────────┐ │ │
+│ Inspector │ │ RESULTS │ │ │
+│ │ └─────────────────────────┘ │ │
+├───────────────┴───────────────────────────────────┴───────────┤
+│ Local Processing │ No Upload │ Ready │
+└───────────────────────────────────────────────────────────────┘
+```
+
+# 22. Mobile UI
+
+The mobile interface should **not** reproduce the desktop three-column layout.
+
+```text
+┌──────────────────────────────┐
+│ Hash Suite ⋮ │
+├──────────────────────────────┤
+│ │
+│ TOOL WORKSPACE │
+│ │
+│ Text / File │
+│ │
+│ ┌────────────────────────┐ │
+│ │ Input │ │
+│ └────────────────────────┘ │
+│ │
+│ Algorithm │
+│ [ SHA-256 ▼ ] │
+│ │
+│ [ GENERATE ] │
+│ │
+├──────────────────────────────┤
+│ Hash │ Verify │ HMAC │ More │
+└──────────────────────────────┘
+```
+
+# 23. Mobile Bottom Sheets
+
+Selecting an algorithm opens:
+
+```text
+┌──────────────────────────────┐
+│ Select Algorithm │
+├──────────────────────────────┤
+│ SHA-256 Recommended │
+│ SHA-384 │
+│ SHA-512 Recommended │
+│ SHA-1 Legacy │
+│ MD5 Legacy │
+│ SHA-3 │
+│ BLAKE2 │
+│ CRC32 │
+└──────────────────────────────┘
+```
+
+# 24. Gestures
+
+### File input
+
+* Tap → file picker
+* Drag → drop file
+* Swipe result → reveal actions
+
+### Results
+
+* Long press → copy
+* Swipe left → actions
+* Swipe result card → compare
+* Pull down → refresh/recalculate
+
+### Navigation
+
+* Horizontal swipe → tool categories
+* Edge swipe → navigation drawer
+* Back gesture → close contextual panel
+
+# 25. Haptics
+
+Use haptics only as state feedback.
+
+| Event | Feedback |
+| --------------- | ------------------- |
+| Tool selection | Light tap |
+| File accepted | Confirmation |
+| Hash completed | Short success pulse |
+| Match | Confirmation |
+| Mismatch | Warning pulse |
+| Copy successful | Light tap |
+| Invalid input | Warning |
+| File removed | Light pulse |
+
+# 26. Command Palette
+
+Desktop:
+
+```text
+Ctrl/Cmd + K
+```
+
+Commands:
+
+```text
+> Hash text
+> Hash file
+> Generate SHA-256
+> Generate all hashes
+> Verify checksum
+> Compare hashes
+> Generate HMAC
+> Inspect hash
+> Batch hash files
+> Export checksum manifest
+> Open history
+```
+
+# 27. Security UX
+
+A critical design requirement:
+
+**Never imply that hashing is encryption.**
+
+The application should clearly distinguish:
+
+```text
+HASHING
+One-way digest
+```
+
+from:
+
+```text
+ENCRYPTION
+Reversible with a key
+```
+
+and:
+
+```text
+HMAC
+Keyed integrity/authentication
+```
+
+This distinction belongs directly in the UI, not buried in documentation.
+
+# 28. Initial State
+
+The suite should not open with an empty, intimidating screen.
+
+Use a **local demonstration input**:
+
+```text
+Example Input
+
+"The quick brown fox jumps over the lazy dog"
+```
+
+Immediately show:
+
+```text
+MD5
+9e107d9d...
+
+SHA-1
+2fd4e1c6...
+
+SHA-256
+d7a8fbb3...
+
+SHA-512
+07e547d9...
+```
+
+The example is entirely local.
+
+User can then:
+
+```text
+Replace with text
+Drop a file
+Paste a hash
+Open a tool
+```
+
+# 29. Responsive Breakpoints
+
+### Desktop — `≥1200px`
+
+Full workspace:
+
+* Tool rail
+* Main workspace
+* Inspector
+* History/status
+
+### Tablet — `768–1199px`
+
+* Compact tool rail
+* Collapsible inspector
+* Contextual controls
+
+### Mobile — `<768px`
+
+* Single workspace
+* Bottom navigation
+* Bottom sheets
+* Large touch targets
+* Gesture interaction
+
+# 30. Performance Architecture
+
+Hashing is CPU-intensive for large inputs.
+
+```text
+MAIN THREAD
+│
+UI / Interaction
+│
+▼
+Web Worker
+│
+┌──────────┼──────────┐
+▼ ▼ ▼
+SHA MD5 SHA-3
+│ │ │
+└──────────┼──────────┘
+▼
+RESULT
+```
+
+Benefits:
+
+* UI remains responsive
+* Large files do not freeze the application
+* Multiple files can be processed
+* Progress can be displayed
+
+# 31. Progress UI
+
+For large files:
+
+```text
+ubuntu.iso
+
+██████████████████░░░░ 82%
+
+3.44 GB / 4.20 GB
+
+SHA-256
+Processing...
+```
+
+For small text inputs, don't show artificial progress bars.
+
+# 32. Result Cards
+
+Each digest should have a dedicated result card:
+
+```text
+┌─────────────────────────────────────────┐
+│ SHA-256 RECOMMENDED │
+│ │
+│ d7a8fbb307d78094... │
+│ │
+│ 256 bits · 32 bytes · 64 hex characters │
+│ │
+│ [COPY] [FORMAT] [COMPARE] │
+└─────────────────────────────────────────┘
+```
+
+# 33. Export System
+
+### Single result
+
+* Copy
+* Download TXT
+* Download JSON
+
+### Multiple hashes
+
+```text
+hashes.json
+hashes.csv
+hashes.txt
+```
+
+### File verification
+
+```text
+checksums.sha256
+checksums.sha512
+```
+
+# 34. Local Data Model
+
+```text
+HashWorkspace
+│
+├── Input
+│ ├── Type
+│ ├── Text
+│ └── File metadata
+│
+├── Algorithms[]
+│
+├── Results[]
+│
+├── Verification
+│
+├── HMAC
+│
+├── Encoding
+│
+├── OutputFormat
+│
+└── Preferences
+```
+
+History is separate:
+
+```text
+HashHistory[]
+```
+
+Sensitive plaintext or secret keys should not be persisted by default.
+
+# 35. Final Product Taxonomy
+
+```text
+HASH
+├── Text Hash
+├── File Hash
+├── Multi Hash
+└── Batch Hash
+
+VERIFY
+├── Verify File
+├── Verify Checksum
+├── Compare Hashes
+└── Manifest Verification
+
+HMAC
+├── HMAC-SHA256
+├── HMAC-SHA384
+├── HMAC-SHA512
+└── Key Encoding
+
+CHECKSUM
+├── CRC32
+├── CRC32C
+├── Adler-32
+└── Legacy Checksums
+
+ENCODE
+├── Hex
+├── Base64
+├── Base64URL
+├── UTF-8
+├── UTF-16
+└── Byte Inspector
+
+INSPECT
+├── Hash Length
+├── Format Detection
+├── File Metadata
+└── Digest Information
+
+BATCH
+├── Multi-file
+├── Manifest
+├── Export
+└── Verification
+
+HISTORY
+├── Recent
+├── Search
+├── Re-run
+└── Clear
+```
+
+# 36. Final Architecture
+
+```text
+USER
+│
+▼
+┌─────────────────┐
+│ UI / UX SHELL │
+└────────┬────────┘
+│
+┌───────────────┼────────────────┐
+│ │ │
+HASHING VERIFYING ENCODING
+│ │ │
+└───────────────┼────────────────┘
+│
+CRYPTO ABSTRACTION
+│
+┌───────────┴───────────┐
+│ │
+WEB CRYPTO LOCAL PROVIDERS
+│ │
+SHA-1/256/384/512 MD5/SHA-3/BLAKE/CRC
+│ │
+└───────────┬───────────┘
+│
+FILE ENGINE
+│
+Web Workers
+│
+LOCAL STORAGE
+│
+EXPORT
+```
+
+# 37. Critical Boundary
+
+### Included
+
+**Research → Capability Classification → Browser Feasibility → Hash Tool Taxonomy → Crypto Abstraction → File Architecture → Desktop UI → Mobile UI → Gestures → Haptics → Performance Architecture → Storage → Export**
+
+### Explicitly excluded
+
+* AI
+* LLM
+* Cloud hashing
+* Server hashing
+* Remote processing
+* Password-cracking functionality
+* Hash-reversal services
+* Rainbow-table infrastructure
+* Brute-force cracking engine
+* Distributed cracking
+* GPU password cracking
+
+The suite is fundamentally a **local hashing, integrity, checksum and cryptographic utility workspace**, not a password-cracking platform.
+
+# STOP POINT
+
+The non-AI framework has now been completed:
+
+**Research → Tool Research → Browser/Local Classification → Tool Taxonomy → Architecture → Desktop UI → Mobile UI → Gestures/Haptics → Performance → Storage → Export → STOP**

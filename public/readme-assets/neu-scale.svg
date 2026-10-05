@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+  <defs>
+    <linearGradient id="bg_scale" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E2330"/>
+      <stop offset="100%" stop-color="#0E111A"/>
+    </linearGradient>
+    <filter id="neu_shadow_scale" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="-2" dy="-2" stdDeviation="2.5" flood-color="#2D3448" flood-opacity="0.4"/>
+      <feDropShadow dx="3" dy="3" stdDeviation="3.5" flood-color="#05070A" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+  <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#bg_scale)" filter="url(#neu_shadow_scale)" stroke="#10B981" stroke-opacity="0.2" stroke-width="1"/>
+  <path d="M24 14v18M16 19l8-3 8 3M13 27l3-8 3 8a3 3 0 01-6 0zM29 27l3-8 3 8a3 3 0 01-6 0zM19 32h10" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

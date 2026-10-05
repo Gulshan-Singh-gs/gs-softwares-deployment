@@ -1,0 +1,1380 @@
+# GS SOFTWARES
+
+# COMPLETE CROSS-SUITE UI AUDIT, NORMALIZATION & UI BREAKING FIX
+
+You previously modified the UI of the GS Softwares PWA to make the suites visually consistent.
+
+That work was only partially successful.
+
+The current application still contains UI elements, terminology, controls, navigation patterns, inspectors, and interaction models that clearly belong to another suite or another product architecture.
+
+The uploaded screenshot demonstrates this problem in GS-PDF.
+
+This is NOT a request for another isolated styling patch.
+
+This is a request for a:
+
+# FULL WEBAPP UI ARCHITECTURE AUDIT
+
+The objective is to make all suites feel like they are native parts of ONE coherent PWA while preserving the unique functionality and UX requirements of each suite.
+
+============================================================
+
+# 1. CORE PROBLEM
+
+The application currently has two different layers of UI:
+
+### Layer A — Correct shared PWA shell
+
+Examples:
+
+* GS Softwares header
+* Active Suite selector
+* Search
+* Theme controls
+* Install PWA
+* Shared navigation
+* Shared typography
+* Shared visual language
+* Shared window/panel treatment
+
+These are becoming consistent.
+
+### Layer B — Inconsistent suite-level UI
+
+Some suites still contain:
+
+* inherited controls
+* foreign terminology
+* copied AI UI
+* generic controls that don't apply to the suite
+* incorrect tool categories
+* incorrect inspectors
+* incorrect sidebars
+* incorrect action buttons
+* irrelevant AI controls
+* suite-specific UI that visually belongs to another application
+
+Layer B must now be audited comprehensively.
+
+# 2. IMPORTANT — DO NOT JUST RESTYLE
+
+Do NOT solve this by:
+
+* changing colors
+* changing border radius
+* changing fonts
+* changing spacing
+* changing shadows
+* renaming a few labels
+
+Those are only visual symptoms.
+
+You must inspect the actual component architecture and determine:
+
+```
+WHY IS THIS UI HERE?
+```
+
+For every visible UI element ask:
+
+1. Which suite owns this?
+2. Which tool owns this?
+3. Is it part of the shared shell?
+4. Is it contextual?
+5. Is it applicable to the current tool?
+6. Is it inherited from another suite?
+7. Is it AI-specific?
+8. Is it generic editor infrastructure?
+9. Should it exist at all?
+10. Should it be replaced by a suite-native control?
+
+# 3. USE THE EXISTING APPLICATION AS SOURCE OF TRUTH
+
+Before changing code, inspect:
+
+```
+App.tsx
+platform/
+suites/
+registry/
+shared components
+theme system
+navigation system
+tool registries
+suite registries
+routing
+layout components
+inspector components
+toolbars
+sidebar components
+responsive components
+```
+
+Do NOT assume that every component currently being rendered is correct.
+
+Trace where each UI element originates.
+
+# 4. AUDIT ALL SUITES
+
+Perform the audit across the COMPLETE PWA.
+
+Do not audit only GS-PDF.
+
+Audit every existing suite.
+
+At minimum inspect:
+
+1. GS-Pixels
+2. GS-PDF
+3. GS-Video
+4. GS-Audio
+5. GS-Text
+6. GS-Archive
+7. GS-QR
+8. GS-Sheets
+9. GS-Canvas
+10. GS-EBook
+11. GS-Slides
+12. GS-Security & Hash
+13. GS-Bridge
+14. GS-Automate / workflow suite if already implemented
+
+Treat the shared application shell separately.
+
+# 5. THREE-LAYER UI ARCHITECTURE
+
+Normalize the application around exactly three conceptual UI layers.
+
+## LAYER 1 — GLOBAL PWA SHELL
+
+Shared across all suites.
+
+* GS Softwares branding
+* Active Suite selector
+* Global search
+* Theme switcher
+* PWA installation
+* Global settings
+* Global help
+* shared notification system
+* shared responsive framework
+* shared command infrastructure
+
+These should NOT be duplicated inside individual suites.
+
+## LAYER 2 — SUITE SHELL
+
+Owned by each suite.
+
+GS-PDF:
+
+```
+Pages
+Sign
+OCR
+Convert
+Compress
+Security
+Redact
+Compare
+Inspect
+Create
+Design
+etc.
+```
+
+GS-Video:
+
+```
+Trim
+Convert
+Extract
+Speed
+Frames
+Audio
+etc.
+```
+
+GS-Security:
+
+```
+Encrypt
+Decrypt
+Hash
+Verify
+```
+
+The suite shell must represent the actual suite's capabilities.
+
+## LAYER 3 — TOOL CONTEXT
+
+Only appears when relevant to the selected tool.
+
+PDF Compressor:
+
+```
+Compression level
+Image quality
+Output format
+Metadata handling
+```
+
+Hash Calculator:
+
+```
+Algorithm
+Input
+Hash output
+Copy
+Verify
+```
+
+Image Crop:
+
+```
+Aspect ratio
+Width
+Height
+Position
+```
+
+Video Trimmer:
+
+```
+Start
+End
+Frame rate
+Preview
+```
+
+A tool must NOT inherit controls from an unrelated tool.
+
+# 6. SCREENSHOT-SPECIFIC PROBLEM
+
+The current GS-PDF interface contains UI such as:
+
+```
+AI Chat
+AI Edit
+AI Document Assistant
+Synthesize AI Operation
+Universal Controls
+Amount
+Strength
+Threshold
+Fidelity
+```
+
+These controls must NOT automatically exist merely because another suite uses them.
+
+For each one:
+
+```
+trace its source component
+```
+
+determine:
+
+```
+why it is rendered
+```
+
+and then:
+
+```
+remove it
+replace it
+or make it contextual
+```
+
+according to actual GS-PDF functionality.
+
+For example:
+
+A PDF accessibility workflow should not display generic image-generation controls merely because a shared inspector contains them.
+
+# 7. NO "FOREIGN UI"
+
+Define a:
+
+# FOREIGN UI ELEMENT
+
+as any UI element that:
+
+* belongs to another suite
+* uses another suite's terminology
+* exposes irrelevant controls
+* references unrelated AI functionality
+* assumes an image editing workflow
+* assumes a PDF workflow inside another suite
+* exposes generic controls without semantic purpose
+* appears because of accidental component reuse
+* exists only because a previous developer copied a UI pattern
+
+Every foreign UI element must be identified and corrected.
+
+# 8. SEMANTIC UI AUDIT
+
+Do not only inspect appearance.
+
+Inspect semantics.
+
+For every suite determine:
+
+```
+Primary domain
+Primary objects
+Primary actions
+Primary tools
+Primary inputs
+Primary outputs
+Primary inspector controls
+Primary workflow
+```
+
+Then ensure the UI represents those semantics.
+
+Example:
+
+GS-HASH
+
+Primary object:
+
+```
+file/data
+```
+
+Primary operations:
+
+```
+hash
+verify
+encrypt
+decrypt
+```
+
+Therefore the UI should emphasize:
+
+```
+Algorithm
+Input
+Digest
+Expected Hash
+Verification Status
+Security information
+```
+
+It should NOT emphasize:
+
+```
+Amount
+Strength
+Fidelity
+AI synthesis
+Image relighting
+generative editing
+```
+
+# 9. TOOL-TO-UI CONTRACT
+
+Every tool must have a clear UI contract.
+
+Conceptually:
+
+```
+ToolDefinition
+│
+├── name
+├── category
+├── input types
+├── output types
+├── capabilities
+├── configuration schema
+└── UI requirements
+```
+
+The UI should be generated from or strongly aligned with this contract.
+
+Do not create arbitrary controls unrelated to the tool definition.
+
+# 10. CONTEXTUAL INSPECTOR
+
+The right inspector must be contextual.
+
+Bad:
+
+```
+Every tool
+↓
+same 5 generic sliders
+```
+
+Good:
+
+```
+Selected Tool
+↓
+Tool-specific inspector
+```
+
+```
+PDF Compressor
+
+Compression
+Image Quality
+Font Optimization
+Metadata
+```
+
+```
+Hash Calculator
+
+Algorithm
+Input
+Digest
+Copy
+```
+
+```
+Video Trimmer
+
+Start
+End
+Preview
+Export
+```
+
+```
+QR Generator
+
+Content
+Error Correction
+Size
+Margin
+Format
+```
+
+# 11. SHARED COMPONENTS VS SUITE COMPONENTS
+
+Create a clear distinction.
+
+### Shared components
+
+```
+AppShell
+TopBar
+SuiteSelector
+GlobalSearch
+ThemeSwitcher
+Panel
+Button
+IconButton
+Slider
+Tabs
+Modal
+Toast
+Tooltip
+BottomSheet
+CommandPalette
+```
+
+### Suite components
+
+```
+PdfPageNavigator
+PdfInspector
+HashInspector
+VideoTimeline
+AudioWaveform
+ImageCanvas
+SpreadsheetGrid
+SlideCanvas
+```
+
+Do not make suite-specific components pretend to be global components.
+
+# 12. DO NOT DESTROY EXISTING FUNCTIONALITY
+
+The audit is a UI architecture correction.
+
+Do not remove a functional tool simply because its UI is inconsistent.
+
+Preserve:
+
+* existing tool implementations
+* existing algorithms
+* existing local processing
+* existing file handling
+* existing AI integrations
+* existing workflows
+* existing routes
+
+Change:
+
+* layout
+* component ownership
+* navigation
+* contextual presentation
+* terminology
+* controls
+* visual consistency
+* responsive behavior
+
+unless a specific UI element is genuinely obsolete.
+
+# 13. REMOVE GENERIC "AI UI" WHERE IT DOES NOT BELONG
+
+AI functionality must be contextual.
+
+Do NOT assume:
+
+```
+Every suite = AI suite.
+```
+
+GS-PDF may contain AI functionality.
+
+That does NOT mean:
+
+```
+entire PDF interface should look like an AI editor.
+```
+
+GS-Hash may contain no AI functionality.
+
+Therefore it should not contain:
+
+```
+AI Assistant
+AI Chat
+AI Synthesis
+AI sliders
+```
+
+unless explicitly supported by the suite.
+
+Likewise:
+
+GS-QR should not inherit:
+
+```
+image generation controls
+```
+
+GS-Archive should not inherit:
+
+```
+image editing controls
+```
+
+GS-Sheets should not inherit:
+
+```
+AI image controls
+```
+
+etc.
+
+# 14. THREE THEMES
+
+The application already has three UI themes.
+
+These are GLOBAL themes.
+
+Every suite must inherit them.
+
+Do NOT create:
+
+```
+PDF theme
+Image theme
+Hash theme
+Video theme
+```
+
+Instead:
+
+```
+Global Theme
+↓
+Shared Design Tokens
+↓
+Suite UI
+↓
+Tool UI
+```
+
+All suites should visually transform consistently when the global theme changes.
+
+# 15. DESIGN TOKEN AUDIT
+
+Identify all duplicated hard-coded:
+
+* colors
+* backgrounds
+* borders
+* shadows
+* radii
+* typography
+* spacing
+* control heights
+* focus states
+
+Replace duplicated values with the existing design-token system .
+
+Do not create unnecessary new tokens.
+
+# 16. ICON AUDIT
+
+No emojis.
+
+Use the existing SVG/icon system.
+
+Audit:
+
+* navigation icons
+* tool icons
+* action icons
+* status icons
+* file-type icons
+* inspector icons
+
+Icons must communicate function.
+
+Do not use an arbitrary image-suite icon for a PDF/security/data operation.
+
+# 17. NAVIGATION AUDIT
+
+For every suite:
+
+1. List every navigation item.
+2. Map it to an actual feature.
+3. Check whether it belongs to the suite.
+4. Check whether it duplicates another navigation item.
+5. Check whether it should be global instead.
+6. Check whether it should be contextual.
+
+Remove irrelevant navigation.
+
+# 18. TOOLBAR AUDIT
+
+Audit every:
+
+* top toolbar
+* bottom toolbar
+* floating toolbar
+* contextual toolbar
+* action strip
+
+```
+global?
+suite?
+tool?
+selection-dependent?
+```
+
+Move it to the correct layer.
+
+# 19. INSPECTOR AUDIT
+
+For every right-side inspector:
+
+Check:
+
+```
+title
+subtitle
+controls
+buttons
+status
+contextuality
+tool ownership
+```
+
+The inspector must describe the currently selected domain/tool.
+
+```
+DOCUMENT INSPECTOR
+AI DOCUMENT ASSISTANT
+Synthesize AI Operation
+Amount
+Strength
+Threshold
+Fidelity
+```
+
+when those controls are not part of the selected PDF operation.
+
+```
+ACCESSIBILITY
+
+Reading Order Audit
+PDF/UA status
+Heading structure
+Image alt-text
+Accessibility warnings
+```
+
+# 20. EMPTY STATES
+
+Every suite should have a meaningful empty state.
+
+```
+Drop a PDF here
+or choose a PDF from your device
+```
+
+GS-Hash:
+
+```
+Drop a file to calculate its checksum
+```
+
+```
+Drop a video to begin editing
+```
+
+GS-Audio:
+
+```
+Drop an audio file to begin processing
+```
+
+GS-Sheets:
+
+```
+Drop a CSV or TSV file
+```
+
+GS-QR:
+
+```
+Enter content to generate a code
+```
+
+Do not reuse the same generic empty state everywhere.
+
+# 21. FILE TYPE AWARENESS
+
+The UI should understand the active data type.
+
+```
+PDF → PDF interface
+
+Image → Image interface
+
+Video → Video interface
+
+Audio → Audio interface
+
+CSV → Spreadsheet interface
+
+Archive → Archive interface
+
+Hash → Security interface
+```
+
+The shell can remain shared.
+
+The working environment must be domain-aware.
+
+# 22. RESPONSIVE AUDIT
+
+```
+Desktop
+Tablet
+Mobile
+```
+
+Do not simply shrink desktop layouts.
+
+Each suite must define:
+
+```
+desktop layout
+tablet layout
+mobile layout
+```
+
+```
+usability
+hierarchy
+touch targets
+contextual controls
+bottom sheets
+gestures where appropriate
+```
+
+# 23. MOBILE UI RULE
+
+On mobile:
+
+Do NOT display every desktop sidebar simultaneously.
+
+Use:
+
+```
+bottom sheets
+contextual toolbars
+collapsible panels
+tool drawers
+modal inspectors
+```
+
+The user should always know:
+
+```
+what tool is active
+what object is selected
+what action will happen
+```
+
+# 24. CROSS-SUITE CONSISTENCY
+
+The following must feel identical across the entire PWA:
+
+```
+Header
+Suite selector
+Search
+Theme switching
+Global actions
+Panels
+Buttons
+Dialogs
+Toasts
+Tooltips
+Loading states
+Error states
+Success states
+Responsive behavior
+Typography hierarchy
+Icon language
+```
+
+The following must intentionally differ:
+
+```
+Tool controls
+Domain-specific navigation
+Domain-specific inspectors
+Canvas/timeline/grid/page interfaces
+File-specific operations
+```
+
+This distinction is critical.
+
+# 25. AUDIT MATRIX
+
+Create an internal audit matrix.
+
+For every visible major component record:
+
+```
+Component
+Current Owner
+Correct Owner
+Suite
+Relevant?
+Shared?
+Contextual?
+Foreign?
+Action Required
+```
+
+```
+AI Chat
+Current: PDF
+Correct: Global/AI-specific
+Relevant: No
+Action: Remove from PDF
+```
+
+Do this systematically.
+
+# 26. SEARCH THE CODEBASE
+
+Search for suspicious inherited terminology.
+
+At minimum search for terms such as:
+
+```
+AI Chat
+AI Edit
+AI Assistant
+Synthesize
+Universal Controls
+Amount
+Strength
+Threshold
+Fidelity
+Prompt
+Generate
+Generative
+Relight
+Canvas
+Image
+Portrait
+Character
+Style
+Creativity
+```
+
+Do NOT blindly remove these terms.
+
+Determine whether each occurrence is:
+
+```
+legitimate
+contextual
+inherited
+accidental
+```
+
+Then correct only the inappropriate cases.
+
+# 27. FIND COMPONENT REUSE PROBLEMS
+
+Trace components that are imported across unrelated suites.
+
+Look for patterns such as:
+
+```
+GenericAIInspector
+AIControlPanel
+ImageEditorToolbar
+UniversalControls
+GenericToolSidebar
+```
+
+Determine whether they are truly generic.
+
+If they contain assumptions about one suite, refactor them.
+
+# 28. REFACTOR, DON'T DUPLICATE
+
+If a component is genuinely shared:
+
+```
+make it genuinely shared.
+```
+
+If a component is suite-specific:
+
+```
+move it to the suite.
+```
+
+If a component is partially shared:
+
+```
+split:
+
+shared primitive
+suite-specific composition
+```
+
+Avoid:
+
+```
+massive conditional component
+```
+
+such as:
+
+```
+if suite === "pdf"
+...
+else if suite === "image"
+...
+else if suite === "video"
+```
+
+everywhere.
+
+Prefer composable architecture.
+
+# 29. SUITE UI CONTRACT
+
+Each suite should have:
+
+```
+SuiteShell
+SuiteNavigation
+SuiteWorkspace
+SuiteInspector
+SuiteActions
+SuiteEmptyState
+```
+
+.
+
+These should consume the global design system.
+
+# 30. DO NOT MAKE ALL SUITES LOOK IDENTICAL
+
+This is extremely important.
+
+The goal is:
+
+```
+CONSISTENT DESIGN LANGUAGE
+```
+
+NOT:
+
+```
+IDENTICAL INTERFACES
+```
+
+GS-Pixels naturally needs:
+
+```
+image canvas
+zoom
+crop
+image inspector
+```
+
+GS-Video naturally needs:
+
+```
+video preview
+timeline
+playback controls
+```
+
+GS-Audio naturally needs:
+
+```
+waveform
+mixer
+timeline
+```
+
+GS-Sheets naturally needs:
+
+```
+grid
+columns
+rows
+```
+
+GS-PDF naturally needs:
+
+```
+page thumbnails
+document canvas
+page tools
+```
+
+GS-Hash naturally needs:
+
+```
+file input
+algorithm selector
+digest output
+```
+
+GS-Automate naturally needs:
+
+```
+workflow graph
+node inspector
+execution status
+```
+
+They should feel related without being identical.
+
+# 31. CURRENT GS-PDF SCREENSHOT — TARGET RESULT
+
+The screenshot currently shows:
+
+```
+GS-PDF
+Accessibility
+```
+
+with:
+
+The corrected interface should instead contain only controls relevant to:
+
+```
+PDF
+Accessibility
+the selected PDF tool
+the actual current document
+```
+
+If Accessibility is selected, expose accessibility-related functionality.
+
+If Compress is selected, expose compression controls.
+
+If Redact is selected, expose redaction controls.
+
+If OCR is selected, expose OCR controls.
+
+The inspector must change contextually.
+
+# 32. CROSS-SUITE "ALIEN UI" TEST
+
+After implementation, perform this mental test for every suite:
+
+Open the suite.
+
+Ask:
+
+> "If I had never seen the source code, would I believe this UI was intentionally designed for this suite?"
+
+If the answer is:
+
+```
+No
+```
+
+continue auditing.
+
+Then ask:
+
+> "Does any visible component look like it was copied from another product or suite?"
+
+If yes:
+
+```
+fix it.
+```
+
+# 33. SECOND ALIEN UI TEST
+
+Switch:
+
+```
+GS-Pixels
+→ GS-PDF
+→ GS-Video
+→ GS-Audio
+→ GS-Text
+→ GS-Archive
+→ GS-QR
+→ GS-Sheets
+→ GS-Canvas
+→ GS-EBook
+→ GS-Slides
+→ GS-Security
+→ GS-Bridge
+→ GS-Automate
+```
+
+The global shell should remain recognizably the same.
+
+The workspace should transform appropriately for each domain.
+
+# 34. NO RANDOM UI INVENTION
+
+Do not add UI merely because it "looks professional."
+
+Every UI element must answer:
+
+```
+What function does this expose?
+```
+
+If there is no answer:
+
+```
+remove it.
+```
+
+Professional UI means:
+
+```
+semantic density
+clear hierarchy
+contextual controls
+consistent interaction
+```
+
+```
+more buttons
+more panels
+more sliders
+more AI controls
+```
+
+# 35. FINAL VALIDATION
+
+After implementation:
+
+Build the application.
+
+```
+TypeScript errors
+import errors
+routing errors
+rendering errors
+responsive breakage
+theme breakage
+console errors
+```
+
+Then manually inspect every suite.
+
+# 36. REQUIRED DELIVERABLE
+
+Do not merely report:
+
+```
+"UI improved."
+```
+
+Provide a concise audit report containing:
+
+### A. Components audited
+
+### B. Foreign UI components found
+
+### C. Components removed
+
+### D. Components refactored
+
+### E. Components made shared
+
+### F. Suite-specific components created
+
+### G. Navigation corrections
+
+### H. Inspector corrections
+
+### I. Theme corrections
+
+### J. Responsive corrections
+
+### K. Remaining known issues
+
+# 37. FINAL ACCEPTANCE CRITERIA
+
+The task is complete only when:
+
+✓ All suites have been audited
+
+✓ Global shell is consistent
+
+✓ Three global themes work across all suites
+
+✓ Suite navigation is semantically correct
+
+✓ Tool navigation is semantically correct
+
+✓ Inspectors are contextual
+
+✓ Foreign UI has been removed
+
+✓ Inappropriate AI UI has been removed
+
+✓ Generic AI controls are not displayed everywhere
+
+✓ No suite inherits unrelated controls
+
+✓ Shared components are genuinely shared
+
+✓ Suite-specific components remain suite-specific
+
+✓ No duplicate design systems exist
+
+✓ No emoji UI exists
+
+✓ Icons use the existing SVG/icon system
+
+✓ Desktop layouts work
+
+✓ Tablet layouts work
+
+✓ Mobile layouts work
+
+✓ Existing functionality remains intact
+
+✓ Existing tool implementations remain intact
+
+✓ Existing local-first architecture remains intact
+
+✓ No arbitrary backend dependency is introduced
+
+✓ No unnecessary component duplication is introduced
+
+✓ TypeScript/build errors are resolved
+
+✓ Console errors introduced by this work are resolved
+
+✓ Every suite passes the "Alien UI Test"
+
+# 38. CRITICAL FINAL INSTRUCTION
+
+DO NOT STOP AFTER FIXING GS-PDF.
+
+GS-PDF is merely the visible example demonstrating the problem.
+
+The actual task is:
+
+# AUDIT THE ENTIRE GS SOFTWARES PWA.
+
+Think of the application as one product with:
+
+```
+ONE DESIGN SYSTEM
+ONE GLOBAL SHELL
+ONE THEME SYSTEM
+ONE INTERACTION LANGUAGE
+```
+
+but:
+
+```
+MANY DOMAIN-SPECIFIC WORKSPACES.
+```
+
+The final architecture must feel like:
+
+```
+GS SOFTWARES
+│
+GLOBAL PWA SHELL
+│
+┌───────────┴───────────┐
+│ │
+SHARED DESIGN SYSTEM SHARED RUNTIME
+│ │
+└───────────┬───────────┘
+│
+SUITE SHELL
+│
+┌───────────┼───────────┐
+│ │ │
+TOOLS WORKSPACE INSPECTOR
+│ │ │
+└───────────┼───────────┘
+│
+CONTEXTUAL UI
+```
+
+```
+GS SOFTWARES
+│
+┌─────────┼─────────┐
+│ │ │
+RANDOM UI RANDOM UI RANDOM UI
+│ │ │
+copied components everywhere
+```
+
+The goal is not to make the application prettier.
+
+Goal: make its UI architecture CORRECT.
+
+Do the complete audit first.
+
+Then refactor.
+
+Then validate every suite.
+
+Do not declare completion merely because the screenshot looks better.

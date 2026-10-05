@@ -58,26 +58,26 @@ html, body {
 /* Explicit Mode 1: Light (Pure High-Contrast Black Text & Icons) */
 html.theme-light,
 body.theme-light {
-  --bg-main: #e2e8f0 !important;
-  --text-main: #000000 !important;
-  --text-muted: #1e293b !important;
-  --neu-surface-gradient: linear-gradient(145deg, #f8fafc, #dbe4ee) !important;
-  --neu-surface-hover: linear-gradient(145deg, #ffffff, #d2dfea) !important;
-  --neu-flat-gradient: linear-gradient(145deg, #f1f5f9, #dbe4ee) !important;
-  --neu-btn-gradient: linear-gradient(145deg, #ffffff, #dbe5ee) !important;
-  --neu-shadow-dark: rgba(148, 163, 184, 0.75) !important;
+  --bg-main: #f1f5f9 !important;
+  --text-main: #090d16 !important;
+  --text-muted: #334155 !important;
+  --neu-surface-gradient: linear-gradient(145deg, #ffffff, #e2e8f0) !important;
+  --neu-surface-hover: linear-gradient(145deg, #ffffff, #cbd5e1) !important;
+  --neu-flat-gradient: linear-gradient(145deg, #f8fafc, #e2e8f0) !important;
+  --neu-btn-gradient: linear-gradient(145deg, #ffffff, #e2e8f0) !important;
+  --neu-shadow-dark: rgba(148, 163, 184, 0.7) !important;
   --neu-shadow-light: rgba(255, 255, 255, 1) !important;
-  --neu-inset-bg: #dbe4ee !important;
-  --neu-inset-dark: rgba(148, 163, 184, 0.85) !important;
+  --neu-inset-bg: #e2e8f0 !important;
+  --neu-inset-dark: rgba(148, 163, 184, 0.8) !important;
   --neu-inset-light: rgba(255, 255, 255, 0.95) !important;
-  --border-color: rgba(255, 255, 255, 0.8) !important;
-  background-color: #e2e8f0 !important;
-  color: #000000 !important;
+  --border-color: rgba(203, 213, 225, 0.9) !important;
+  background-color: #f1f5f9 !important;
+  color: #090d16 !important;
 }
 
 html.theme-light .neu-card,
 body.theme-light .neu-card {
-  color: #000000 !important;
+  color: #090d16 !important;
 }
 
 html.theme-light p,
@@ -91,8 +91,10 @@ body.theme-light h2,
 html.theme-light h3,
 body.theme-light h3,
 html.theme-light h4,
-body.theme-light h4 {
-  color: #000000;
+body.theme-light h4,
+html.theme-light label,
+body.theme-light label {
+  color: inherit;
 }
 
 html.theme-light .text-cyan-500,
@@ -247,6 +249,208 @@ body.theme-light [class*='from-indigo'],
 html.theme-light [class*='from-blue'],
 body.theme-light [class*='from-blue'] {
   color: #ffffff !important;
+}
+
+/* ── Light Mode: Remap studio shell backgrounds & zinc text ── */
+html.theme-light .bg-\[\#07080A\],
+body.theme-light .bg-\[\#07080A\],
+html.theme-light .bg-\[\#0C0E14\],
+body.theme-light .bg-\[\#0C0E14\],
+html.theme-light .bg-\[\#0D0F14\],
+body.theme-light .bg-\[\#0D0F14\],
+html.theme-light .bg-\[\#0A0C12\],
+body.theme-light .bg-\[\#0A0C12\],
+html.theme-light .bg-\[\#0A0C10\],
+body.theme-light .bg-\[\#0A0C10\],
+html.theme-light .bg-\[\#0A0C11\],
+body.theme-light .bg-\[\#0A0C11\],
+html.theme-light .bg-\[\#08090D\],
+body.theme-light .bg-\[\#08090D\],
+html.theme-light .bg-\[\#090A0E\],
+body.theme-light .bg-\[\#090A0E\],
+html.theme-light .bg-\[\#090B10\],
+body.theme-light .bg-\[\#090B10\],
+html.theme-light .bg-\[\#0E1017\],
+body.theme-light .bg-\[\#0E1017\],
+html.theme-light .bg-\[\#0E1015\],
+body.theme-light .bg-\[\#0E1015\],
+html.theme-light .bg-\[\#0B0D12\],
+body.theme-light .bg-\[\#0B0D12\],
+html.theme-light .bg-\[\#07080B\],
+body.theme-light .bg-\[\#07080B\],
+html.theme-light .bg-\[\#07090E\],
+body.theme-light .bg-\[\#07090E\],
+html.theme-light .bg-\[\#0C0E13\],
+body.theme-light .bg-\[\#0C0E13\],
+html.theme-light .bg-\[\#0D1017\],
+body.theme-light .bg-\[\#0D1017\],
+html.theme-light .bg-\[\#0E1118\],
+body.theme-light .bg-\[\#0E1118\],
+html.theme-light .bg-\[\#12141C\],
+body.theme-light .bg-\[\#12141C\],
+html.theme-light .bg-\[\#13161F\],
+body.theme-light .bg-\[\#13161F\] {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main) !important;
+}
+
+/* Light mode cards and panels inside suites */
+html.theme-light aside,
+body.theme-light aside,
+html.theme-light nav[aria-label="Tool Categories"],
+body.theme-light nav[aria-label="Tool Categories"],
+html.theme-light nav[aria-label="PDF Tool Domains"],
+body.theme-light nav[aria-label="PDF Tool Domains"] {
+  background-color: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .bg-white\/\[0\.02\],
+body.theme-light .bg-white\/\[0\.02\],
+html.theme-light .bg-white\/\[0\.03\],
+body.theme-light .bg-white\/\[0\.03\],
+html.theme-light .bg-white\/\[0\.04\],
+body.theme-light .bg-white\/\[0\.04\],
+html.theme-light .bg-white\/\[0\.05\],
+body.theme-light .bg-white\/\[0\.05\],
+html.theme-light .bg-white\/\[0\.06\],
+body.theme-light .bg-white\/\[0\.06\],
+html.theme-light .bg-white\/\[0\.08\],
+body.theme-light .bg-white\/\[0\.08\] {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light .bg-white\/\[0\.03\]:hover,
+body.theme-light .bg-white\/\[0\.03\]:hover,
+html.theme-light .bg-white\/\[0\.04\]:hover,
+body.theme-light .bg-white\/\[0\.04\]:hover,
+html.theme-light .bg-white\/\[0\.06\]:hover,
+body.theme-light .bg-white\/\[0\.06\]:hover,
+html.theme-light .bg-white\/\[0\.08\]:hover,
+body.theme-light .bg-white\/\[0\.08\]:hover {
+  background-color: #e2e8f0 !important;
+  color: #020617 !important;
+}
+
+/* Light mode borders */
+html.theme-light .border-white\/\[0\.06\],
+body.theme-light .border-white\/\[0\.06\],
+html.theme-light .border-white\/\[0\.04\],
+body.theme-light .border-white\/\[0\.04\],
+html.theme-light .border-white\/\[0\.08\],
+body.theme-light .border-white\/\[0\.08\],
+html.theme-light .border-white\/10,
+body.theme-light .border-white\/10,
+html.theme-light .border-white\/5,
+body.theme-light .border-white\/5 {
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+
+/* Light mode text contrast */
+html.theme-light .text-zinc-100,
+body.theme-light .text-zinc-100,
+html.theme-light .text-zinc-200,
+body.theme-light .text-zinc-200,
+html.theme-light .text-zinc-300,
+body.theme-light .text-zinc-300 {
+  color: #0f172a !important;
+}
+
+html.theme-light .text-zinc-400,
+body.theme-light .text-zinc-400 {
+  color: #334155 !important;
+}
+
+html.theme-light .text-zinc-500,
+body.theme-light .text-zinc-500,
+html.theme-light .text-zinc-600,
+body.theme-light .text-zinc-600 {
+  color: #64748b !important;
+}
+
+/* Light mode range sliders: clear light track with saturated cyan/accent thumb */
+html.theme-light input[type="range"],
+body.theme-light input[type="range"] {
+  background-color: #cbd5e1 !important;
+}
+
+html.theme-light input[type="range"].bg-zinc-800,
+body.theme-light input[type="range"].bg-zinc-800 {
+  background-color: #cbd5e1 !important;
+}
+
+/* Light mode scrollbar */
+html.theme-light *,
+body.theme-light * {
+  scrollbar-color: rgba(100, 116, 139, 0.4) transparent !important;
+}
+
+html.theme-light ::-webkit-scrollbar-thumb,
+body.theme-light ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4) !important;
+}
+
+html.theme-light ::-webkit-scrollbar-thumb:hover,
+body.theme-light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.8) !important;
+}
+
+/* Semi-dark Mode studio backgrounds */
+html.theme-semi .bg-\[\#07080A\],
+body.theme-semi .bg-\[\#07080A\],
+html.theme-semi .bg-\[\#0C0E14\],
+body.theme-semi .bg-\[\#0C0E14\],
+html.theme-semi .bg-\[\#0D0F14\],
+body.theme-semi .bg-\[\#0D0F14\],
+html.theme-semi .bg-\[\#0A0C12\],
+body.theme-semi .bg-\[\#0A0C12\],
+html.theme-semi .bg-\[\#0A0C10\],
+body.theme-semi .bg-\[\#0A0C10\],
+html.theme-semi .bg-\[\#0A0C11\],
+body.theme-semi .bg-\[\#0A0C11\],
+html.theme-semi .bg-\[\#08090D\],
+body.theme-semi .bg-\[\#08090D\],
+html.theme-semi .bg-\[\#090A0E\],
+body.theme-semi .bg-\[\#090A0E\],
+html.theme-semi .bg-\[\#090B10\],
+body.theme-semi .bg-\[\#090B10\],
+html.theme-semi .bg-\[\#0E1017\],
+body.theme-semi .bg-\[\#0E1017\],
+html.theme-semi .bg-\[\#0E1015\],
+body.theme-semi .bg-\[\#0E1015\],
+html.theme-semi .bg-\[\#0B0D12\],
+body.theme-semi .bg-\[\#0B0D12\],
+html.theme-semi .bg-\[\#07080B\],
+body.theme-semi .bg-\[\#07080B\],
+html.theme-semi .bg-\[\#07090E\],
+body.theme-semi .bg-\[\#07090E\],
+html.theme-semi .bg-\[\#0C0E13\],
+body.theme-semi .bg-\[\#0C0E13\],
+html.theme-semi .bg-\[\#0D1017\],
+body.theme-semi .bg-\[\#0D1017\],
+html.theme-semi .bg-\[\#0E1118\],
+body.theme-semi .bg-\[\#0E1118\],
+html.theme-semi .bg-\[\#12141C\],
+body.theme-semi .bg-\[\#12141C\],
+html.theme-semi .bg-\[\#13161F\],
+body.theme-semi .bg-\[\#13161F\] {
+  background-color: #37424d !important;
+  color: #ffffff !important;
+}
+
+html.theme-semi .border-white\/\[0\.06\],
+body.theme-semi .border-white\/\[0\.06\],
+html.theme-semi .border-white\/\[0\.04\],
+body.theme-semi .border-white\/\[0\.04\],
+html.theme-semi .border-white\/\[0\.08\],
+body.theme-semi .border-white\/\[0\.08\],
+html.theme-semi .border-white\/10,
+body.theme-semi .border-white\/10,
+html.theme-semi .border-white\/5,
+body.theme-semi .border-white\/5 {
+  border-color: rgba(255, 255, 255, 0.22) !important;
 }
 
 /* ── Light Mode: Fix hover states that would show white text on light bg ── */

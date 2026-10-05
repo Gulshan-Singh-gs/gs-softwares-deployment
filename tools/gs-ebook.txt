@@ -1,0 +1,1429 @@
+# eBook Tools Suite — Framework Execution
+
+I’ve applied the framework you established. The result is a **product/technical architecture specification**, not an implementation plan.
+
+The suite is designed as a professional **eBook creation, editing, formatting, publishing, and analysis environment**, with browser-native functionality separated from AI-dependent functionality.
+
+# 1. Reference-Suite Research
+
+The research shows that modern eBook tooling is not merely a word processor. The strongest systems combine several layers:
+
+* manuscript authoring
+* structured chapters and sections
+* typography and book styling
+* front/back matter management
+* automatic table of contents
+* image/media management
+* hyperlinks and navigation
+* eBook previewing
+* EPUB export
+* print/PDF export
+* accessibility validation
+* publishing preparation
+* collaboration/review
+* cover creation
+* device-specific preview
+
+E.g. Reedsy's Studio combines writing, editing, chapter organization, themes, front matter, collaboration, previewing and EPUB/PDF export. ([Reedsy][1])
+
+[Reedsy Studio](https://reedsy.com/studio/?utm_source=chatgpt.com)
+
+Amazon's Kindle Create similarly separates a book into front matter, body and back matter, supports themes, TOCs, images, hyperlinks and previewing. ([Amazon Kindle Direct Publishing][2])
+
+[Kindle Create documentation](https://kdp.amazon.com/en_US/help/topic/G93BCLJGZFGK39BT?utm_source=chatgpt.com)
+
+The important architectural conclusion is:
+
+> **An eBook suite should be treated as a structured publishing system, not simply a rich-text editor.**
+
+# 2. Core eBook Capability Map
+
+## A. Authoring
+
+### Manuscript
+
+* Rich text editor
+* Plain-text editor
+* Markdown editor
+* Chapter editor
+* Section editor
+* Scene editor
+* Paragraph management
+* Block-level editing
+* Inline formatting
+* Find & replace
+* Word count
+* Character count
+* Reading-time estimation
+* Writing statistics
+
+### Book structure
+
+* Book
+* Parts
+* Chapters
+* Sections
+* Subsections
+* Front matter
+* Body matter
+* Back matter
+* Chapter ordering
+* Drag-and-drop reordering
+* Chapter duplication
+* Chapter splitting
+* Chapter merging
+
+### Front matter
+
+* Title page
+* Copyright page
+* Dedication
+* Epigraph
+* Foreword
+* Preface
+* Introduction
+* Table of contents
+* List of figures
+* List of tables
+
+### Back matter
+
+* Afterword
+* Appendix
+* Notes
+* Bibliography
+* References
+* Glossary
+* Author biography
+* Acknowledgements
+* About the author
+* Other books
+* Call-to-action page
+
+# 3. Formatting & Typography
+
+## Text formatting
+
+* Font family
+* Font size
+* Font weight
+* Italic
+* Underline
+* Strikethrough
+* Text color
+* Highlight
+* Superscript
+* Subscript
+* Small caps
+* Letter spacing
+* Line height
+* Paragraph spacing
+* Indentation
+* Alignment
+* Text direction
+* Drop caps
+
+## Paragraph styles
+
+* Body
+* Heading 1
+* Heading 2
+* Heading 3
+* Quote
+* Block quote
+* Caption
+* Footnote
+* Endnote
+* Code block
+* Callout
+* Warning
+* Note
+* List item
+
+## Book themes
+
+A theme should control:
+
+```text
+Theme
+├── Typography
+├── Heading hierarchy
+├── Paragraph spacing
+├── Chapter openings
+├── Drop caps
+├── Page behavior
+├── Colors
+├── Decorations
+├── Quote styling
+├── Image treatment
+└── Navigation styling
+```
+
+The user should change the **book theme**, rather than manually modifying hundreds of individual elements.
+
+This mirrors the theme-oriented approach used by Kindle Create and Reedsy. ([Amazon Kindle Direct Publishing][3])
+
+# 4. Layout Engine
+
+The suite should support two fundamentally different publishing modes.
+
+## Reflowable
+
+Designed primarily for:
+
+* novels
+* essays
+* memoirs
+* business books
+* technical books
+* general nonfiction
+
+The reader can change:
+
+* font size
+* reading width
+* font
+* device
+* orientation
+
+EPUB's default model is reflowable, where content adapts to the reader's viewport. ([W3C][4])
+
+## Fixed / pre-paginated
+
+Designed for:
+
+* children's books
+* illustrated books
+* comics
+* graphic novels
+* cookbooks
+* highly visual publications
+* complex page compositions
+
+The visual arrangement of the page is preserved.
+
+EPUB supports both reflowable and fixed-layout publication models. ([W3C][4])
+
+### Architecture implication
+
+The suite should therefore have:
+
+```text
+Book Layout
+│
+├── Reflowable Engine
+│ ├── Text flow
+│ ├── Dynamic pagination
+│ ├── Responsive images
+│ └── Reader-controlled typography
+│
+└── Fixed Layout Engine
+├── Page canvas
+├── Absolute positioning
+├── Image placement
+├── Text boxes
+└── Page-level composition
+```
+
+# 5. Images & Media
+
+## Image tools
+
+* Insert image
+* Replace image
+* Crop image
+* Resize image
+* Align image
+* Caption
+* Alt text
+* Image positioning
+* Image wrapping
+* Full-width image
+* Chapter header image
+* Background image
+* Image gallery
+* Image ordering
+* Image metadata
+
+## Media
+
+Potential advanced support:
+
+* Audio
+* Video
+* Interactive media
+* Media overlays
+* Embedded resources
+
+EPUB 3 supports structured web content and related publication resources, while EPUB's specification includes features such as media overlays and fixed layouts. ([W3C][5])
+
+# 6. Navigation Tools
+
+A professional suite needs a dedicated **Navigation System**.
+
+### Tools
+
+* Automatic TOC
+* Manual TOC
+* Interactive TOC
+* Chapter navigation
+* Internal hyperlinks
+* External hyperlinks
+* Cross references
+* Footnote navigation
+* Back-to-location navigation
+* Bookmarking
+* Reading position
+* Section navigation
+* Previous/next chapter
+
+The navigation structure is particularly important because an EPUB isn't just a collection of pages; it is a structured publication.
+
+# 7. Book Metadata
+
+## Metadata Manager
+
+* Title
+* Subtitle
+* Author
+* Contributors
+* Publisher
+* Language
+* ISBN
+* Publication date
+* Description
+* Subject
+* Keywords
+* Categories
+* Rights
+* Copyright
+* Cover
+* Identifier
+* Accessibility metadata
+
+### Metadata UI
+
+```text
+BOOK INFORMATION
+
+Title
+Subtitle
+Author
+Language
+Publisher
+Publication Date
+
+IDENTIFIERS
+
+ISBN
+Internal ID
+
+DISCOVERY
+
+Categories
+Keywords
+Description
+
+RIGHTS
+
+Copyright
+License
+Publisher Rights
+```
+
+# 8. Cover Suite
+
+The cover deserves its own tool category.
+
+## Cover tools
+
+* Cover designer
+* Cover templates
+* Typography
+* Image placement
+* Background
+* Shapes
+* Layers
+* Author/title positioning
+* Spine configuration
+* Front/back cover
+* Full wrap cover
+* Cover preview
+* Thumbnail preview
+* Platform-safe-area preview
+
+### AI-powered
+
+* Cover generation
+* Cover concept generation
+* Title typography generation
+* Background generation
+* Illustration generation
+* Style exploration
+* Multiple cover variations
+
+These belong in the **AI layer**, not the browser-native layer.
+
+# 9. AI Writing Tools
+
+This is where the suite becomes substantially more powerful than Kindle Create/Reedsy-style formatting software.
+
+## Writing assistance
+
+* Continue writing
+* Rewrite
+* Expand
+* Shorten
+* Simplify
+* Formalize
+* Make conversational
+* Change tone
+* Improve clarity
+* Improve flow
+* Remove repetition
+* Grammar correction
+* Spelling correction
+* Sentence restructuring
+
+## Book-level AI
+
+* Generate chapter outline
+* Generate chapter
+* Generate section
+* Generate introduction
+* Generate conclusion
+* Generate summary
+* Generate glossary
+* Generate FAQ
+* Generate discussion questions
+* Generate exercises
+* Generate bibliography structure
+* Generate book description
+
+## Editorial AI
+
+* Consistency checking
+* Character consistency
+* Terminology consistency
+* Timeline checking
+* Contradiction detection
+* Repetition detection
+* Pacing analysis
+* Readability analysis
+* Tone consistency
+* Structural critique
+
+# 10. AI Research Tools
+
+For nonfiction/technical books:
+
+* Research assistant
+* Source summarization
+* Source extraction
+* Citation assistance
+* Citation organization
+* Reference generation
+* Bibliography generation
+* Fact-checking
+* Claim detection
+* Source-to-paragraph mapping
+* Research notes
+* Evidence matrix
+
+Important distinction:
+
+**Research retrieval and AI reasoning are server/model-dependent capabilities.**
+
+The local browser should manage the research workspace, while model inference can remain external/local depending on the implementation strategy.
+
+# 11. AI Book Analysis
+
+### Structural analysis
+
+* Chapter balance
+* Section depth
+* Reading progression
+* Content gaps
+* Repetition
+* Topic distribution
+* Narrative structure
+
+### Linguistic analysis
+
+* Readability
+* Vocabulary complexity
+* Sentence complexity
+* Passive voice
+* Filler words
+* Repetition
+* Tone
+* Consistency
+
+### Reader analysis
+
+* Estimated reading time
+* Difficulty
+* Audience suitability
+* Content density
+* Chapter engagement
+* Comprehension risk
+
+# 12. Accessibility Suite
+
+This should be a **first-class category**, not an export checkbox.
+
+## Accessibility tools
+
+* Alt-text management
+* Heading hierarchy validation
+* Reading-order validation
+* Contrast checking
+* Language metadata
+* Semantic structure
+* Navigation validation
+* Link validation
+* Image accessibility
+* Table accessibility
+* Accessibility report
+* EPUB accessibility inspection
+
+EPUB accessibility is part of the current EPUB ecosystem, and W3C explicitly identifies structural navigation, reading order, metadata, text alternatives and contrast as important accessibility considerations. ([W3C][6])
+
+# 13. Validation & Quality Control
+
+## Book Validator
+
+```text
+VALIDATION
+│
+├── Structure
+├── Metadata
+├── Navigation
+├── Links
+├── Images
+├── Typography
+├── Accessibility
+├── Layout
+├── EPUB compliance
+├── File integrity
+└── Publishing readiness
+```
+
+### Diagnostic interface
+
+Instead of simply:
+
+> "Book has errors."
+
+Use:
+
+```text
+12 ISSUES FOUND
+
+Critical
+2 broken internal links
+
+Warning
+4 images missing alt text
+
+Notice
+6 inconsistent heading styles
+
+[Review Issues]
+```
+
+Clicking an issue should navigate directly to the affected content.
+
+# 14. Import / Export
+
+## Import
+
+* DOC
+* DOCX
+* EPUB
+* PDF
+* Markdown
+* TXT
+* HTML
+* RTF
+* Images
+
+## Export
+
+* EPUB
+* PDF
+* HTML
+* Markdown
+* DOCX
+* TXT
+* Project package
+
+Kindle Create currently supports workflows involving DOC/DOCX and PDF depending on book type, and exports EPUB/KPF in supported workflows. ([Amazon Kindle Direct Publishing][7])
+
+# 15. Browser-Native Classification
+
+Now we apply the second stage of the framework.
+
+## Fully browser-native
+
+These should **not require an AI server**.
+
+### Editor
+
+* Rich text editing
+* Markdown editing
+* Text selection
+* Copy/paste
+* Undo/redo
+* Find/replace
+* Formatting
+* Paragraph styles
+* Heading hierarchy
+* Lists
+* Quotes
+* Links
+* Basic tables
+* Notes
+* Chapter creation
+* Chapter deletion
+* Chapter reordering
+* Section management
+
+* Chapter tree
+* Drag-and-drop
+* Front matter
+* Back matter
+* TOC structure
+* Navigation structure
+* Metadata forms
+
+### Layout
+
+* Page preview
+* Reflow preview
+* Fixed-layout canvas
+* Text boxes
+* Image positioning
+* Alignment
+* Spacing
+* Margins
+* Page dimensions
+* Basic typography
+
+### Asset management
+
+* Image import
+* Image crop
+* Image resize
+* Image compression
+* Format conversion
+* Local asset library
+* Drag/drop assets
+
+### Publishing utilities
+
+* Local project management
+* Export preparation
+* Metadata management
+* File naming
+* Book packaging
+* Local preview
+
+### Analysis
+
+Many basic analyses can also run locally:
+
+* word count
+* character count
+* chapter count
+* reading-time estimation
+* document statistics
+* heading validation
+* broken internal link detection
+* missing metadata detection
+* image dimension inspection
+* basic contrast calculation
+* structural validation
+
+# 16. Browser-Native but Potentially Advanced
+
+These can potentially run locally using WebAssembly/Web Workers/WebGPU depending on implementation:
+
+* spell checking
+* grammar models
+* OCR
+* semantic search
+* local embeddings
+* document classification
+* accessibility analysis
+* image segmentation
+* advanced text analysis
+
+They should therefore be architected as **optional local compute modules**, rather than automatically assuming a server.
+
+# 17. AI / Server-Dependent Classification
+
+These belong outside the deterministic editor engine.
+
+### Generative writing
+
+* Chapter generation
+* Section generation
+* Rewrite
+* Expansion
+* Summarization
+* Tone transformation
+* Story generation
+
+### AI editorial analysis
+
+* Structural critique
+* Narrative analysis
+* Contradiction reasoning
+* Deep consistency analysis
+* Audience analysis
+
+### Research
+
+* Web research
+* Source discovery
+* Fact checking
+* Research synthesis
+
+### Generative visual tools
+
+* AI cover generation
+* Illustration generation
+* Image generation
+* Background generation
+* Character generation
+* Diagram generation
+
+### AI book transformation
+
+* Manuscript → book structure
+* Manuscript → chapters
+* Notes → manuscript
+* Research → chapter
+* PDF → structured book
+* Book → summary
+* Book → audiobook script
+
+# 18. Final Tool Taxonomy
+
+The suite should ultimately expose **13 major domains**.
+
+| Domain | Browser | AI/Server |
+| ------------------ | ------: | --------: |
+| **Write** | ✓ | ✓ |
+| **Structure** | ✓ | ✓ |
+| **Format** | ✓ | — |
+| **Layout** | ✓ | — |
+| **Media** | ✓ | ✓ |
+| **Cover** | ✓ | ✓ |
+| **Research** | —/✓ | ✓ |
+| **Edit** | ✓ | ✓ |
+| **Analyze** | ✓ | ✓ |
+| **Accessibility** | ✓ | optional |
+| **Validate** | ✓ | optional |
+| **Preview** | ✓ | — |
+| **Publish/Export** | ✓ | optional |
+
+# 19. System Architecture
+
+Architecture: look like this:
+
+```text
+┌───────────────────────────┐
+│ EBOOK SUITE │
+└─────────────┬─────────────┘
+│
+┌────────────────┴────────────────┐
+│ │
+┌────────▼────────┐ ┌────────▼────────┐
+│ Browser Engine │ │ AI Layer │
+└────────┬────────┘ └────────┬────────┘
+│ │
+┌─────────┼──────────┐ ┌─────────┼──────────┐
+│ │ │ │ │ │
+Editor Layout Assets Writing Research Visual AI
+│ │ │ │ │ │
+└─────────┼──────────┘ └─────────┼──────────┘
+│ │
+└──────────────┬──────────────────┘
+│
+┌────────▼────────┐
+│ Book State │
+└────────┬────────┘
+│
+┌─────────────────┼─────────────────┐
+│ │ │
+Chapters Assets Metadata
+│ │ │
+└─────────────────┼─────────────────┘
+│
+┌────────▼────────┐
+│ Export / Preview│
+└─────────────────┘
+```
+
+# 20. Core Data Architecture
+
+The fundamental object should **not** be a "document."
+
+It should be a **Book Project**.
+
+```text
+BookProject
+│
+├── Metadata
+│
+├── Theme
+│
+├── Structure
+│ ├── FrontMatter
+│ ├── Parts
+│ │ ├── Chapters
+│ │ │ ├── Sections
+│ │ │ └── Blocks
+│ │ └── ...
+│ └── BackMatter
+│
+├── Assets
+│ ├── Images
+│ ├── Audio
+│ ├── Video
+│ └── Fonts
+│
+├── Styles
+│
+├── Navigation
+│
+├── References
+│
+├── Accessibility
+│
+├── Validation
+│
+└── History
+```
+
+This distinction is critical.
+
+A Word-style editor thinks:
+
+> document → paragraphs
+
+An eBook suite should think:
+
+> **publication → semantic structure → content → presentation → distribution**
+
+# 21. UI Architecture
+
+The UI should follow the same principle as your image suite:
+
+> **The content is the center; tools surround the content.**
+
+But because this is an eBook suite, the center is a **document/book canvas**, not an image canvas.
+
+# 22. Desktop UI
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Logo │ Book Name │ Save │ Preview │ Validate │ Export │ ... │
+├──────┬───────────────────────────────────────────┬───────────┤
+│ │ │ │
+│ TOOL │ │ INSPECTOR │
+│ RAIL │ BOOK CANVAS │ │
+│ │ │ │
+│ Write│ Chapter 01 │ Typography│
+│ Edit │ │ Layout │
+│ Style│ Heading │ Spacing │
+│ Media│ │ Color │
+│ AI │ Paragraph paragraph paragraph │ Links │
+│ Cover│ │ Metadata │
+│ │ Paragraph paragraph paragraph │ │
+│ │ │ │
+├──────┴───────────────────────────────────────────┴───────────┤
+│ Chapters │ Assets │ Outline │ Comments │ Issues │ History │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Left rail
+
+Primary domains:
+
+* Write
+* Structure
+* Format
+* Media
+* AI
+* Cover
+* Research
+* Analyze
+* Accessibility
+* Validate
+
+### Center
+
+The actual book.
+
+### Right inspector
+
+Contextual controls.
+
+### Bottom dock
+
+Secondary navigation:
+
+* Outline
+* Chapters
+* Assets
+* Comments
+* Issues
+* History
+
+# 23. Mobile UI
+
+The desktop layout cannot simply be shrunk.
+
+Mobile becomes:
+
+```text
+┌──────────────────────────┐
+│ ← Chapter 3 ⋮ │
+├──────────────────────────┤
+│ │
+│ │
+│ BOOK CONTENT │
+│ │
+│ Chapter Heading │
+│ │
+│ Paragraph text... │
+│ │
+│ Paragraph text... │
+│ │
+│ │
+├──────────────────────────┤
+│ Write Style Insert AI │
+├──────────────────────────┤
+│ contextual │
+│ toolbar │
+└──────────────────────────┘
+```
+
+The document receives maximum screen real estate.
+
+Tools appear through:
+
+* bottom sheets
+* contextual toolbars
+* popovers
+* radial menus
+* edge drawers
+* floating actions
+
+# 24. Mobile Interaction System
+
+### Gestures
+
+**One finger**
+
+* scroll document
+* select text
+* drag objects in fixed-layout mode
+
+**Two fingers**
+
+* pinch zoom
+* two-finger pan in fixed-layout canvas
+
+**Long press**
+
+* text selection
+* contextual actions
+
+**Swipe**
+
+* chapter navigation
+* toolbar navigation
+
+**Two-finger tap**
+
+* contextual document action
+
+**Three-finger swipe**
+
+* undo / redo
+
+### Haptics
+
+Haptics should communicate state rather than decorate the interface:
+
+* selection → light feedback
+* snapping → subtle tick
+* successful action → confirmation pulse
+* boundary → resistance/pulse
+* invalid action → warning pulse
+* export completion → completion pattern
+
+Unsupported devices simply fall back to visual/audio feedback.
+
+# 25. Contextual Inspector
+
+The inspector should never expose every control simultaneously.
+
+If the user selects a paragraph:
+
+```text
+PARAGRAPH
+
+Style
+[Body ▼]
+
+Font
+[Georgia ▼]
+
+Size
+[11]
+
+Spacing
+[1.4]
+
+Alignment
+[Left]
+
+Indent
+[0]
+
+Advanced
+```
+
+If the user selects an image:
+
+```text
+IMAGE
+
+Width
+Height
+Alignment
+Position
+Wrap
+Caption
+Alt Text
+
+If the user selects a chapter:
+
+```text
+CHAPTER
+
+Title
+Number
+Opening Style
+Chapter Image
+Page Break
+Navigation
+```
+
+This avoids the "professional software = hundreds of visible controls" problem.
+
+# 26. Book Outline System
+
+This is one of the most important UI components.
+
+```text
+BOOK
+│
+├── Front Matter
+│ ├── Title
+│ ├── Copyright
+│ └── Dedication
+│
+├── Part I
+│ ├── Chapter 1
+│ ├── Chapter 2
+│ └── Chapter 3
+│
+├── Part II
+│ ├── Chapter 4
+│ └── Chapter 5
+│
+└── Back Matter
+├── References
+├── Glossary
+└── About the Author
+```
+
+Dragging a chapter should reorder the publication structure rather than merely moving text.
+
+# 27. AI Interaction Architecture
+
+AI should not dominate the interface.
+
+Instead:
+
+```text
+User selects content
+↓
+Contextual AI action
+↓
+AI command panel
+↓
+Prompt / instruction
+↓
+Preview
+↓
+Accept / Reject / Regenerate
+```
+
+Example:
+
+> Select paragraph → Improve clarity
+
+The AI should generate a **proposed revision**, not silently overwrite the manuscript.
+
+# 28. AI Command Interface
+
+A universal command bar can support:
+
+```text
+Ask the book...
+
+"Rewrite this section for beginners"
+"Summarize chapter 4"
+"Find contradictions"
+"Create a glossary"
+"Generate a TOC"
+"Make this more concise"
+"Check accessibility"
+"Create a cover concept"
+```
+
+The system determines the appropriate tool.
+
+This provides a natural-language interface without replacing the deterministic editor.
+
+# 29. Non-Destructive Editing
+
+Every significant transformation becomes a revision node.
+
+```text
+Original
+│
+├── Revision 1
+│
+├── AI Rewrite
+│ ├── Variant A
+│ ├── Variant B
+│ └── Variant C
+│
+└── Current Version
+```
+
+Actions:
+
+* Accept
+* Reject
+* Compare
+* Restore
+* Create variation
+* Copy result
+* Replace selection
+
+# 30. Book Preview System
+
+Preview should be treated as a first-class mode.
+
+### Preview devices
+
+* Phone
+* Tablet
+* Desktop
+* eReader
+* Fixed-layout page
+* Print page
+
+### Preview controls
+
+* Font size
+* Font
+* Orientation
+* Theme
+* Page mode
+* Chapter
+* Navigation
+* TOC
+* Search
+
+This follows an important publishing principle: **the author should inspect the publication as a reader, not only as an editor.**
+
+Kindle Create's current preview workflow explicitly allows device type, text size, font and navigation inspection. ([Amazon Kindle Direct Publishing][8])
+
+# 31. Validation Dashboard
+
+A dedicated publication-health interface:
+
+```text
+BOOK HEALTH
+
+Structure ✓
+Navigation ✓
+Metadata ✓
+Images 3 warnings
+Accessibility 2 warnings
+Links ✓
+EPUB Structure ✓
+
+Publication readiness
+██████████████████░░ 92%
+
+This should not claim actual EPUB compliance until a real validator is implemented.
+
+# 32. Responsive Architecture
+
+| Viewport | Interface |
+| --------------- | --------------------------------- |
+| **≥ 1440px** | Full editor + outline + inspector |
+| **1200–1439px** | Compact desktop |
+| **768–1199px** | Tablet hybrid |
+| **480–767px** | Mobile editor |
+| **<480px** | Compact mobile |
+
+### Desktop
+
+Persistent tool rail + inspector.
+
+### Tablet
+
+Collapsible tool rail + overlay inspector.
+
+### Mobile
+
+Canvas/document-first + bottom navigation + sheets.
+
+# 33. Visual Design System
+
+No emojis.
+
+* SVG icons
+* geometric icons
+* monochrome iconography
+* restrained accent color
+* semantic colors only
+* typography hierarchy
+* subtle borders
+* minimal shadows
+* controlled motion
+* clear selection states
+
+Avoid:
+
+* giant cards
+* excessive gradients
+* decorative dashboards
+* unnecessary statistics
+* oversized buttons
+* nested navigation
+* emoji icons
+* excessive animations
+
+# 34. Component Inventory
+
+The coding agent should eventually have components approximately like:
+
+```text
+AppShell
+BookWorkspace
+TopBar
+ToolRail
+ContextToolbar
+BookCanvas
+DocumentRenderer
+FixedLayoutCanvas
+ReflowablePreview
+InspectorPanel
+BottomDock
+BookOutline
+ChapterTree
+ChapterEditor
+BlockEditor
+TextToolbar
+StylePanel
+TypographyPanel
+LayoutPanel
+AssetPanel
+MediaPanel
+AIPanel
+ResearchPanel
+CoverDesigner
+MetadataPanel
+AccessibilityPanel
+ValidationPanel
+PreviewPanel
+HistoryPanel
+CommentPanel
+ExportPanel
+CommandPalette
+MobileBottomSheet
+GestureLayer
+HapticManager
+```
+
+# 35. State Architecture
+
+Central state:
+
+```text
+BookState
+│
+├── book
+│ ├── metadata
+│ ├── structure
+│ └── settings
+│
+├── editor
+│ ├── activeChapter
+│ ├── selection
+│ ├── cursor
+│ └── mode
+│
+├── style
+│ ├── theme
+│ ├── typography
+│ └── layout
+│
+├── assets
+│
+├── navigation
+│
+├── ai
+│ ├── requests
+│ ├── results
+│ └── variants
+│
+├── validation
+│
+├── accessibility
+│
+├── preview
+│
+└── history
+```
+
+# 36. Final Product Architecture
+
+The resulting suite can be conceptualized as:
+
+```text
+EBOOK STUDIO
+│
+┌──────────────────────┼──────────────────────┐
+│ │ │
+CREATE DESIGN PUBLISH
+│ │ │
+Write Typography Validate
+Structure Layout Preview
+Research Cover Export
+AI Writing Media Metadata
+│ │ │
+└──────────────────────┼──────────────────────┘
+│
+BOOK ENGINE
+│
+┌───────────────┼───────────────┐
+│ │ │
+Reflowable Fixed Layout Assets
+│ │ │
+└───────────────┼───────────────┘
+│
+EPUB / PDF / HTML
+```
+
+# 37. What We Have Finished
+
+The framework has now reached the same stopping point as your Image Suite framework:
+
+### Phase 1
+
+**Reference-suite research** ✓
+
+### Phase 2
+
+**Capability classification** ✓
+
+### Phase 3
+
+**Browser-native vs AI/server classification** ✓
+
+### Phase 4
+
+**Final tool taxonomy** ✓
+
+### Phase 5
+
+**System architecture** ✓
+
+### Phase 6
+
+**Desktop UI architecture** ✓
+
+### Phase 7
+
+**Mobile UI architecture** ✓
+
+### Phase 8
+
+**Gesture + haptic interaction model** ✓
+
+### Phase 9
+
+**AI interaction architecture** ✓
+
+### Phase 10
+
+**Non-destructive editing architecture** ✓
+
+### Phase 11
+
+**Preview architecture** ✓
+
+### Phase 12
+
+**Validation/accessibility architecture** ✓
+
+### Phase 13
+
+**Responsive component system** ✓
+
+### Phase 14
+
+**State architecture** ✓
+
+# STOP CONDITION
+
+**We stop here.**
+
+I have **not** moved into:
+
+* EPUB generation algorithms
+* pagination algorithms
+* HTML/CSS transformation algorithms
+* DOCX → EPUB conversion
+* PDF → EPUB conversion
+* AI model selection
+* LLM implementation
+* RAG implementation
+* citation retrieval implementation
+* grammar-model implementation
+* cover-generation implementation
+* EPUB packaging implementation
+* EPUB conformance algorithms
+* accessibility algorithms
+* backend architecture
+* cloud infrastructure
+* database implementation
+* production code
+
+The next engineering phase would begin **after this architecture**, exactly as with the Image Suite.
+
+One important architectural conclusion from the research is that the suite should be built around a **semantic Book Model**, rather than treating the eBook as a giant editable document. That model is what allows the same content to become reflowable EPUB, fixed-layout EPUB, PDF, web output, previews, accessible publications, and AI-manipulable content. EPUB itself is fundamentally a packaged, structured representation of HTML/CSS/SVG and related publication resources. ([W3C][5])

@@ -205,6 +205,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose,
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 ml-3">
+                    {/* Render matching tool shortcut if mapped */}
+                    {item.id === 'pixels' && (
+                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-[10px] font-mono text-cyan-300">
+                        C / V
+                      </kbd>
+                    )}
+                    {item.id === 'video' && (
+                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-[10px] font-mono text-cyan-300">
+                        Space
+                      </kbd>
+                    )}
+                    {item.id === 'canvas' && (
+                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-[10px] font-mono text-cyan-300">
+                        P / V
+                      </kbd>
+                    )}
                     {isSelected && (
                       <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-cyan-400 font-semibold">
                         Open <CornerDownLeft className="w-3.5 h-3.5" />

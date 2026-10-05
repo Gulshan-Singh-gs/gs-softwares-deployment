@@ -1,0 +1,31 @@
+# GS Softwares — Full System Index for AI & LLMs
+
+## Mission & Privacy Manifesto
+GS Softwares provides professional media, document, and cryptographic tools that operate entirely within the browser sandbox. 
+Unlike traditional SaaS web applications that process files on remote servers, GS Softwares processes all data on-device using WebAssembly (WASM), Web Workers, and Web Crypto APIs.
+
+## Tool Directory
+
+### GS-Pixels (Image Suite)
+- **Image Compressor** (`/tools/image-compressor`): Lossless and perceptual compression for JPEG, PNG, and WebP.
+- **Crop Studio** (`/tools/crop-studio`): Exact pixel and aspect ratio cropping.
+- **Metadata Scrubber** (`/tools/metadata-scrubber`): Strips sensitive EXIF, GPS coordinates, and camera serial numbers.
+- **Color Extractor** (`/tools/color-extractor`): K-means palette extraction producing hex, RGB, and Tailwind tokens.
+
+### GS-Canvas (Vector Suite)
+- **Vector Board** (`/tools/vector-board`): Infinite vector canvas with pressure-sensitive strokes, smooth Bézier paths, and SVG/PNG export.
+
+### GS-PDF (Document Suite)
+- **PDF Merger** (`/tools/pdf-merger`): Air-gapped merging of multiple PDF documents into a unified file.
+- **PDF Splitter** (`/tools/pdf-splitter`): Separate PDF documents by page ranges.
+- **PDF OCR Engine** (`/tools/pdf-ocr`): On-device Optical Character Recognition using Tesseract.js WASM.
+
+### GS-Security (Cryptographic Suite)
+- **File Hasher** (`/tools/file-hasher`): In-browser SHA-256 / SHA-512 / MD5 verification of files with zero upload.
+- **Password & Token Generator** (`/tools/password-generator`): Cryptographic random generator using Web Crypto API.
+
+## Technical Guarantees
+- Zero Network Telemetry on User Files (D1)
+- Airplane Mode & Offline Compatibility (D2)
+- Multi-threaded Web Worker execution preserving 60fps UI (D3)
+- Non-destructive processing history (D5)

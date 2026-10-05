@@ -1,0 +1,39 @@
+# robots.txt for GS Softwares Suite
+# Air-Gapped, Client-Side Web Application
+
+User-agent: *
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /sitemap.xml
+Allow: /tools.json
+
+# Explicitly welcome major Generative AI Crawlers and Search Bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# Canonical Sitemaps and LLM Discovery
+Sitemap: https://gssoftwares.com/sitemap.xml
+# Alternate local discovery
+# llms.txt discovery: https://gssoftwares.com/llms.txt

@@ -1,0 +1,1427 @@
+# Presentation / PPT Suite — Non-AI Research, Architecture & UI Framework
+
+## 0. Product Definition
+
+The product is a **professional, local-first presentation editor**.
+
+Its purpose is to let a user create, edit, design, animate, present, import, and export presentations **without AI, cloud processing, or server-side inference**.
+
+### Core principle
+
+> **Everything in the core suite is deterministic and executable in the browser.**
+
+```text
+USER
+│
+▼
+PRESENTATION WORKSPACE
+│
+├── Slide Editor
+├── Object Editor
+├── Layout System
+├── Typography
+├── Charts & Tables
+├── Diagram System
+├── Media System
+├── Animation System
+├── Theme System
+├── Presentation Mode
+└── Export System
+│
+▼
+LOCAL BROWSER ENGINE
+│
+├── Rendering
+├── Document Model
+├── Interaction
+├── History
+├── Storage
+└── Export
+```
+
+# 1. Phase One — Presentation Suite Research
+
+The suite should combine the strongest **non-AI** capabilities found across professional presentation and design software.
+
+The reference capability groups are:
+
+* PowerPoint / Impress-style presentation editing
+* Keynote-style presentation and animation workflows
+* Figma-style object manipulation
+* Canva-style template and design workflows
+* Vector-editor-style geometry and alignment
+* Spreadsheet-style tables and data visualization
+* Professional presenter tools
+
+The objective is **not to copy their interfaces**.
+
+It is to identify the underlying capabilities and build a unified architecture.
+
+# 2. Complete Non-AI Tool Taxonomy
+
+## A. Presentation Management
+
+### Create
+
+* New presentation
+* Blank presentation
+* Template presentation
+* Duplicate presentation
+* Import presentation
+* Open recent presentation
+* Open local file
+* Create from existing presentation
+
+### Presentation Structure
+
+* Add slide
+* Duplicate slide
+* Delete slide
+* Reorder slide
+* Move slide
+* Copy slide
+* Paste slide
+* Hide slide
+* Lock slide
+* Rename slide
+* Section management
+* Slide grouping
+* Slide numbering
+
+# 3. Slide Layout Tools
+
+## Layout Types
+
+* Blank
+* Title
+* Title + content
+* Two-column
+* Three-column
+* Title + image
+* Image + text
+* Full-bleed image
+* Quote
+* Comparison
+* Timeline
+* Process
+* Table
+* Chart
+* Diagram
+* Section divider
+* Closing slide
+
+## Layout Operations
+
+* Apply layout
+* Reset layout
+* Custom layout
+* Duplicate layout
+* Save layout
+* Slide master
+* Layout placeholders
+* Placeholder resizing
+* Placeholder positioning
+
+# 4. Canvas / Object Editor
+
+The canvas is the primary workspace.
+
+### Object Types
+
+* Text
+* Image
+* SVG
+* Shape
+* Line
+* Arrow
+* Table
+* Chart
+* Diagram
+* Video
+* Audio
+* Group
+* Embedded object
+
+### Object Operations
+
+* Select
+* Move
+* Resize
+* Rotate
+* Crop
+* Duplicate
+* Delete
+* Lock
+* Hide
+* Group
+* Ungroup
+* Copy
+* Paste
+* Cut
+* Reorder
+* Align
+* Distribute
+* Flip
+* Transform
+
+# 5. Geometry System
+
+This is one of the most important browser-native systems.
+
+### Position
+
+* X
+* Y
+* Width
+* Height
+* Rotation
+* Scale
+
+### Alignment
+
+* Left
+* Center
+* Right
+* Top
+* Middle
+* Bottom
+
+### Distribution
+
+* Horizontal spacing
+* Vertical spacing
+* Equal width
+* Equal height
+* Equal spacing
+
+### Geometry
+
+* Free transform
+* Scale
+* Rotate
+* Skew
+* Flip
+* Aspect-ratio lock
+* Snap to grid
+* Snap to guides
+* Snap to objects
+* Smart guides
+
+# 6. Layers
+
+Professional object management:
+
+```text
+LAYERS
+│
+├── Background
+├── Title
+├── Image
+│ ├── Mask
+│ └── Caption
+├── Chart
+├── Decorative Shape
+└── Footer
+```
+
+Operations:
+
+* Bring to front
+* Send to back
+* Bring forward
+* Send backward
+* Lock
+* Unlock
+* Hide
+* Show
+* Rename
+* Group
+* Collapse group
+
+# 7. Typography Suite
+
+## Text Editing
+
+* Rich text
+* Plain text
+* Headings
+* Paragraphs
+* Lists
+* Numbered lists
+* Text boxes
+* Text alignment
+* Vertical alignment
+* Text rotation
+
+## Typography
+
+* Font family
+* Font size
+* Weight
+* Style
+* Underline
+* Strikethrough
+* Letter spacing
+* Line height
+* Paragraph spacing
+* Text color
+* Highlight
+* Opacity
+
+## Advanced
+
+* Text fitting
+* Overflow detection
+* Text wrapping
+* Auto-size
+* Fixed-size text box
+* Baseline alignment
+* Text indentation
+* Superscript
+* Subscript
+
+# 8. Shape System
+
+### Basic Shapes
+
+* Rectangle
+* Rounded rectangle
+* Circle
+* Ellipse
+* Triangle
+* Polygon
+* Star
+* Diamond
+* Hexagon
+* Pentagon
+* Parallelogram
+
+### Lines
+
+* Straight line
+* Arrow
+* Double arrow
+* Connector
+* Curved connector
+* Elbow connector
+
+### Shape Controls
+
+* Fill
+* Border
+* Border width
+* Border style
+* Opacity
+* Corner radius
+* Shadow
+* Rotation
+* Gradient
+* Pattern
+
+# 9. Image System
+
+Completely browser-native.
+
+### Import
+
+* Upload
+* Drag and drop
+* Clipboard paste
+* Local file picker
+
+### Editing
+
+* Crop
+* Resize
+* Rotate
+* Flip
+* Mask
+* Border radius
+* Opacity
+* Position
+* Scaling
+* Fit
+* Fill
+
+### Adjustments
+
+* Brightness
+* Contrast
+* Saturation
+* Hue
+* Temperature
+* Tint
+* Blur
+* Sharpen
+* Grayscale
+* Sepia
+* Transparency
+
+### Image Containers
+
+* Circle
+* Rounded rectangle
+* Custom shape
+* Frame
+* Full-slide image
+* Background image
+
+# 10. SVG / Vector System
+
+A major differentiator.
+
+* Import SVG
+* Edit SVG properties
+* Resize
+* Rotate
+* Recolor
+* Stroke
+* Fill
+* Opacity
+* Group SVG elements
+* Ungroup
+* Convert SVG to image
+* Export SVG
+* Vector icons
+* Custom vector shapes
+
+# 11. Color System
+
+## Color Picker
+
+* HEX
+* RGB
+* HSL
+* HSV
+* Alpha
+* Eyedropper
+
+## Color Application
+
+* Fill
+* Stroke
+* Text
+* Background
+* Gradient
+* Shadow
+
+## Theme Colors
+
+```text
+Primary
+Secondary
+Accent
+Background
+Surface
+Text
+Muted
+Border
+```
+
+Changing a theme color should optionally update every linked object.
+
+# 12. Gradient System
+
+* Linear gradient
+* Radial gradient
+* Multiple stops
+* Stop positioning
+* Opacity per stop
+* Angle
+* Gradient presets
+* Transparent gradients
+
+# 13. Tables
+
+### Creation
+
+* Insert table
+* Rows
+* Columns
+* Merge cells
+* Split cells
+
+* Cell text
+* Alignment
+* Padding
+* Borders
+* Fill
+* Font
+* Row height
+* Column width
+
+### Operations
+
+* Add row
+* Delete row
+* Add column
+* Delete column
+* Sort
+* Resize
+* Distribute
+
+# 14. Charts
+
+All chart rendering can be deterministic.
+
+### Chart Types
+
+* Bar
+* Column
+* Line
+* Area
+* Pie
+* Donut
+* Scatter
+* Bubble
+* Radar
+* Waterfall
+* Funnel
+
+### Chart Controls
+
+* Data editor
+* Series
+* Categories
+* Axis
+* Legend
+* Labels
+* Gridlines
+* Title
+* Colors
+* Font
+* Scale
+* Position
+
+### Data Input
+
+```text
+Manual data
+CSV
+Clipboard
+Local spreadsheet data
+Table → Chart
+Chart → Table
+```
+
+# 15. Diagram System
+
+### Diagram Types
+
+* Flowchart
+* Process
+* Timeline
+* Hierarchy
+* Organization chart
+* Cycle
+* Funnel
+* Pyramid
+* Matrix
+* Venn diagram
+* Mind map
+* Concept map
+* Network
+* System architecture
+* Roadmap
+* Decision tree
+
+### Diagram Engine
+
+```text
+Node
+│
+├── Position
+├── Size
+├── Text
+├── Style
+└── Connections
+│
+├── Straight
+├── Curved
+└── Elbow
+```
+
+Connections should automatically remain attached when nodes move.
+
+# 16. Icon & Asset System
+
+* Local SVG icons
+* Icon insertion
+* Icon recoloring
+* Icon resizing
+* Icon rotation
+* Icon grouping
+* Asset library
+* Local asset folders
+* Recently used assets
+* Favorites
+* Drag-and-drop assets
+
+No external AI asset generation is required.
+
+# 17. Background System
+
+* Solid color
+* Gradient
+* Image
+* Pattern
+* SVG
+* Transparency
+
+Controls:
+
+* Opacity
+* Position
+* Scale
+* Crop
+* Blur
+* Overlay
+
+# 18. Theme System
+
+A presentation should be able to define a complete visual system.
+
+```text
+THEME
+│
+├── Colors
+├── Typography
+├── Shapes
+├── Borders
+├── Shadows
+├── Backgrounds
+├── Layouts
+└── Components
+```
+
+### Theme Operations
+
+* Create theme
+* Apply theme
+* Duplicate theme
+* Edit theme
+* Save theme
+* Import theme
+* Export theme
+* Reset theme
+
+# 19. Template System
+
+Templates are deterministic documents.
+
+### Categories
+
+* Business
+* Academic
+* Pitch deck
+* Portfolio
+* Education
+* Technical
+* Marketing
+* Report
+* Proposal
+* Research
+* Project presentation
+* Corporate
+
+### Template Operations
+
+* Preview
+* Apply
+* Duplicate
+* Edit
+* Save as template
+* Delete template
+* Local template library
+
+# 20. Animation System
+
+This is still completely possible without AI.
+
+### Object Animation
+
+* Fade
+* Appear
+* Disappear
+* Fly in
+* Fly out
+* Slide
+* Zoom
+* Grow
+* Shrink
+* Rotate
+* Wipe
+* Float
+* Bounce
+
+### Animation Properties
+
+* Duration
+* Delay
+* Direction
+* Easing
+* Trigger
+* Sequence
+
+### Timeline
+
+```text
+0s 1s 2s 3s
+│────────│────────│────────│
+Title █████
+Image ███████
+Chart █████
+```
+
+# 21. Slide Transitions
+
+* None
+* Fade
+* Push
+* Wipe
+* Split
+* Reveal
+* Cover
+* Uncover
+* Zoom
+* Morph-like deterministic transforms where implementable
+
+* Duration
+* Direction
+* Advance on click
+* Automatic timing
+
+# 22. Speaker Notes
+
+Every slide can contain:
+
+```text
+Slide
+├── Canvas
+├── Objects
+├── Animation
+├── Transition
+└── Speaker Notes
+```
+
+Speaker notes support:
+
+* Text
+* Formatting
+* Editing
+* Notes preview
+* Presenter-mode display
+
+# 23. Presenter Mode
+
+```text
+PRESENTATION
+│
+├── Current Slide
+├── Next Slide
+├── Timer
+├── Speaker Notes
+├── Slide Navigator
+├── Pointer
+├── Pen
+├── Highlighter
+└── Exit
+```
+
+### Presenter Controls
+
+* Next
+* Previous
+* Jump to slide
+* Black screen
+* White screen
+* Pointer
+* Pen
+* Eraser
+* Timer
+* Notes
+* Thumbnail navigator
+
+# 24. Collaboration-Independent Version History
+
+Since this is local-first, history is still possible.
+
+```text
+History
+│
+├── Version 01
+├── Version 02
+├── Version 03
+├── Version 04
+└── Current
+```
+
+### History
+
+* Undo
+* Redo
+* Named checkpoints
+* Restore checkpoint
+* Compare versions
+* Duplicate version
+
+# 25. Browser-Native File System
+
+Use local browser storage.
+
+```text
+LOCAL PROJECT
+│
+├── presentation.json
+├── assets/
+├── themes/
+├── templates/
+├── thumbnails/
+└── history/
+```
+
+Implementation can use:
+
+* IndexedDB
+* File System Access API where supported
+* Browser memory
+* Blob/File APIs
+* Web Workers
+
+No server is required for the editor itself.
+
+# 26. Import / Export
+
+## Import
+
+* PPTX
+* PDF
+* SVG
+* PNG
+* JPEG
+* WebP
+* GIF
+* CSV
+* TXT
+* Markdown
+
+Import fidelity will vary by format; Architecture: explicitly separate **native structured import** from **flattened/document import**.
+
+## Export
+
+* PPTX
+* PDF
+* PNG
+* JPEG
+* WebP
+* SVG
+* GIF/video where supported
+* Presentation package
+* Structured project file
+
+# 27. Core Document Architecture
+
+This is the heart of the application.
+
+```text
+Presentation
+│
+├── metadata
+│
+├── theme
+│
+├── master
+│
+├── slides[]
+│ │
+│ ├── metadata
+│ ├── background
+│ ├── objects[]
+│ │ ├── type
+│ │ ├── position
+│ │ ├── dimensions
+│ │ ├── rotation
+│ │ ├── style
+│ │ ├── content
+│ │ └── animation
+│ │
+│ ├── notes
+│ └── transition
+│
+├── assets[]
+│
+└── history[]
+```
+
+The presentation is therefore a **structured document**, not a collection of rendered screenshots.
+
+# 28. Rendering Architecture
+
+```text
+Document Model
+│
+▼
+Scene Graph
+│
+┌────┼────┐
+▼ ▼ ▼
+Text Shapes Media
+│ │ │
+└─────┼─────┘
+▼
+Rendering Engine
+│
+┌─────┼─────┐
+▼ ▼ ▼
+Canvas SVG DOM
+│
+▼
+Display / Export
+```
+
+The renderer should support deterministic re-rendering from the document model.
+
+# 29. Desktop UI
+
+The desktop interface should resemble a professional creative application.
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│ File Edit View Insert Format Slide Arrange Present │
+├───────────┬──────────────────────────────────────┬──────────────┤
+│ │ │ │
+│ SLIDES │ │ INSPECTOR │
+│ │ │ │
+│ ┌───────┐ │ │ Position │
+│ │ 01 │ │ │ Size │
+│ └───────┘ │ │ Typography │
+│ │ SLIDE CANVAS │ Fill │
+│ ┌───────┐ │ │ Stroke │
+│ │ 02 │ │ │ Effects │
+│ └───────┘ │ │ Animation │
+│ │ │ │
+│ ┌───────┐ │ │ │
+│ │ 03 │ │ │ │
+│ └───────┘ │ │ │
+├───────────┴──────────────────────────────────────┴──────────────┤
+│ Timeline / Notes / Comments / Assets / Layers │
+├─────────────────────────────────────────────────────────────────┤
+│ Zoom │ Grid │ Guides │ Snap │ Slide 3 / 12 │ Save Status │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+# 30. Desktop Tool Organization
+
+### Left panel
+
+**Slides**
+
+* Thumbnails
+* Sections
+* Reordering
+
+### Center
+
+**Canvas**
+
+* Slide
+* Objects
+* Selection
+* Manipulation
+
+### Right
+
+**Inspector**
+
+Context-sensitive:
+
+```text
+Nothing selected
+→ Slide properties
+
+Text selected
+→ Typography
+
+Image selected
+→ Image properties
+
+Shape selected
+→ Shape properties
+
+Chart selected
+→ Data + chart properties
+```
+
+This avoids filling the interface with irrelevant controls.
+
+# 31. Mobile UI
+
+Mobile must **not** be a scaled-down desktop application.
+
+```text
+┌──────────────────────────────┐
+│ ← Presentation ⋮ │
+├──────────────────────────────┤
+│ │
+│ │
+│ SLIDE │
+│ │
+│ │
+│ │
+├──────────────────────────────┤
+│ Slides │ Insert │ Design │
+├──────────────────────────────┤
+│ Select │ Text │ Media │ More │
+└──────────────────────────────┘
+```
+
+Selecting an object opens a contextual control surface.
+
+```text
+┌──────────────────────────────┐
+│ Text │
+├──────────────────────────────┤
+│ Font │
+│ Size │
+│ Weight │
+│ Alignment │
+│ Color │
+│ Spacing │
+│ │
+│ More properties → │
+└──────────────────────────────┘
+```
+
+# 32. Mobile Gestures
+
+## Canvas
+
+| Gesture | Action |
+| --------------------- | -------------------- |
+| One-finger drag | Select / move object |
+| Two-finger drag | Pan canvas |
+| Pinch | Zoom |
+| Double tap | Fit slide |
+| Long press | Context menu |
+| Two-finger double tap | Reset viewport |
+
+## Object
+
+| Gesture | Action |
+| ----------------- | ----------- |
+| Drag | Move |
+| Pinch | Resize |
+| Two-finger rotate | Rotate |
+| Double tap text | Edit |
+| Long press | Object menu |
+
+## Slides
+
+* Swipe horizontally → next/previous slide
+* Long press thumbnail → reorder
+* Pinch thumbnail area → change thumbnail scale
+
+# 33. Haptic Feedback
+
+Haptics are semantic.
+
+### Light tap
+
+Selecting a tool.
+
+### Tick
+
+Snapping / grid increments.
+
+### Pulse
+
+Object reaches alignment.
+
+### Double pulse
+
+Successful duplication.
+
+### Boundary feedback
+
+Object reaches slide boundary.
+
+### Warning
+
+Invalid operation.
+
+Haptics gracefully disable on unsupported hardware.
+
+# 34. Professional Interaction System
+
+The application should use:
+
+### Direct manipulation
+
+Move objects directly.
+
+### Contextual controls
+
+Only show relevant properties.
+
+### Progressive disclosure
+
+Basic controls first, advanced controls behind expandable sections.
+
+### Keyboard shortcuts
+
+Desktop users should not need menus for common actions.
+
+### Command palette
+
+```text
+Ctrl/Cmd + K
+
+> New slide
+> Duplicate slide
+> Align center
+> Insert chart
+> Group objects
+> Apply theme
+> Start presentation
+> Export PDF
+```
+
+This is a **command system**, not an AI command system.
+
+# 35. Keyboard Shortcuts
+
+```text
+Ctrl/Cmd + Z Undo
+Ctrl/Cmd + Shift Z Redo
+Ctrl/Cmd + C Copy
+Ctrl/Cmd + V Paste
+Ctrl/Cmd + X Cut
+Ctrl/Cmd + D Duplicate
+Ctrl/Cmd + S Save
+Delete Delete
+
+Ctrl/Cmd + G Group
+Ctrl/Cmd + Shift G Ungroup
+
+Arrow Nudge
+Shift + Arrow Large nudge
+
+Space Pan
+0 Fit slide
+1 100%
+
+Ctrl/Cmd + K Command palette
+
+F5 Present
+Esc Exit presentation
+```
+
+# 36. Initial Demo Presentation
+
+The editor should open with a **hardcoded example presentation**, exactly as the Image Suite used its demo image.
+
+```text
+FIRST LAUNCH
+│
+▼
+Example Presentation
+│
+┌────┼────┐
+▼ ▼ ▼
+01 02 03 ...
+```
+
+The user can immediately:
+
+* Move objects
+* Edit text
+* Change colors
+* Change layouts
+* Add slides
+* Insert charts
+* Insert images
+* Animate objects
+* Change themes
+* Present
+* Export
+
+The original demo remains recoverable.
+
+**Restore Example Presentation**
+
+# 37. Responsive Architecture
+
+### ≥ 1200 px
+
+Full professional workspace:
+
+```text
+Slides + Canvas + Inspector + Timeline
+```
+
+### 768–1199 px
+
+Adaptive workspace:
+
+```text
+Slides + Canvas
+Inspector → collapsible
+Timeline → collapsible
+```
+
+### <768 px
+
+Canvas-first:
+
+```text
+Canvas
+↓
+Contextual bottom sheet
+↓
+Gesture interaction
+```
+
+# 38. Non-AI Processing Architecture
+
+```text
+APPLICATION
+│
+┌──────────┴──────────┐
+│ │
+PRESENTATION UI COMMAND SYSTEM
+│ │
+└──────────┬──────────┘
+▼
+DOCUMENT ENGINE
+│
+┌──────────────┼──────────────┐
+▼ ▼ ▼
+Scene Graph History Assets
+│ │ │
+└──────────────┼──────────────┘
+▼
+RENDERING ENGINE
+│
+┌────────────┼────────────┐
+▼ ▼ ▼
+Canvas SVG DOM
+│
+▼
+EXPORT ENGINE
+│
+┌───────────┼───────────┐
+▼ ▼ ▼
+PPTX PDF PNG
+```
+
+# 39. Component Architecture
+
+```text
+AppShell
+│
+├── TopBar
+│
+├── SlideNavigator
+│
+├── CanvasWorkspace
+│ ├── Canvas
+│ ├── SelectionBox
+│ ├── Guides
+│ ├── Grid
+│ └── ContextToolbar
+│
+├── Inspector
+│ ├── PositionPanel
+│ ├── TypographyPanel
+│ ├── FillPanel
+│ ├── StrokePanel
+│ ├── EffectsPanel
+│ └── AnimationPanel
+│
+├── AssetPanel
+│
+├── Timeline
+│
+├── NotesPanel
+│
+└── StatusBar
+```
+
+# 40. State Architecture
+
+```text
+Application State
+│
+├── presentation
+│
+├── activeSlide
+│
+├── selectedObjects
+│
+├── viewport
+│
+├── tool
+│
+├── inspector
+│
+├── theme
+│
+├── assets
+│
+├── history
+│
+├── animation
+│
+├── presentationMode
+│
+└── preferences
+```
+
+The state must be serializable so the entire project can be saved locally.
+
+# 41. Performance Architecture
+
+Because everything is local, performance becomes a primary engineering concern.
+
+### Use
+
+* Web Workers for expensive operations
+* OffscreenCanvas
+* GPU-accelerated rendering where useful
+* Virtualized slide thumbnails
+* Lazy-loaded assets
+* Incremental rendering
+* Dirty-region rendering
+* Object caching
+* Thumbnail caching
+* Debounced persistence
+* IndexedDB
+
+### Avoid
+
+* Re-rendering the entire presentation for every mouse movement
+* Loading every asset at startup
+* Keeping large image copies unnecessarily
+* Converting everything into raster images
+* Making the DOM responsible for thousands of canvas objects
+
+# 42. Architecture Principle
+
+The application should preserve the distinction between:
+
+```text
+STRUCTURE
+↓
+OBJECTS
+↓
+RENDERING
+↓
+EXPORT
+```
+
+Not:
+
+```text
+Everything
+↓
+One giant canvas image
+```
+
+That distinction determines whether the product can behave like a real presentation editor.
+
+# 43. Final Suite Navigation
+
+The final application can use:
+
+```text
+PRESENTATION
+│
+├── Slides
+│
+├── Insert
+│ ├── Text
+│ ├── Image
+│ ├── Shape
+│ ├── Icon
+│ ├── Table
+│ ├── Chart
+│ ├── Diagram
+│ ├── Video
+│ └── Audio
+│
+├── Design
+│ ├── Layout
+│ ├── Theme
+│ ├── Colors
+│ ├── Typography
+│ └── Background
+│
+├── Arrange
+│ ├── Align
+│ ├── Distribute
+│ ├── Group
+│ ├── Order
+│ └── Transform
+│
+├── Animate
+│ ├── Object Animations
+│ ├── Timeline
+│ └── Transitions
+│
+├── View
+│ ├── Grid
+│ ├── Guides
+│ ├── Rulers
+│ ├── Layers
+│ └── Fullscreen
+│
+├── Present
+│ ├── Presenter Mode
+│ ├── Notes
+│ ├── Pointer
+│ └── Rehearse
+│
+└── Export
+├── PPTX
+├── PDF
+├── PNG
+├── SVG
+└── Project
+```
+
+# 44. Framework Completion
+
+| Stage | Result |
+| -------------------------------------- | --------------- |
+| Presentation-suite capability research | Complete |
+| Non-AI capability extraction | Complete |
+| Browser-only feasibility | Complete |
+| Tool taxonomy | Complete |
+| Document architecture | Complete |
+| Rendering architecture | Complete |
+| Desktop UI | Complete |
+| Mobile UI | Complete |
+| Gesture system | Complete |
+| Haptic system | Complete |
+| Keyboard system | Complete |
+| Local storage architecture | Complete |
+| Animation architecture | Complete |
+| Presentation mode | Complete |
+| Import/export architecture | Complete |
+| Demo presentation | Complete |
+| Responsive architecture | Complete |
+| Performance architecture | Complete |
+| **AI / ML** | **None** |
+| **Algorithms / implementation** | **Not started** |
+
+## STOP CONDITION
+
+The framework stops here.
+
+**No AI. No LLM. No model inference. No backend AI service. No cloud AI.**
+
+The finished specification is:
+
+> **Research → Non-AI Capability Map → Browser-Only Classification → Tool Taxonomy → Document Architecture → Rendering Architecture → Desktop UI → Mobile UI → Gestures → Haptics → Interaction System → Responsive Architecture → STOP**
+
+The next phase, separately, would be **algorithm and implementation engineering**: rendering, scene graph, object transforms, chart engine, animation engine, PPTX serialization, PDF generation, import parsing, local persistence, and the rest of the actual implementation.

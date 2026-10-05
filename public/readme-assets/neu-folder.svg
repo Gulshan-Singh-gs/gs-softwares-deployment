@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+  <defs>
+    <linearGradient id="bg_folder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E2330"/>
+      <stop offset="100%" stop-color="#0E111A"/>
+    </linearGradient>
+    <filter id="neu_shadow_folder" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="-2" dy="-2" stdDeviation="2.5" flood-color="#2D3448" flood-opacity="0.4"/>
+      <feDropShadow dx="3" dy="3" stdDeviation="3.5" flood-color="#05070A" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+  <rect x="4" y="4" width="40" height="40" rx="12" fill="url(#bg_folder)" filter="url(#neu_shadow_folder)" stroke="#F59E0B" stroke-opacity="0.2" stroke-width="1"/>
+  <path d="M14 18a2 2 0 012-2h4l2 2h10a2 2 0 012 2v12a2 2 0 01-2 2H16a2 2 0 01-2-2V18z" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

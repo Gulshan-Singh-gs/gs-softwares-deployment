@@ -1,0 +1,1282 @@
+# File Archive Suite — Executed Framework
+
+I’m treating this as a **professional cross-platform archive/file-management suite**, not merely a ZIP extractor.
+
+The reference capability set is grounded primarily in **7-Zip, PeaZip, WinRAR, and The Unarchiver**. 7-Zip currently supports creation/extraction across major formats, AES-256 encryption, a file manager, self-extracting archives, and command-line workflows. ([7-Zip][1]) PeaZip goes further into archive conversion, multi-volume handling, hashing, encrypted archives, search, duplicate detection, and integrated file viewers. ([PeaZip][2]) WinRAR adds recovery records/volumes and multivolume archives, while The Unarchiver demonstrates the breadth possible for extraction-oriented format support. ([WinRAR][3])
+
+# 1. Research → Capability Map
+
+## A. Archive Creation
+
+| Capability | Category | Browser-native feasibility |
+| ---------------------------------- | ----------- | ------------------------------ |
+| Create ZIP | Archive | **Yes** |
+| Create TAR | Archive | **Yes** |
+| Create GZIP | Archive | **Yes** |
+| Create 7Z | Archive | Possible with WASM |
+| Create BZIP2 | Compression | Possible |
+| Create XZ | Compression | Possible |
+| Create Zstandard | Compression | Possible |
+| Create ZIPX | Archive | Possible |
+| Create encrypted ZIP | Security | Possible |
+| Create encrypted 7Z | Security | Possible with appropriate WASM |
+| Compression level | Archive | Yes |
+| Store/no compression | Archive | Yes |
+| Solid archive configuration | Archive | Format-dependent |
+| Archive comments | Metadata | Yes |
+| Add files/folders | Archive | Yes |
+| Add selected files only | Archive | Yes |
+| Add each item separately | Batch | Yes |
+| Archive directory structures | Archive | Yes |
+| Preserve timestamps | Metadata | Browser-dependent |
+| Preserve permissions/Unix metadata | Metadata | Limited by browser sandbox |
+
+# 2. Archive Extraction
+
+Core extraction should be one of the suite's primary experiences.
+
+### Extraction modes
+
+* Extract all
+* Extract selected
+* Extract here
+* Extract to new folder
+* Extract to custom destination
+* Extract without directory structure
+* Extract multiple archives
+* Extract multiple archive formats in one queue
+* Extract encrypted archives
+* Extract split/multivolume archives
+* Preview before extraction
+* Test archive before extraction
+* Cancel extraction
+* Pause/resume where technically possible
+* Overwrite policy
+* Skip existing files
+* Rename conflicts
+* Keep newer files
+* Keep both
+* Auto-create destination folder
+
+PeaZip explicitly supports selective extraction, mixed archive batches, previewing archive contents, and extraction configuration. ([PeaZip][4])
+
+# 3. Archive Explorer
+
+This becomes the **central UI equivalent of the image canvas** from the previous project.
+
+Instead of:
+
+> Image → tools surrounding image
+
+we use:
+
+> **Archive/File Tree → tools surrounding the archive workspace**
+
+### Explorer capabilities
+
+* Folder tree
+* Archive root
+* Breadcrumb navigation
+* File list
+* Grid/list view
+* Sort by:
+
+* Name
+* Size
+* Type
+* Date
+* Compression ratio
+* Search inside archive
+* Filter by extension
+* Filter by size
+* Filter by folder
+* Multi-select
+* Select all
+* Invert selection
+* File information
+* Folder information
+* Archive information
+* File preview
+* Image preview
+* Text preview
+* PDF preview
+* Audio metadata/preview where supported
+* Hex/binary preview
+* Open externally
+* Copy from archive
+* Extract selection
+* Delete from archive
+* Rename inside archive
+* Add files
+* Drag-and-drop
+
+PeaZip's current feature set specifically includes archive search, content filtering, duplicate detection, and integrated text/hex/image viewers. ([PeaZip][2])
+
+# 4. Archive Management
+
+### Archive-to-archive operations
+
+* Convert archive
+* Repack archive
+* Recompress
+* Change compression level
+* Change archive format
+* Merge selected archives
+* Split archive
+* Join split files
+* Rebuild archive
+* Optimize archive
+* Remove files from archive
+* Add files to existing archive
+* Rename entries
+* Modify comments
+* Change encryption settings
+
+PeaZip explicitly supports converting existing archives and converting them into another format, including batch conversion workflows. ([PeaZip][4])
+
+# 5. Compression Intelligence
+
+This should be a distinct category rather than hiding everything under “Create Archive.”
+
+### Controls
+
+* Compression method
+* Compression level
+* Dictionary size
+* Word size
+* Solid/non-solid mode
+* CPU/thread preference
+* Memory preference
+* Fastest
+* Balanced
+* Maximum compression
+* Store only
+* Compression estimation
+* Before/after size comparison
+* Compression ratio
+* Estimated savings
+
+### Presets
+
+```text
+FAST
+BALANCED
+MAXIMUM
+STORAGE
+WEB
+EMAIL
+BACKUP
+CUSTOM
+```
+
+The UI should expose presets first and advanced parameters second.
+
+# 6. Security
+
+A serious archive suite needs its own security domain.
+
+### Security tools
+
+* Password-protected archive
+* Password strength indicator
+* Password confirmation
+* Encryption format selection
+* AES encryption where supported
+* Encrypt filenames/header where supported
+* Keyfile support where supported
+* Password manager integration
+* Password generator
+* Secure password visibility toggle
+* Archive integrity authentication
+* Checksum
+* Hash generation
+* Hash verification
+* Archive test
+* Corruption detection
+* Recovery information where supported
+
+7-Zip supports AES-256 in 7z and ZIP, while PeaZip supports multiple encryption standards and integrity mechanisms. ([7-Zip][1])
+
+# 7. Split & Volume Management
+
+This deserves a dedicated tool.
+
+### Operations
+
+* Split archive
+* Custom volume size
+* Preset volume sizes
+* Split by:
+
+* MB
+* GB
+* CD/DVD
+* Email
+* Custom
+* Detect multipart archives
+* Join volumes
+* Validate volume sequence
+* Missing-volume detection
+* Volume integrity
+* Volume manifest
+
+Multivolume archives are a standard capability across mature archive suites. ([WinRAR][3])
+
+# 8. Integrity & Recovery
+
+### Tools
+
+* Test archive
+* Verify checksum
+* Verify hash
+* Detect corruption
+* Recovery record inspection
+* Recovery volume inspection
+* Archive structure inspection
+* Partial recovery where format permits
+* Damaged archive diagnostics
+* Volume validation
+
+WinRAR specifically exposes recovery records and recovery volumes for damaged archives, while 7-Zip documents recovery workflows for corrupted archives. ([WinRAR][3])
+
+# 9. File Utilities
+
+These are the archive-suite equivalent of the browser-native utilities from the Image Suite.
+
+### Browser-native candidates
+
+* Rename
+* Delete
+* Copy
+* Move
+* Duplicate
+* Batch rename
+* File-size calculation
+* File extension detection
+* MIME detection
+* Folder creation
+* Folder tree manipulation
+* Sorting
+* Filtering
+* Searching
+* File selection
+* File metadata inspection
+* Hash calculation
+* Checksum calculation
+* File splitting
+* File joining
+* Download
+* Export
+* Import
+* Local project history
+
+# 10. Format Compatibility
+
+## Tier 1 — Core
+
+```text
+ZIP
+7Z
+TAR
+GZ
+BZIP2
+XZ
+ZST
+```
+
+## Tier 2 — Broad extraction
+
+```text
+RAR
+ZIPX
+CAB
+ISO
+WIM
+ARJ
+LZH/LHA
+CPIO
+RPM
+DEB
+DMG
+VHD/VHDX
+XAR
+```
+
+## Tier 3 — Specialist/legacy
+
+```text
+ACE
+ARC
+PAQ
+ZPAQ
+LZMA
+UDF
+NSIS
+CHM
+QCOW2
+HFS
+APFS
+EXT
+FAT
+NTFS
+VDI
+VMDK
+```
+
+7-Zip currently lists many of these formats for extraction, while The Unarchiver demonstrates similarly broad extraction coverage on macOS. ([7-Zip][1])
+
+**Important architectural decision:** don't pretend every format has equal browser support. The UI should expose a **capability matrix** and gracefully mark formats as `Read`, `Write`, `Read/Write`, or `Unsupported`.
+
+# 11. Browser vs Server Classification
+
+This is the equivalent of the second phase of the Image Suite framework.
+
+## Browser-native
+
+These should be designed to run locally:
+
+### File operations
+
+* File selection
+* Folder selection
+* Drag/drop
+* File browsing
+* Archive browsing
+* Search
+* Filtering
+* Sorting
+* Selection
+* Metadata
+* Hashing
+* Checksums
+* File splitting
+* File joining
+
+### Archive operations
+
+* ZIP creation
+* ZIP extraction
+* TAR
+* GZIP
+* supported compression formats
+* archive inspection
+* archive testing
+* archive conversion where supported
+* archive comments
+* selected extraction
+* selected file addition
+* local encryption/decryption where browser-compatible implementations exist
+
+### UI operations
+
+* Preview
+* File tree
+* History
+* Queue management
+* Progress
+* Settings
+* Workspace
+* Preferences
+* keyboard shortcuts
+* gestures
+* haptics
+
+Modern browsers can use **Web Workers, Web Streams, OPFS/File System Access APIs, WebAssembly, and IndexedDB** to move substantial processing off the UI thread and avoid uploading files.
+
+# 12. Operations That May Need WASM / Specialized Runtime
+
+These are still potentially **serverless**, but should not be treated as ordinary JavaScript operations.
+
+```text
+7Z
+RAR
+XZ
+BZIP2
+Zstandard
+advanced encryption
+large archive processing
+legacy archive formats
+recovery records
+complex filesystem images
+specialized compression algorithms
+```
+
+Architecture: therefore distinguish:
+
+```text
+Browser Native
+↓
+JavaScript
+↓
+WebAssembly
+↓
+Optional Local Native Runtime
+↓
+Optional Server
+```
+
+rather than simply:
+
+```text
+Browser vs Server
+```
+
+That distinction is important.
+
+# 13. Server-Dependent / Optional Capabilities
+
+The suite should **not require a server for its core product**.
+
+A server can be an optional extension for:
+
+* Extremely large archive processing
+* Cloud archive processing
+* Remote file storage
+* Team workspaces
+* Collaborative archives
+* Remote backup
+* AI file classification
+* AI archive organization
+* Malware scanning using remote engines
+* OCR/indexing at scale
+* Enterprise DLP
+* Centralized audit logs
+* Remote processing queues
+* Cloud-to-cloud archive conversion
+
+These belong to an **optional Cloud/Enterprise layer**, not the core application.
+
+# 14. Final Tool Taxonomy
+
+The final UI should use these categories:
+
+```text
+01 FILE
+02 ARCHIVE
+03 EXTRACT
+04 COMPRESS
+05 CONVERT
+06 SECURITY
+07 INTEGRITY
+08 SPLIT
+09 MANAGE
+10 SEARCH
+11 PREVIEW
+12 ANALYZE
+13 BATCH
+14 HISTORY
+15 SETTINGS
+```
+
+### FILE
+
+```text
+Open
+Import
+Folder
+New Folder
+Rename
+Delete
+Copy
+Move
+Duplicate
+Properties
+```
+
+### ARCHIVE
+
+```text
+New Archive
+Add Files
+Add Folder
+Update Archive
+Remove
+Rename Entry
+Comment
+Archive Properties
+```
+
+### EXTRACT
+
+```text
+Extract All
+Extract Selected
+Extract Here
+Extract To
+Preview
+Test
+Overwrite Rules
+```
+
+### COMPRESS
+
+```text
+Compression Level
+Format
+Method
+Dictionary
+Solid Mode
+CPU
+Memory
+Preset
+```
+
+### CONVERT
+
+```text
+Archive → Archive
+Recompress
+Change Format
+Batch Conversion
+```
+
+### SECURITY
+
+```text
+Encrypt
+Decrypt
+Password
+Keyfile
+Password Generator
+Hash
+Checksum
+Verify
+```
+
+### INTEGRITY
+
+```text
+Test
+Verify
+Diagnose
+Recovery
+Corruption Report
+```
+
+### SPLIT
+
+```text
+Split
+Join
+Volume Size
+Volume Validation
+Missing Volume Detection
+```
+
+### MANAGE
+
+```text
+Search
+Filter
+Sort
+Select
+Batch Rename
+Batch Extract
+Batch Archive
+Duplicate Detection
+```
+
+### PREVIEW
+
+```text
+Image
+Text
+PDF
+Audio
+Video Metadata
+Hex
+Binary
+```
+
+# 15. System Architecture
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ APPLICATION SHELL │
+│ Responsive Layout │ Command Palette │ Shortcuts │ A11y │
+└──────────────────────────────┬──────────────────────────────┘
+│
+┌──────────────────────────────▼──────────────────────────────┐
+│ WORKSPACE MANAGER │
+│ Projects │ Recent Archives │ Sessions │ Preferences │
+└──────────────────────────────┬──────────────────────────────┘
+│
+┌──────────────────────────────▼──────────────────────────────┐
+│ ARCHIVE WORKSPACE │
+│ │
+│ Archive Tree File Explorer Inspector │
+│ │
+│ CENTRAL CONTENT AREA │
+│ │
+│ File / Folder / Archive Contents │
+│ │
+└──────────────────────────────┬──────────────────────────────┘
+│
+┌────────────────┴────────────────┐
+│ │
+┌─────────────▼─────────────┐ ┌─────────────▼─────────────┐
+│ BROWSER PROCESSING │ │ WASM PROCESSING │
+│ │ │ │
+│ File API │ │ Compression │
+│ File System Access │ │ Archive Formats │
+│ Streams │ │ Encryption │
+│ IndexedDB │ │ Decompression │
+│ OPFS │ │ Legacy Formats │
+│ Workers │ │ Integrity │
+└─────────────┬─────────────┘ └─────────────┬─────────────┘
+│ │
+└────────────────┬────────────────┘
+│
+┌──────────▼──────────┐
+│ TASK ENGINE │
+│ │
+│ Queue │
+│ Progress │
+│ Cancellation │
+│ Errors │
+│ Results │
+└──────────┬──────────┘
+│
+┌──────────▼──────────┐
+│ OPTIONAL CLOUD │
+│ │
+│ Remote Processing │
+│ Storage │
+│ Enterprise │
+└─────────────────────┘
+```
+
+# 16. State Architecture
+
+The suite needs a unified state model.
+
+```text
+WorkspaceState
+│
+├── currentArchive
+├── sourceFiles
+├── archiveFormat
+├── archiveMetadata
+├── directoryTree
+├── selectedItems
+├── currentPath
+├── searchQuery
+├── filters
+├── sortState
+│
+├── activeOperation
+│ ├── type
+│ ├── progress
+│ ├── status
+│ ├── bytesProcessed
+│ ├── totalBytes
+│ └── error
+│
+├── taskQueue
+├── history
+├── recentFiles
+├── preferences
+└── capabilityMatrix
+```
+
+# 17. Desktop UI
+
+For PC, use a **professional file-manager layout**.
+
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Logo │ Open │ New │ Extract │ Create │ Search │ Settings │
+├────────────┬─────────────────────────────────┬───────────────┤
+│ │ │ │
+│ CATEGORY │ ARCHIVE AREA │ INSPECTOR │
+│ │ │ │
+│ Archive │ Breadcrumb │ File Info │
+│ Extract │ │ │
+│ Compress │ ┌───────────────────────────┐ │ Size │
+│ Convert │ │ │ │ Type │
+│ Security │ │ FILE / FOLDER LIST │ │ Modified │
+│ Integrity │ │ │ │ Compression │
+│ Split │ │ │ │ Hash │
+│ Search │ └───────────────────────────┘ │ │
+│ Preview │ │ Actions │
+│ │ │ │
+├────────────┴─────────────────────────────────┴───────────────┤
+│ 3 items │ 1.2 GB │ ZIP │ Ready │ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Desktop principles
+
+* Dense information architecture
+* Resizable panels
+* Drag-and-drop
+* Context menus
+* Keyboard-first navigation
+* Multi-selection
+* Breadcrumb navigation
+* Persistent inspector
+* Operation queue at bottom
+* Command palette
+
+# 18. Mobile UI
+
+Do **not** shrink the desktop UI.
+
+Create a separate mobile information architecture.
+
+```text
+┌──────────────────────────────┐
+│ Archive Name ⋮ │
+├──────────────────────────────┤
+│ │
+│ Breadcrumb / Path │
+│ │
+│ ┌──────────────────────────┐ │
+│ │ │ │
+│ │ FILE LIST │ │
+│ │ │ │
+│ │ folder/ │ │
+│ │ document.pdf │ │
+│ │ image.jpg │ │
+│ │ project.zip │ │
+│ │ │ │
+│ └──────────────────────────┘ │
+│ │
+├──────────────────────────────┤
+│ Files Archive Actions │
+└──────────────────────────────┘
+```
+
+### Mobile bottom navigation
+
+```text
+Files
+Archive
+Tools
+Queue
+More
+```
+
+When an item is selected:
+
+```text
+Preview
+Extract
+Copy
+Move
+Rename
+Delete
+Properties
+More
+```
+
+appear as a contextual bottom sheet.
+
+# 19. Mobile Gestures
+
+The same philosophy used for the Image Suite applies here, but the gestures are adapted to file management.
+
+### Navigation
+
+**Swipe right**
+
+```text
+Go back
+```
+
+**Swipe left**
+
+```text
+Forward / next context
+```
+
+**Long press**
+
+```text
+Select item
+```
+
+**Two-finger swipe**
+
+```text
+Scroll / navigate large file lists
+```
+
+### Selection
+
+Long press enters:
+
+```text
+Selection Mode
+```
+
+Then:
+
+```text
+Tap → select
+Tap again → deselect
+Drag → multi-select range
+```
+
+Long press an archive:
+
+```text
+Extract
+Open
+Test
+Convert
+Share
+Properties
+Delete
+```
+
+### Contextual gestures
+
+Swipe an item:
+
+```text
+→ Extract
+← More
+```
+
+The gesture system must never hide essential functionality; every gesture has a visible equivalent.
+
+# 20. Haptic System
+
+Haptics should communicate **state**, not decoration.
+
+| Event | Haptic |
+| --------------------------- | ------------------------ |
+| Select file | Light tap |
+| Enter selection mode | Medium tap |
+| Selection boundary | Subtle tick |
+| Archive operation started | Light pulse |
+| Operation completed | Success pattern |
+| Error | Distinct warning pattern |
+| Invalid action | Short rejection |
+| Drag/drop accepted | Confirmation |
+| Volume sequence complete | Confirmation |
+| Password accepted | Confirmation |
+| Archive corruption detected | Warning |
+
+Fallback:
+
+```text
+Haptics unavailable
+↓
+Visual feedback
+↓
+Audio feedback if enabled
+```
+
+# 21. Universal Operation Controller
+
+Instead of giving every feature its own completely different UI, create a reusable operation panel.
+
+Example:
+
+```text
+┌─────────────────────────────┐
+│ EXTRACT │
+├─────────────────────────────┤
+│ Destination │
+│ ~/Downloads/Project │
+│ │
+│ Existing files │
+│ ○ Ask │
+│ ○ Replace │
+│ ○ Skip │
+│ ○ Rename │
+│ │
+│ ☑ Preserve folders │
+│ ☑ Test after extraction │
+│ │
+│ [ Extract ] │
+└─────────────────────────────┘
+```
+
+The same architecture can power:
+
+```text
+Extract
+Compress
+Convert
+Encrypt
+Decrypt
+Split
+Join
+Hash
+Test
+Batch Process
+```
+
+This dramatically reduces UI complexity.
+
+# 22. Progress System
+
+Archive operations can involve huge amounts of data, so progress needs to be much richer than a generic spinner.
+
+```text
+Extracting Project.zip
+
+██████████████░░░░░░ 71%
+
+Files 1,284 / 1,802
+Processed 8.4 GB
+Remaining 3.2 GB
+Speed 142 MB/s
+ETA 00:24
+
+[Pause] [Cancel]
+```
+
+For batch processing:
+
+```text
+TASK QUEUE
+
+✓ photos.zip
+✓ documents.zip
+▶ backup.7z
+○ source.rar
+○ archive.tar.gz
+```
+
+# 23. Demo / Buffer State
+
+Following the Image Suite architecture, the application should **not open into an empty dead screen**.
+
+Before the user imports anything:
+
+```text
+Demo Archive
+│
+├── Documents
+│ ├── Report.pdf
+│ ├── Notes.txt
+│ └── Specification.docx
+│
+├── Images
+│ ├── Cover.jpg
+│ └── Diagram.png
+│
+├── Data
+│ ├── dataset.csv
+│ └── records.json
+│
+└── README.md
+```
+
+This demo archive is bundled locally.
+
+The user can experiment with:
+
+* Browse
+* Search
+* Select
+* Extract
+* Preview
+* Sort
+* Filter
+* Archive properties
+* Compression controls
+* Hashing
+* Split UI
+* Conversion UI
+* Security UI
+
+without importing their own files.
+
+### Critical rule
+
+```text
+Demo Archive ≠ User Archive
+```
+
+Never mutate the permanent demo source.
+
+Provide:
+
+```text
+Restore Demo
+```
+
+# 24. Responsive Breakpoints
+
+### Desktop
+
+```text
+≥ 1200px
+```
+
+Full three-panel workspace.
+
+### Tablet
+
+```text
+768px – 1199px
+```
+
+* Collapsible sidebar
+* Inspector becomes drawer
+* Reduced toolbar
+* Bottom operation controls
+
+### Mobile
+
+```text
+< 768px
+```
+
+* File explorer dominates
+* Bottom navigation
+* Bottom sheets
+* Contextual actions
+* Gesture navigation
+* Minimal top bar
+
+### Very small screens
+
+```text
+< 400px
+```
+
+Prioritize:
+
+```text
+Back
+Search
+Select
+Action
+More
+```
+
+Everything else becomes contextual.
+
+# 25. Visual Design System
+
+No emojis.
+
+Use:
+
+* SVG icons
+* Lucide-style icons
+* Custom geometric icons
+* monochrome iconography
+* semantic states
+* restrained accent color
+* clear typography
+* dense but readable file tables
+* subtle borders
+* restrained shadows
+* keyboard-focus indicators
+* accessible contrast
+
+Avoid:
+
+* giant cards
+* decorative dashboards
+* excessive gradients
+* emoji icons
+* unnecessary illustrations
+* excessive animations
+* nested modal chains
+* 15 sliders for one operation
+
+# 26. Contextual Tool Architecture
+
+The suite should behave differently depending on what is selected.
+
+### Nothing selected
+
+```text
+Create Archive
+Open Archive
+Import Files
+Search
+```
+
+### File selected
+
+```text
+Preview
+Extract
+Copy
+Move
+Rename
+Delete
+Properties
+Hash
+```
+
+### Folder selected
+
+```text
+Compress
+Extract
+Copy
+Move
+Rename
+Delete
+Properties
+```
+
+### Archive selected
+
+```text
+Open
+Extract
+Test
+Convert
+Encrypt
+Split
+Properties
+```
+
+### Multiple archives selected
+
+```text
+Batch Extract
+Batch Convert
+Batch Test
+Batch Rename
+Delete
+```
+
+This is substantially more efficient than displaying every possible tool simultaneously.
+
+# 27. Command Palette
+
+Desktop:
+
+```text
+Ctrl/Cmd + K
+```
+
+Mobile:
+
+```text
+Search → Actions
+```
+
+```text
+> extract selected files
+> convert archive to 7z
+> calculate SHA-256
+> split archive into 100 MB volumes
+> test archive
+> encrypt archive
+> show archive information
+> find PDF files
+> select files larger than 100 MB
+```
+
+The command system should map natural-language commands to **existing UI operations**, not implement an AI agent yet.
+
+# 28. Architecture Principle
+
+The most important structural decision is:
+
+```text
+FILE ARCHIVE SUITE
+│
+┌──────────────────┴──────────────────┐
+│ │
+FILE MANAGEMENT ARCHIVE ENGINE
+│ │
+│ ┌──────────┴─────────┐
+│ │ │
+Browser APIs JS Layer WASM
+│ │ │
+└──────────────┬───────────┴────────────────────┘
+│
+TASK ENGINE
+│
+UI / WORKSPACE
+```
+
+The UI must **not know how compression works**.
+
+The UI requests:
+
+```text
+createArchive(options)
+extractArchive(options)
+testArchive(options)
+hashFile(options)
+convertArchive(options)
+```
+
+The processing layer handles the implementation later.
+
+This keeps the architecture replaceable.
+
+# 29. Final Development Boundary
+
+now the framework has completed:
+
+```text
+RESEARCH
+↓
+REFERENCE CAPABILITY ANALYSIS
+↓
+TOOL DISCOVERY
+↓
+BROWSER / WASM / SERVER CLASSIFICATION
+↓
+FINAL TOOL TAXONOMY
+↓
+SYSTEM ARCHITECTURE
+↓
+STATE ARCHITECTURE
+↓
+DESKTOP UI
+↓
+MOBILE UI
+↓
+GESTURE SYSTEM
+↓
+HAPTIC SYSTEM
+↓
+DEMO / BUFFER SYSTEM
+↓
+RESPONSIVE SYSTEM
+↓
+INTERACTION SPECIFICATION
+↓
+━━━━━━━━━━━━━━━━━━━━━━
+STOP
+━━━━━━━━━━━━━━━━━━━━━━
+```
+
+## **Algorithm phase intentionally NOT executed**
+
+We do **not** yet implement:
+
+* ZIP algorithms
+* 7z algorithms
+* RAR algorithms
+* compression algorithms
+* decompression algorithms
+* encryption algorithms
+* hashing implementation
+* archive parsing
+* recovery algorithms
+* volume reconstruction
+* WASM compilation
+* Web Worker processing
+* streaming implementation
+* filesystem algorithms
+* server APIs
+* cloud processing
+* AI classification
+* malware detection
+* optimization
+
+The next phase would be **Algorithm & Engine Engineering**, exactly as with the Image Suite.
+
+### The resulting product concept
+
+> **A local-first, browser-native professional archive workspace that combines a file manager, archive explorer, compression/extraction engine, conversion system, security layer, integrity tools, batch processing, and responsive desktop/mobile interaction into one unified workspace.**
+
+This is the correct stopping point for the framework.

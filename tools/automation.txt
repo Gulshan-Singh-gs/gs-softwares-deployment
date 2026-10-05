@@ -1,0 +1,2632 @@
+# GS-AUTOMATE
+
+## Cross-Suite Workflow Automation & Pipeline Studio
+
+You are implementing the FINAL major suite of the existing GS Softwares PWA.
+
+The PWA already contains approximately 99 tools across multiple specialized suites.
+
+The purpose of this new suite is to allow users to combine those existing tools into reusable workflows.
+
+The user should be able to:
+
+```
+SELECT TOOLS
+↓
+CONNECT THEM
+↓
+CONFIGURE EACH STEP
+↓
+FEED FILES / DATA INTO THE WORKFLOW
+↓
+EXECUTE THE PIPELINE
+↓
+INSPECT EACH STEP
+↓
+RECEIVE FINAL OUTPUTS
+```
+
+The suite must support:
+
+1. 30+ professionally designed prebuilt workflows
+2. A fully custom workflow builder
+3. Editing prebuilt workflows
+4. Using prebuilt workflows as templates
+5. Saving custom workflows
+6. Duplicating workflows
+7. Import/export of workflows
+8. File/data input routing
+9. Multiple outputs
+10. Conditional execution where technically appropriate
+11. Step-level configuration
+12. Execution progress
+13. Step-level logs
+14. Failure handling
+15. Retry
+16. Skip
+17. Continue-from-failure
+18. Workflow history
+19. Local-first execution
+20. Zero-upload architecture
+
+============================================================
+
+# 1. CORE PRODUCT CONCEPT
+
+GS-Automate is not another collection of standalone tools.
+
+It is the orchestration layer above the existing suites.
+
+Conceptually:
+
+```
+GS-AUTOMATE
+│
+┌───────────┴───────────┐
+│ │
+WORKFLOW BUILDER WORKFLOW LIBRARY
+│ │
+│ 30+ templates
+│
+▼
+TOOL NODE GRAPH
+│
+┌──────┼──────┐
+▼ ▼ ▼
+IMAGE PDF VIDEO
+│ │ │
+└──────┼──────┘
+▼
+OUTPUT
+```
+
+Every existing compatible tool becomes a workflow node.
+
+DO NOT duplicate the underlying tools.
+
+The workflow engine orchestrates them.
+
+# 2. EXISTING TOOL INVENTORY
+
+Treat the following existing tools as the canonical executable tool registry.
+
+Do not recreate them.
+
+Do not copy their implementations into GS-Automate.
+
+Reference them through a shared tool execution interface.
+
+## GS-PIXELS
+
+1. Image Compressor
+2. Crop Studio
+3. Color Extractor / Palette
+4. EXIF / Metadata Scrubber
+5. Text → Image
+6. Image → Image
+7. Concept Art
+8. Transparent Asset
+9. Generative Fill
+10. Object Erase
+11. Relight Studio
+12. Atmosphere & Mood
+13. AI Super Resolution
+14. Deblur & Sharpen
+15. Low Light Boost
+16. Old Photo Restore
+17. Remove Background
+18. Generative Backdrop
+19. Depth Bokeh Blur
+20. Face Retouch
+21. Portrait Relighting
+22. Expression Shift
+23. Identity Preserver
+24. Pose Transfer
+25. Virtual Try-On
+26. Editorial Photoshoot
+27. Podium & Scene
+28. Raytraced Shadows
+29. Social Thumbnail
+30. Editorial Poster
+31. Lettering Synthesis
+32. Anime Cel Shader
+33. 3D Isometric Render
+34. Retro Pixel Art
+35. Traditional Watercolor
+36. Image → Prompt
+37. Canny Edge Extraction
+38. Depth Map Estimation
+
+## GS-PDF
+
+39. PDF Merger
+40. PDF Splitter
+41. PDF Page Organizer
+42. PDF Compressor
+43. PDF OCR
+44. AcroForms & Form Filler
+45. Redaction Tool
+46. PDF Watermarker
+47. PDF Encrypt / Decrypt
+48. PDF to Images / Image to PDF
+49. PDF Document Intelligence
+
+## GS-VIDEO
+
+50. Video Trimmer
+51. Video to GIF
+52. Video Transcoder / Converter
+53. Video Audio Extractor
+54. Video Speed Manipulator
+55. Video Resizer & Aspect Framer
+56. Video Frame Extractor
+57. Video Muter / Volume Adjuster
+
+## GS-AUDIO
+
+58. Audio Waveform Slicer
+59. Audio Converter
+60. Multitrack Timeline & Mixer
+61. Audio Recorder
+62. Audio Normalizer / Gain
+63. Speech-to-Text / Whisper AI
+64. Audio Noise Gate & Denoiser
+
+## GS-TEXT
+
+65. Diff Comparator
+66. Structured Block Editor
+67. Markdown Matrix
+68. Text Case Converter
+69. Word / Character Counter & Stats
+70. JSON / YAML / XML Formatter
+71. Regex Tester & Matcher
+72. Lorem Ipsum & Dummy Data Generator
+
+## GS-ARCHIVE
+
+73. ZIP Creator & Inspector
+74. Archive Extractor
+75. Archive Password Protector
+76. Batch Archive Converter
+
+## GS-QR
+
+77. QR Code Generator
+78. Branded QR Studio
+79. WiFi Access QR
+80. vCard Contact QR
+81. Barcode Generator
+82. QR Code Scanner / Reader
+
+## GS-SHEETS
+
+83. Data Grid Viewer
+84. CSV Delimiter Cleaner
+85. CSV ↔ JSON Converter
+86. CSV to Markdown Table
+87. Column Filter & Sorter
+
+## GS-CANVAS
+
+88. Vector Board
+89. Shape & Diagramming
+90. SVG Exporter
+
+## GS-EBOOK
+
+91. EPUB Reader
+92. Markdown to EPUB Builder
+
+## GS-SLIDES
+
+93. Markdown Slide Presenter
+94. Slide Deck to PDF
+
+## GS-SECURITY & HASH
+
+95. File Encryptor
+96. File Decryptor
+97. Cryptographic Hash Calculator
+98. Hash Integrity Verifier
+
+## GS-BRIDGE
+
+99. Cross-Domain Bridge
+
+# 3. DO NOT HARD-CODE 99 WORKFLOW IMPLEMENTATIONS
+
+The workflow engine must use a TOOL REGISTRY.
+
+```
+ToolRegistry
+│
+├── image.compressor
+├── image.crop
+├── image.removeBackground
+├── pdf.merge
+├── pdf.ocr
+├── video.trim
+├── audio.extract
+├── text.format
+├── archive.extract
+└── ...
+```
+
+Each tool definition should expose metadata.
+
+Example conceptual schema:
+
+```
+ToolDefinition
+
+id
+suite
+name
+description
+category
+
+inputs[]
+outputs[]
+
+configurationSchema
+
+executionHandler
+
+capabilities[]
+
+acceptsMultipleInputs
+producesMultipleOutputs
+
+supportsStreaming
+supportsBatch
+
+requiresAI
+requiresNetwork
+
+localOnly
+
+compatibleWith[]
+```
+
+# 4. NODE TYPES
+
+The workflow engine should support more than tool nodes.
+
+At minimum:
+
+### INPUT
+
+Receives:
+
+* File
+* Multiple files
+* Text
+* Folder where browser capabilities permit
+* URL only if the existing application explicitly supports local/network retrieval
+* Previous workflow output
+
+### TOOL
+
+Executes one of the 99 existing tools.
+
+### TRANSFORM
+
+Changes data representation.
+
+Examples:
+
+```
+PDF → Image
+Image → PDF
+CSV → JSON
+JSON → CSV
+Video → Frames
+Audio → Text
+Text → Markdown
+```
+
+### CONDITION
+
+Branches execution.
+
+Example:
+
+```
+IF file type == PDF
+→ PDF pipeline
+
+ELSE
+→ Image pipeline
+```
+
+### FILTER
+
+Selects files/items.
+
+```
+files where extension == .png
+```
+
+### LOOP / FOR EACH
+
+Execute a node or subgraph for each input item.
+
+### MERGE
+
+Combine outputs.
+
+### SPLIT
+
+Create multiple branches.
+
+### OUTPUT
+
+Exports or exposes final results.
+
+### WORKFLOW
+
+A workflow may itself become a reusable subworkflow.
+
+# 5. DATA TYPES
+
+Create an explicit data-type system.
+
+```
+File
+File[]
+Image
+Image[]
+PDF
+PDF[]
+Video
+Video[]
+Audio
+Audio[]
+Text
+Markdown
+JSON
+YAML
+XML
+CSV
+SVG
+EPUB
+Archive
+QR
+Hash
+Metadata
+Unknown
+```
+
+Nodes declare:
+
+```
+INPUT TYPES
+OUTPUT TYPES
+```
+
+The graph editor should use this information.
+
+# 6. COMPATIBILITY ENGINE
+
+The user should not be able to accidentally connect incompatible nodes.
+
+```
+Image → Image Compressor
+```
+
+VALID
+
+```
+PDF → Image Compressor
+```
+
+INVALID
+
+unless a conversion node exists.
+
+The UI should visually communicate:
+
+```
+VALID CONNECTION
+INVALID CONNECTION
+CONVERSION AVAILABLE
+```
+
+When an incompatible connection is attempted:
+
+```
+"PDF cannot be connected directly to Image Compressor."
+```
+
+Optionally offer:
+
+```
+"Insert PDF → Image conversion"
+```
+
+This should be deterministic.
+
+# 7. AUTOMATIC CONVERSION
+
+Where a safe conversion exists, allow:
+
+```
+Connect A → B
+```
+
+and suggest:
+
+```
+Insert conversion node
+```
+
+```
+PDF
+↓
+PDF → Images
+↓
+Image Compressor
+```
+
+Do not silently insert conversions.
+
+The user should see them.
+
+# 8. WORKFLOW BUILDER UI
+
+The UI must follow the EXISTING PWA DESIGN SYSTEM.
+
+Do NOT create an independent visual identity.
+
+Use:
+
+* existing application shell
+* existing three themes
+* existing navigation
+* existing buttons
+* existing panels
+* existing typography
+* existing icon system
+* existing responsive architecture
+* existing interaction language
+
+GS-Automate is a native suite of the PWA.
+
+# 9. DESKTOP WORKSPACE
+
+┌──────────────────────────────────────────────────────────────────┐
+│ EXISTING PWA HEADER │
+├───────────────┬──────────────────────────────────────┬───────────┤
+│ │ │ │
+│ WORKFLOW │ CANVAS │ INSPECTOR │
+│ LIBRARY │ │ │
+│ │ ┌──────────────┐ │ │
+│ Templates │ │ Input │ │ Node │
+│ My Workflows │──────▶│ Image Crop │──────▶ │ Settings │
+│ Recent │ └──────────────┘ │ │
+│ │ │ │ │
+│ │ ▼ │ │
+│ │ ┌──────────────┐ │ │
+│ │ │ Compress │──────▶ OUTPUT │ │
+│ │ └──────────────┘ │ │
+│ │ │ │
+├───────────────┴──────────────────────────────────────┴───────────┤
+│ EXECUTION / LOG / STATUS │
+└──────────────────────────────────────────────────────────────────┘
+
+This is a conceptual structure.
+
+Adapt it to the actual PWA shell.
+
+# 10. NODE DESIGN
+
+Each node should display:
+
+```
+ICON
+TOOL NAME
+SUITE
+INPUT PORTS
+OUTPUT PORTS
+STATUS
+CONFIGURATION SUMMARY
+```
+
+┌─────────────────────────────┐
+│ IMAGE │
+│ Remove Background │
+│ │
+│ ● Input │
+│ │
+│ Processing: Client-side │
+│ │
+│ Output ● │
+└─────────────────────────────┘
+
+Another:
+
+┌─────────────────────────────┐
+│ PDF │
+│ PDF OCR │
+│ │
+│ ● PDF │
+│ │
+│ Engine: Local OCR │
+│ │
+│ Text ● │
+└─────────────────────────────┘
+
+# 11. NODE CONFIGURATION
+
+Clicking a node opens the existing PWA inspector pattern.
+
+```
+IMAGE COMPRESSOR
+
+Format
+[ WebP ]
+
+Quality
+[──────────●──]
+
+Preserve Metadata
+[ OFF ]
+
+Output Naming
+[ {name}-compressed ]
+```
+
+Do not create separate settings pages for every node.
+
+Use contextual inspection.
+
+# 12. WORKFLOW LIBRARY
+
+Create:
+
+```
+Featured
+Image
+PDF
+Video
+Audio
+Documents
+Data
+Security
+Cross-Media
+Productivity
+Custom
+```
+
+Every workflow displays:
+
+```
+Name
+Description
+Tools used
+Input type
+Output type
+Estimated steps
+Local/AI requirements
+Last used
+Favorite
+```
+
+Actions:
+
+```
+Run
+Open
+Edit
+Duplicate
+Use as Template
+Delete
+```
+
+# 13. 30+ PREBUILT WORKFLOWS
+
+Create at least the following 40 templates.
+
+## IMAGE WORKFLOWS
+
+### 01 — Web Image Optimization
+
+```
+Input Image
+↓
+EXIF Scrubber
+↓
+Crop
+↓
+Image Compressor
+```
+
+Output:
+
+```
+Optimized Web Image
+```
+
+### 02 — Social Media Image Pack
+
+```
+Input Image
+↓
+Crop
+↓
+Image Compressor
+↓
+Social Thumbnail
+```
+
+Generate platform-ready image output.
+
+### 03 — Product Photo Cleanup
+
+```
+Product Image
+↓
+Remove Background
+↓
+Relight
+↓
+Podium & Scene
+↓
+Raytraced Shadows
+↓
+Image Compressor
+```
+
+### 04 — Portrait Enhancement
+
+```
+Portrait
+↓
+Face Retouch
+↓
+Portrait Relighting
+↓
+Deblur & Sharpen
+↓
+Super Resolution
+```
+
+### 05 — Background Replacement
+
+```
+Image
+↓
+Remove Background
+↓
+Generative Backdrop
+↓
+Relight Studio
+↓
+Export
+```
+
+### 06 — Old Photo Restoration
+
+```
+Old Photo
+↓
+Old Photo Restore
+↓
+Deblur & Sharpen
+↓
+Super Resolution
+↓
+Image Compressor
+```
+
+### 07 — Image Privacy Pipeline
+
+```
+Image
+↓
+EXIF Scrubber
+↓
+Remove Background / optional
+↓
+Compressor
+```
+
+### 08 — Editorial Image Pipeline
+
+```
+Image
+↓
+Crop
+↓
+Relight
+↓
+Atmosphere & Mood
+↓
+Super Resolution
+↓
+Editorial Poster
+```
+
+### 09 — Product Listing Pack
+
+```
+Product Image
+↓
+Remove Background
+↓
+Podium & Scene
+↓
+Raytraced Shadows
+↓
+Super Resolution
+↓
+Social Thumbnail
+```
+
+### 10 — Image Style Lab
+
+```
+Image
+↓
+Image → Image
+↓
+[User selects style]
+↓
+Super Resolution
+↓
+Compressor
+```
+
+### 11 — Character Render Pipeline
+
+```
+Reference Image
+↓
+Identity Preserver
+↓
+Pose Transfer
+↓
+Relight
+↓
+Super Resolution
+```
+
+### 12 — Transparent Asset Pipeline
+
+```
+Image
+↓
+Remove Background
+↓
+Transparent Asset
+↓
+Compressor
+```
+
+# PDF WORKFLOWS
+
+### 13 — PDF Cleanup & Compression
+
+```
+PDF
+↓
+PDF Page Organizer
+↓
+PDF Compressor
+↓
+Metadata / output
+```
+
+### 14 — Scanned PDF → Searchable PDF
+
+```
+PDF
+↓
+PDF OCR
+↓
+PDF Compressor
+↓
+Output PDF
+```
+
+### 15 — PDF → Images → ZIP
+
+```
+PDF
+↓
+PDF → Images
+↓
+Image Compressor
+↓
+ZIP Creator
+```
+
+### 16 — PDF Security Pipeline
+
+```
+PDF
+↓
+Redaction
+↓
+Watermark
+↓
+PDF Encrypt
+↓
+Output
+```
+
+### 17 — PDF Merge & Optimize
+
+```
+Multiple PDFs
+↓
+PDF Merger
+↓
+Page Organizer
+↓
+PDF Compressor
+↓
+Output
+```
+
+### 18 — PDF Archive Package
+
+```
+PDFs
+↓
+PDF Compressor
+↓
+ZIP Creator
+```
+
+# VIDEO WORKFLOWS
+
+### 19 — Social Video Converter
+
+```
+Video
+↓
+Trim
+↓
+Aspect Framer
+↓
+Speed
+↓
+Transcoder
+↓
+Output
+```
+
+### 20 — Video → GIF
+
+```
+Video
+↓
+Trim
+↓
+Resizer
+↓
+Video → GIF
+```
+
+### 21 — Video Audio Extraction
+
+```
+Video
+↓
+Audio Extractor
+↓
+Audio Normalizer
+↓
+Audio Converter
+```
+
+### 22 — Video Thumbnail Generator
+
+```
+Video
+↓
+Frame Extractor
+↓
+Image Enhancement
+↓
+Social Thumbnail
+```
+
+### 23 — Clean Social Video
+
+```
+Video
+↓
+Trim
+↓
+Mute / Volume
+↓
+Aspect Framer
+↓
+Transcoder
+```
+
+# AUDIO WORKFLOWS
+
+### 24 — Podcast Cleanup
+
+```
+Audio
+↓
+Noise Gate / Denoiser
+↓
+Normalizer
+↓
+Audio Converter
+```
+
+### 25 — Audio → Transcript
+
+```
+Audio
+↓
+Noise Gate
+↓
+Normalizer
+↓
+Speech-to-Text
+↓
+Text Output
+```
+
+### 26 — Audio Format Pack
+
+```
+Audio
+↓
+Normalizer
+↓
+┌──── WAV
+├──── MP3
+├──── OGG
+└──── FLAC
+```
+
+### 27 — Voice Recording Cleanup
+
+```
+Recording
+↓
+Denoiser
+↓
+Gain
+↓
+Converter
+```
+
+# TEXT / DATA WORKFLOWS
+
+### 28 — Markdown → EPUB
+
+```
+Markdown
+↓
+Structured Block Editor
+↓
+Markdown Matrix
+↓
+EPUB Builder
+```
+
+### 29 — JSON Cleanup Pipeline
+
+```
+JSON
+↓
+JSON Formatter
+↓
+Regex Tester / optional
+↓
+CSV / JSON Output
+```
+
+### 30 — CSV Cleanup
+
+```
+CSV
+↓
+Delimiter Cleaner
+↓
+Column Filter / Sort
+↓
+CSV → JSON
+```
+
+### 31 — CSV → Documentation
+
+```
+CSV
+↓
+Delimiter Cleaner
+↓
+Column Filter
+↓
+CSV → Markdown Table
+↓
+Markdown Matrix
+```
+
+### 32 — Text Analysis
+
+```
+Text
+↓
+Case Converter
+↓
+Word / Character Stats
+↓
+Diff / output
+```
+
+# ARCHIVE WORKFLOWS
+
+### 33 — Archive Conversion
+
+```
+TAR / GZ
+↓
+Archive Extractor
+↓
+ZIP Creator
+```
+
+### 34 — Secure Archive
+
+```
+Files
+↓
+ZIP Creator
+↓
+Password Protector
+```
+
+### 35 — Batch Archive Package
+
+```
+Multiple Files
+↓
+ZIP Creator
+↓
+Hash Calculator
+↓
+Hash Integrity Manifest
+```
+
+# QR / COMMUNICATION WORKFLOWS
+
+### 36 — Contact QR Package
+
+```
+Contact Data
+↓
+vCard QR
+↓
+Branded QR
+↓
+SVG Export
+```
+
+### 37 — WiFi QR Package
+
+```
+WiFi Credentials
+↓
+WiFi QR
+↓
+Branded QR
+↓
+PNG/SVG Output
+```
+
+# SECURITY WORKFLOWS
+
+### 38 — File Integrity Package
+
+```
+File
+↓
+SHA-256
+SHA-512
+MD5
+↓
+Integrity Manifest
+```
+
+### 39 — Encrypt + Hash
+
+```
+File
+↓
+Encrypt
+↓
+SHA-256
+↓
+Output File + Checksum
+```
+
+### 40 — Secure File Package
+
+```
+File
+↓
+Metadata Scrub
+↓
+Encrypt
+↓
+Hash
+↓
+ZIP
+↓
+Final Package
+```
+
+# 14. PREBUILT WORKFLOWS MUST BE TEMPLATES
+
+Every prebuilt workflow has two distinct actions:
+
+```
+RUN
+```
+
+and
+
+```
+USE AS TEMPLATE
+```
+
+"Use as Template" must:
+
+1. Duplicate the workflow
+2. Open it in the workflow editor
+3. Allow every node to be edited
+4. Allow nodes to be removed
+5. Allow nodes to be inserted
+6. Allow parameters to be changed
+7. Allow connections to be changed
+8. Allow additional branches
+9. Allow additional outputs
+10. Allow renaming
+
+The original template must remain untouched.
+
+# 15. CUSTOM WORKFLOW BUILDER
+
+Provide:
+
+```
++ New Workflow
+```
+
+The user enters:
+
+```
+Workflow Name
+Description
+Optional Category
+```
+
+Then opens the graph editor.
+
+Available node categories:
+
+```
+Inputs
+Tools
+Transform
+Logic
+Output
+```
+
+Tool nodes should be searchable.
+
+```
+Search tools...
+
+"compress"
+```
+
+Results:
+
+```
+Image Compressor
+PDF Compressor
+ZIP Creator
+...
+```
+
+# 16. DRAG AND DROP
+
+Users should be able to:
+
+```
+drag tool → canvas
+drag node → reposition
+drag port → port
+drag file → input
+drag template → canvas
+```
+
+Use smooth connection lines.
+
+Connections should visually communicate direction.
+
+# 17. MULTI-INPUT WORKFLOWS
+
+Support:
+
+```
+File A
+File B
+File C
+│
+▼
+PDF Merger
+```
+
+or:
+
+```
+Images[]
+│
+▼
+Batch Processor
+│
+├── Output 1
+├── Output 2
+└── Output 3
+```
+
+# 18. FAN-OUT
+
+One input should be able to feed multiple branches.
+
+```
+IMAGE
+│
+┌───────┼────────┐
+▼ ▼ ▼
+Compress OCR Thumbnail
+│ │ │
+└───────┼────────┘
+▼
+Outputs
+```
+
+# 19. FAN-IN
+
+Multiple branches should converge.
+
+```
+PDF A ─────┐
+PDF B ─────┼──▶ PDF Merger
+PDF C ─────┘
+```
+
+# 20. CONDITIONAL WORKFLOWS
+
+Support simple deterministic conditions.
+
+```
+IF file.type == PDF
+→ PDF OCR
+
+IF file.type == IMAGE
+→ Image Compression
+
+IF file.size > 50MB
+→ Compression
+
+IF hash != expected
+→ Verification Failure
+```
+
+Do NOT create an AI decision-maker.
+
+Workflow logic must remain deterministic.
+
+# 21. LOOP SUPPORT
+
+```
+FOR EACH FILE
+```
+
+```
+Input Folder
+↓
+FOR EACH FILE
+↓
+Remove Metadata
+↓
+Compress
+↓
+Output Folder
+```
+
+Where browser permissions permit directory access.
+
+# 22. EXECUTION ENGINE
+
+The workflow should execute as a DAG.
+
+```
+Workflow Graph
+↓
+Validate Graph
+↓
+Build Execution Plan
+↓
+Resolve Dependencies
+↓
+Execute Nodes
+↓
+Track Outputs
+↓
+Continue
+↓
+Final Outputs
+```
+
+Do not execute arbitrary nodes simply based on their visual order.
+
+Execution must respect graph dependencies.
+
+# 23. EXECUTION STATUS
+
+Every node has:
+
+```
+Idle
+Queued
+Running
+Success
+Failed
+Skipped
+Cancelled
+```
+
+Visual states must use the existing PWA status language.
+
+# 24. FAILURE RECOVERY
+
+If:
+
+```
+Node 5 fails
+```
+
+the workflow should show:
+
+```
+Node 1 ✓
+Node 2 ✓
+Node 3 ✓
+Node 4 ✓
+Node 5 ✕
+```
+
+```
+Retry Node
+Retry From Node
+Skip Node
+Edit Node
+Stop Workflow
+```
+
+If downstream nodes depend on the failed output:
+
+```
+mark them BLOCKED
+```
+
+Do not silently continue with invalid data.
+
+# 25. RESUME EXECUTION
+
+```
+Resume from failed node
+```
+
+when upstream outputs are still available.
+
+```
+1 ✓
+2 ✓
+3 ✓
+4 ✕
+```
+
+User fixes Node 4.
+
+Then:
+
+```
+Resume from Node 4
+```
+
+rather than rerunning Nodes 1–3 unnecessarily.
+
+# 26. EXECUTION LOG
+
+Provide a compact execution panel.
+
+```
+Workflow: Social Image Pack
+
+10:42:01 Input loaded
+10:42:02 Crop completed
+10:42:03 Compression started
+10:42:04 Compression completed
+10:42:04 Thumbnail generated
+10:42:06 Workflow completed
+```
+
+Allow:
+
+```
+Expand
+Copy
+Export
+Clear
+```
+
+# 27. FILE HANDOFF
+
+Do not unnecessarily write intermediate files to disk.
+
+Prefer:
+
+```
+Tool A output
+↓
+in-memory / transferable representation
+↓
+Tool B
+```
+
+This follows the PWA's existing zero-upload/local-first philosophy.
+
+Where a tool inherently requires a file object:
+
+```
+construct a File/Blob representation
+```
+
+rather than unnecessarily downloading/re-uploading.
+
+# 28. AI TOOL HANDLING
+
+Some existing tools use AI.
+
+GS-Automate should NOT remove them.
+
+Instead each tool definition must declare:
+
+```
+requiresAI
+requiresNetwork
+localOnly
+executionType
+```
+
+```
+Remove Background
+localOnly: true
+
+Text → Image
+requiresAI: true
+
+PDF Document Intelligence
+requiresAI: true
+
+Image Compressor
+requiresAI: false
+```
+
+The workflow UI should communicate these requirements.
+
+# 29. WORKFLOW PREFLIGHT
+
+Before execution:
+
+```
+Validate Workflow
+```
+
+Check:
+
+✓ all nodes configured
+✓ all required inputs available
+✓ all connections valid
+✓ no cycles unless explicitly supported
+✓ required execution capability available
+✓ required AI/network capability available
+✓ no missing parameters
+
+Display:
+
+```
+Workflow Ready
+```
+
+```
+2 Issues Found
+```
+
+# 30. WORKFLOW SAVE FORMAT
+
+Workflows must be serializable.
+
+Use a versioned schema.
+
+```
+{
+version,
+id,
+name,
+description,
+category,
+nodes[],
+edges[],
+inputs[],
+outputs[],
+settings
+}
+```
+
+Do not serialize runtime state into the reusable template.
+
+Separate:
+
+```
+Workflow Definition
+```
+
+from:
+
+```
+Workflow Execution State
+```
+
+# 31. IMPORT / EXPORT
+
+```
+Export Workflow
+Import Workflow
+```
+
+Preferred format:
+
+```
+.gsworkflow
+```
+
+Internally JSON-based.
+
+Validate imported workflows before execution.
+
+Never execute imported workflows blindly.
+
+# 32. SECURITY
+
+Imported workflows are DATA.
+
+Do not allow a workflow definition to execute arbitrary JavaScript.
+
+Only registered tools can execute.
+
+The workflow engine should invoke:
+
+```
+registered tool handler
+```
+
+not:
+
+```
+arbitrary code from workflow JSON
+```
+
+# 33. WORKFLOW VARIABLES
+
+Support simple variables.
+
+```
+{{input.name}}
+{{input.extension}}
+{{workflow.name}}
+{{date}}
+{{counter}}
+```
+
+Useful for output naming:
+
+```
+{{name}}-optimized.webp
+```
+
+```
+{{name}}-{{date}}.pdf
+```
+
+Do not create an unnecessarily complex scripting language in this version.
+
+# 34. OUTPUT MANAGEMENT
+
+A workflow may produce:
+
+```
+one output
+multiple outputs
+multiple file types
+```
+
+```
+OUTPUTS
+
+✓ optimized-image.webp
+✓ checksum.sha256
+✓ metadata.json
+```
+
+```
+Preview
+Open
+Download
+Save
+Copy
+```
+
+# 35. WORKFLOW HISTORY
+
+Store local execution history.
+
+```
+Social Image Pack
+Completed
+10:42 AM
+
+PDF OCR Pipeline
+Failed at OCR
+10:31 AM
+
+Secure File Package
+Completed
+Yesterday
+```
+
+```
+Open
+Re-run
+Duplicate
+Delete
+```
+
+Do not persist sensitive workflow inputs unnecessarily.
+
+# 36. FAVORITES
+
+Users can favorite workflows.
+
+Sections:
+
+```
+Favorites
+Recent
+Templates
+My Workflows
+```
+
+# 37. SEARCH
+
+Workflow library search should support:
+
+```
+workflow name
+description
+tool name
+suite
+category
+```
+
+```
+Search:
+"PDF"
+```
+
+```
+PDF Cleanup
+PDF OCR
+PDF Security
+PDF Archive
+...
+```
+
+# 38. CUSTOM WORKFLOW TEMPLATES
+
+A user-created workflow can be:
+
+```
+Save
+```
+
+```
+Save as Template
+```
+
+Template status:
+
+```
+System Template
+User Template
+```
+
+System templates cannot be accidentally overwritten.
+
+# 39. WORKFLOW CLONING
+
+Every workflow should support:
+
+```
+Duplicate
+```
+
+This creates:
+
+```
+Original
+Original (Copy)
+```
+
+The copy can be independently modified.
+
+# 40. MOBILE WORKFLOW EDITOR
+
+The desktop graph editor should NOT simply be shrunk onto mobile.
+
+Mobile should provide:
+
+```
+canvas
+node selection
+bottom-sheet inspector
+tool search
+connection mode
+execution controls
+```
+
+Use gestures:
+
+```
+pinch → zoom graph
+two-finger drag → pan
+tap → select node
+long press → node menu
+drag → move node
+drag port → create connection
+```
+
+Use the existing PWA gesture conventions.
+
+# 41. DESKTOP WORKFLOW EDITOR
+
+```
+mouse wheel → zoom
+middle mouse / space drag → pan
+click → select
+shift-click → multi-select
+drag → move
+delete → remove
+Ctrl/Cmd + Z → undo
+Ctrl/Cmd + Shift + Z → redo
+Ctrl/Cmd + S → save
+```
+
+Selection box should be supported.
+
+# 42. WORKFLOW GRAPH FEATURES
+
+```
+Auto-layout
+Zoom to fit
+Center graph
+Minimap
+Grid
+Snap to grid
+Alignment guides
+```
+
+These are deterministic UI features.
+
+# 43. WORKFLOW VALIDATION VISUALS
+
+Invalid nodes should show:
+
+```
+configuration error
+```
+
+Invalid connections should show:
+
+```
+connection error
+```
+
+Missing input:
+
+```
+input required
+```
+
+Unavailable capability:
+
+```
+unavailable
+```
+
+Do not wait until execution to reveal obvious graph errors.
+
+# 44. PREBUILT TEMPLATE QUALITY
+
+The 40 templates above are not placeholders.
+
+Each must have:
+
+```
+meaningful name
+professional description
+input type
+output type
+actual nodes
+valid connections
+sensible defaults
+useful configuration
+category
+tags
+```
+
+Templates must be executable.
+
+# 45. TEMPLATE CATEGORIES
+
+```
+Image
+PDF
+Video
+Audio
+Text
+Data
+Archive
+QR
+Security
+Cross-Media
+Productivity
+```
+
+A template may have multiple tags.
+
+# 46. CROSS-DOMAIN WORKFLOWS
+
+Use GS-Bridge .
+
+```
+Video
+↓
+Extract Audio
+↓
+Speech-to-Text
+↓
+Markdown
+↓
+EPUB
+```
+
+```
+PDF
+↓
+PDF → Images
+↓
+Image Processing
+↓
+PDF Builder
+```
+
+The workflow engine should expose these cross-domain possibilities naturally.
+
+# 47. PREBUILT WORKFLOW DISCOVERY
+
+The first screen of GS-Automate should NOT immediately open an empty graph.
+
+```
+Featured Workflows
+Recent Workflows
+My Workflows
+Create Workflow
+```
+
+The user should immediately understand:
+
+```
+"I can automate repetitive tasks here."
+```
+
+# 48. QUICK RUN
+
+Every compatible template should support:
+
+This should allow:
+
+```
+Select input files
+↓
+Optional parameter adjustments
+↓
+Run
+```
+
+The user does NOT need to open the graph editor for routine execution.
+
+# 49. TEMPLATE → CUSTOM WORKFLOW
+
+The primary path should be:
+
+```
+Template
+↓
+Use as Template
+↓
+Customize
+↓
+Save as My Workflow
+```
+
+This dramatically reduces workflow creation friction.
+
+# 50. CUSTOM WORKFLOW → TEMPLATE
+
+User workflow:
+
+```
+My Workflow
+↓
+Save as Template
+```
+
+Then it appears under:
+
+```
+My Templates
+```
+
+# 51. WORKFLOW VERSIONING
+
+Every saved workflow should have:
+
+```
+version
+updatedAt
+createdAt
+```
+
+When a system template changes:
+
+```
+existing user copies must NOT silently change.
+```
+
+User-owned workflows are independent.
+
+# 52. UNDO / REDO
+
+Workflow editing must have its own history.
+
+```
+Add Node
+Delete Node
+Move Node
+Connect
+Disconnect
+Change Parameter
+Duplicate Node
+Reorder where applicable
+```
+
+Ctrl/Cmd + Z must work.
+
+# 53. DESIGN SYSTEM INTEGRATION
+
+GS-Automate must follow the existing PWA design system.
+
+Do NOT create:
+
+```
+AutomationTheme
+WorkflowTheme
+WorkflowButton
+WorkflowInput
+```
+
+unless an existing shared component cannot fulfill the requirement.
+
+Use the application's:
+
+```
+three themes
+shell
+navigation
+typography
+colors
+panels
+controls
+status components
+icons
+responsive system
+mobile interaction model
+```
+
+GS-Automate must look like a native fourth-dimensional layer of the PWA, not a third-party automation platform embedded inside it.
+
+# 54. NO EMOJIS
+
+Do not use emojis.
+
+Use the application's existing SVG/icon system.
+
+# 55. LOCAL-FIRST ARCHITECTURE
+
+Respect the PWA's existing principles:
+
+```
+D1 — Zero Upload
+D2 — Offline Capable
+```
+
+Workflow execution should occur locally whenever the underlying tool supports local execution.
+
+The workflow engine itself must not require a server.
+
+If an individual existing tool requires an AI/network capability:
+
+```
+clearly identify that dependency.
+```
+
+Do not falsely claim that the entire workflow is offline when one of its nodes is not.
+
+# 56. EXECUTION ENGINE ARCHITECTURE
+
+Use a modular architecture:
+
+```
+WorkflowRegistry
+│
+▼
+WorkflowParser
+│
+▼
+WorkflowValidator
+│
+▼
+GraphPlanner
+│
+▼
+ExecutionEngine
+│
+┌──┴───┐
+▼ ▼
+NodeRunner
+│
+▼
+ToolRegistry
+│
+▼
+Existing Tool Handlers
+```
+
+Supporting systems:
+
+```
+ExecutionContext
+ArtifactManager
+ErrorManager
+ProgressManager
+HistoryManager
+VariableResolver
+CapabilityResolver
+```
+
+# 57. ARTIFACT MODEL
+
+Every node execution produces an artifact.
+
+```
+Artifact
+
+id
+type
+name
+size
+mimeType
+sourceNode
+metadata
+data/reference
+```
+
+Artifacts should be passed between nodes without unnecessary serialization.
+
+# 58. EXECUTION CONTEXT
+
+Every workflow run receives:
+
+```
+workflowId
+executionId
+inputs
+variables
+artifacts
+runtime state
+logs
+cancellation state
+```
+
+Each node receives the relevant execution context.
+
+# 59. CANCELLATION
+
+User must be able to:
+
+```
+Stop Workflow
+```
+
+The engine should propagate cancellation to active tools where supported.
+
+Nodes that cannot be cancelled immediately should transition:
+
+```
+Cancelling
+```
+
+```
+Cancelled
+```
+
+# 60. PROGRESS
+
+Show both:
+
+```
+Overall workflow progress
+```
+
+and:
+
+```
+Current node progress
+```
+
+```
+Workflow
+███████████░░░░ 72%
+
+Current:
+Super Resolution
+████████░░ 81%
+```
+
+Do not pretend to know exact progress if the underlying tool cannot provide it.
+
+# 61. PERFORMANCE
+
+Avoid unnecessary copies of large files.
+
+```
+Blob
+File
+ArrayBuffer
+transferable objects
+streams
+workers
+```
+
+.
+
+The workflow engine must not freeze the UI while large media is processed.
+
+# 62. MEMORY SAFETY
+
+Large media workflows can become memory intensive.
+
+The engine should:
+
+* release unused intermediate artifacts
+* avoid duplicate buffers
+* allow cleanup
+* avoid retaining all intermediate outputs indefinitely
+* expose memory-sensitive operations
+
+For example:
+
+```
+Video
+↓
+Frame extraction
+↓
+200 PNG frames
+```
+
+should not automatically retain every full-resolution image forever.
+
+# 63. WORKFLOW GRAPH VALIDATION
+
+Detect:
+
+* orphan nodes
+* missing inputs
+* missing outputs
+* invalid types
+* cycles
+* unreachable nodes
+* duplicate IDs
+* missing configuration
+* unavailable tools
+* unsupported capabilities
+
+Show validation results before execution.
+
+# 64. TEMPLATE SECURITY
+
+Imported `.gsworkflow` files must be treated as untrusted data.
+
+They may reference:
+
+```
+registered tool IDs
+```
+
+but cannot:
+
+```
+execute arbitrary code
+inject scripts
+access arbitrary filesystem paths
+execute shell commands
+```
+
+Only the application's registered tool handlers may execute.
+
+# 65. FINAL TOOL COUNT
+
+The workflow engine must expose the complete existing tool registry.
+
+Current canonical inventory:
+
+```
+99 tools
+```
+
+Do NOT manually maintain a second disconnected list.
+
+The automation suite should dynamically consume the canonical registry.
+
+If a new tool is added to the PWA later and marked:
+
+```
+workflowCompatible: true
+```
+
+it should automatically become available to the workflow builder.
+
+# 66. WORKFLOW COMPATIBILITY METADATA
+
+Extend tool metadata where necessary:
+
+```
+workflowCompatible
+inputTypes[]
+outputTypes[]
+supportsBatch
+supportsMultipleInputs
+supportsMultipleOutputs
+supportsCancellation
+supportsProgress
+executionMode
+requiresNetwork
+requiresAI
+deterministic
+```
+
+This becomes the bridge between existing suites and GS-Automate.
+
+# 67. DO NOT DUPLICATE TOOL LOGIC
+
+This is critical.
+
+BAD:
+
+```
+GS-Pixels → Image Compressor implementation
+```
+
+and separately:
+
+```
+GS-Automate → Image Compressor implementation
+```
+
+GOOD:
+
+```
+ToolRegistry
+│
+├── GS-Pixels UI
+│
+└── GS-Automate Node
+│
+▼
+SAME HANDLER
+```
+
+The workflow engine orchestrates.
+
+The suites own their tool implementations.
+
+# 68. EXECUTION RESULT
+
+After completion:
+
+```
+WORKFLOW COMPLETE
+```
+
+Show:
+
+```
+Duration
+Nodes executed
+Outputs generated
+Failed/skipped nodes
+Total files processed
+```
+
+```
+Preview
+Open
+Download
+Save
+Run Again
+```
+
+# 69. EMPTY STATE
+
+If the user has no workflows:
+
+```
+"Automate repetitive work"
+
+Build a workflow by connecting the tools
+you already use.
+
+[Browse Templates]
+
+[Create Workflow]
+```
+
+Do not use generic SaaS filler text.
+
+# 70. FINAL ACCEPTANCE CRITERIA
+
+GS-Automate is complete only when:
+
+✓ Existing 99 tools are discoverable as workflow nodes
+
+✓ No tool implementation is duplicated
+
+✓ Tool Registry is the source of truth
+
+✓ Tool input/output types are defined
+
+✓ Compatible connections work
+
+✓ Invalid connections are detected
+
+✓ Conversion suggestions work
+
+✓ DAG execution works
+
+✓ Multi-input workflows work
+
+✓ Multi-output workflows work
+
+✓ Fan-out works
+
+✓ Fan-in works
+
+✓ Conditions work
+
+✓ Filters work
+
+✓ For-each works
+
+✓ Execution progress works
+
+✓ Node states work
+
+✓ Logs work
+
+✓ Retry works
+
+✓ Skip works
+
+✓ Resume works
+
+✓ Cancellation works where supported
+
+✓ Workflow validation works
+
+✓ Workflow saving works
+
+✓ Workflow duplication works
+
+✓ Workflow import/export works
+
+✓ Templates work
+
+✓ Templates can become custom workflows
+
+✓ Custom workflows can become templates
+
+✓ At least 30 prebuilt workflows exist
+
+✓ At least 40 professional templates exist
+
+✓ Template workflows are actually executable
+
+✓ Workflow history works
+
+✓ Favorites work
+
+✓ Search works
+
+✓ Local-first architecture is maintained
+
+✓ Zero-upload principle is maintained
+
+✓ Existing three themes are inherited
+
+✓ Existing PWA design system is inherited
+
+✓ Desktop works
+
+✓ Tablet works
+
+✓ Mobile works
+
+✓ No emojis
+
+✓ No independent visual identity
+
+✓ No arbitrary code execution from workflows
+
+✓ No unnecessary server dependency
+
+# 71. FINAL PRODUCT MODEL
+
+The final PWA architecture should conceptually become:
+
+```
+GS SOFTWARES
+│
+┌──────────────────────┼──────────────────────┐
+│ │ │
+13 SUITES SHARED CORE GS-AUTOMATE
+│ │ │
+│ Design System │
+│ Theme Engine │
+│ Tool Registry │
+│ File Engine │
+│ Local Runtime │
+│ │ │
+└──────────────────────┼──────────────────────┘
+│
+WORKFLOW ENGINE
+│
+┌──────────┼──────────┐
+│ │ │
+TOOL LOGIC DATA
+NODES NODES NODES
+│ │ │
+└──────────┼──────────┘
+│
+EXECUTION DAG
+│
+LOCAL ARTIFACTS
+│
+OUTPUT
+```
+
+```
+
+============================================================
+# 72. THE IMPORTANT ARCHITECTURAL DISTINCTION
+============================================================
+
+GS-Automate is NOT:
+
+"a collection of automation buttons."
+
+It is:
+
+a visual execution graph over the existing
+GS Softwares tool ecosystem.
+
+The existing suites are the WORKERS.
+
+GS-Automate is the ORCHESTRATOR.
+
+The Tool Registry is the CONTRACT.
+
+The Workflow Definition is the PLAN.
+
+The Execution Engine is the RUNTIME.
+
+Artifacts are the DATA flowing through the system.
+
+============================================================
+# 73. FINAL STOP CONDITION
+============================================================
+
+Do not turn GS-Automate into an unrelated standalone automation product.
+
+Do not introduce unnecessary cloud infrastructure.
+
+Do not duplicate existing tools.
+
+Do not create a second design system.
+
+Do not create a second theme engine.
+
+Do not replace existing suite implementations.
+
+Do not add arbitrary-code execution.
+
+Do not make AI the workflow controller.
+
+The final objective is:
+
+EXISTING GS SOFTWARES TOOLS
+↓
+TOOL REGISTRY
+↓
+WORKFLOW BUILDER
+↓
+VISUAL GRAPH
+↓
+EXECUTION ENGINE
+↓
+LOCAL ARTIFACT FLOW
+↓
+OUTPUTS
+
+With:
+
+40+ PREBUILT WORKFLOWS
++
+CUSTOM WORKFLOW BUILDER
++
+TEMPLATE SYSTEM
++
+CROSS-SUITE ORCHESTRATION
+
+The user should be able to look at GS-Automate and immediately understand:
+
+> "Instead of manually opening these five tools every time, I can connect them once, save the workflow, and feed my files through the entire pipeline."
+
+That is the core product experience.
+```

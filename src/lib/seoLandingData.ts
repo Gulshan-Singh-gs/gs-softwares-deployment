@@ -182,5 +182,125 @@ export const TOOLS_LANDING_DATA: Record<string, ToolLandingContent> = {
       }
     ],
     actionLabel: 'Launch Audio Studio'
+  },
+
+  'sha256-hash-generator': {
+    slug: 'sha256-hash-generator',
+    toolId: 'hash',
+    subTool: 'calculate',
+    metaTitle: 'Free Local SHA-256 Hash Generator | Calculate File Checksum',
+    metaDescription: 'Generate SHA-256, SHA-512, and MD5 cryptographic hashes in your browser. 100% private, client-side Web Crypto API with zero file uploads.',
+    primaryKeyword: 'sha256 file hash generator online no upload',
+    secondaryKeywords: ['verify checksum locally', 'browser-based sha512 generator', 'private file hash checker'],
+    h1: 'Free Local SHA-256 Hash Generator | Zero File Uploads',
+    tagline: 'Instant Cryptographic Verification Running in Device RAM',
+    introParagraph: 'Verify file integrity, check release downloads for tampering, and compute cryptographic signatures without exposing sensitive binaries to remote third parties. The GS Softwares Hash Generator uses browser-native hardware acceleration via the Web Crypto API to hash gigabyte-scale files at local bus speeds.',
+    howItWorksTitle: 'High-Throughput Cryptography via Web Crypto API',
+    howItWorksParagraphs: [
+      'Modern web browsers expose native C++ cryptographic primitives through crypto.subtle.digest(). When you drag in a file, our streaming FileReader reads chunked ArrayBuffers directly into browser memory.',
+      'The cryptographic state machine computes the secure digest (SHA-256, SHA-512, or MD5) incrementally using native CPU instruction sets (AES-NI / SHA-NI), providing near-instantaneous output without ever sending a single byte over the network.'
+    ],
+    whyPrivacyTitle: 'Critical Security for Proprietary Code and Keyfiles',
+    whyPrivacyParagraph: 'Uploading private software builds, cryptographic keypairs, database dumps, or sensitive spreadsheets to cloud hash checkers is a catastrophic security vulnerability. Client-side hashing eliminates data leakage risks entirely by enforcing strict memory isolation.',
+    stepsTitle: 'Step-by-Step Instructions',
+    steps: [
+      { step: '1', title: 'Drop or Select File', description: 'Load any file of any size directly into the hasher.' },
+      { step: '2', title: 'Select Algorithm', description: 'Choose between SHA-256, SHA-512, SHA-1, or MD5.' },
+      { step: '3', title: 'Compare & Copy', description: 'Instantly paste expected hashes to perform automated zero-difference verification.' }
+    ],
+    faqs: [
+      {
+        question: 'Are large files uploaded to a remote server?',
+        answer: 'No. File bytes are read sequentially from your local drive into browser RAM and immediately hashed. No server connection is ever established.'
+      },
+      {
+        question: 'Is Web Crypto API cryptographically accurate?',
+        answer: 'Yes. It adheres to NIST FIPS 180-4 and produces bit-identical hashes to OpenSSL and Linux sha256sum.'
+      },
+      {
+        question: 'Can I hash files offline?',
+        answer: 'Yes. Once loaded, the hashing engine runs in 100% airplane/offline mode.'
+      }
+    ],
+    actionLabel: 'Launch Hash Generator'
+  },
+
+  'pdf-splitter': {
+    slug: 'pdf-splitter',
+    toolId: 'pdf',
+    subTool: 'split',
+    metaTitle: 'Free Local PDF Splitter | Extract Pages Securely in Browser',
+    metaDescription: 'Extract specific pages or split large PDFs into separate documents on-device. 100% private, client-side WebAssembly with zero uploads.',
+    primaryKeyword: 'split pdf locally free no upload',
+    secondaryKeywords: ['extract pdf pages offline', 'private pdf splitter online', 'air gapped pdf cutter'],
+    h1: 'Free Local PDF Splitter | Extract Pages Privately',
+    tagline: 'Separate and Extract PDF Documents Without Cloud Exposure',
+    introParagraph: 'Separate bulky PDF documents into standalone single-page files or extract custom page intervals (e.g., pages 5-12). All document restructuring executes locally in your browser memory with zero risk of corporate or personal data leakage.',
+    howItWorksTitle: 'Stream Splitting in Browser Memory',
+    howItWorksParagraphs: [
+      'Our engine reads the PDF structure locally and clones targeted page object references into new document trees. Embedded fonts and resources are deduplicated without re-rasterizing.',
+      'Extracted pages retain crisp vector text and print-quality resolution, rendering straight to instant download links without round-trips to remote cloud hardware.'
+    ],
+    whyPrivacyTitle: 'Safe for Passports, Tax Returns, and NDAs',
+    whyPrivacyParagraph: 'Never upload documents containing Social Security numbers, banking details, or proprietary designs to public cloud convertors. Client-side execution gives you military-grade confidentiality.',
+    stepsTitle: 'Step-by-Step Instructions',
+    steps: [
+      { step: '1', title: 'Drop Your PDF', description: 'Load the multi-page PDF document into the browser.' },
+      { step: '2', title: 'Specify Pages', description: 'Select individual page thumbnails or type a comma-separated range.' },
+      { step: '3', title: 'Export Separate Files', description: 'Download individual PDFs or an automated ZIP bundle.' }
+    ],
+    faqs: [
+      {
+        question: 'Does splitting compress or blur my pages?',
+        answer: 'No. Page vectors and images are extracted as lossless binary streams.'
+      },
+      {
+        question: 'Does this tool work completely offline?',
+        answer: 'Yes. Once loaded, you can disconnect Wi-Fi and split documents in complete airplane mode.'
+      }
+    ],
+    actionLabel: 'Launch PDF Splitter'
+  },
+
+  'file-encryptor': {
+    slug: 'file-encryptor',
+    toolId: 'security',
+    subTool: 'encrypt',
+    metaTitle: 'Free Local AES-256 File Encryptor | Password Protect Files',
+    metaDescription: 'Encrypt and password-protect any file in your browser using military-grade AES-256-GCM. 100% private, zero uploads, zero third-party keys.',
+    primaryKeyword: 'encrypt file locally aes256 no upload',
+    secondaryKeywords: ['password protect files offline', 'browser aes-gcm encryptor', 'private client side file encryption'],
+    h1: 'Free Local AES-256 File Encryptor | Military-Grade Privacy',
+    tagline: 'Hardware-Accelerated In-Browser Encryption via PBKDF2 & AES-GCM',
+    introParagraph: 'Lock and secure sensitive documents, archives, photos, and backups with industry-standard AES-256-GCM encryption before storing them on cloud drives or transmitting them via email. Your password derives the key directly on your device, and no one—not even us—can decrypt your file without it.',
+    howItWorksTitle: 'Cryptographic Architecture via PBKDF2 & AES-256-GCM',
+    howItWorksParagraphs: [
+      'When you supply a password, the browser uses the native Web Crypto API to derive an encryption key via PBKDF2 using SHA-256 and 100,000+ hashing iterations combined with a cryptographically random salt.',
+      'The file stream is encrypted in authenticated Galois/Counter Mode (AES-GCM), ensuring both airtight confidentiality and tamper resistance. The result is a secure binary bundle that only you can unlock.'
+    ],
+    whyPrivacyTitle: 'True Zero-Knowledge Security',
+    whyPrivacyParagraph: 'True encryption requires that the key and the unencrypted file never touch a server. Because GS Softwares executes all cryptographic math inside your browser, neither your password nor your file can ever be intercepted.',
+    stepsTitle: 'Step-by-Step Instructions',
+    steps: [
+      { step: '1', title: 'Drop Any File', description: 'Select any document, photo, or archive from your device.' },
+      { step: '2', title: 'Enter Strong Password', description: 'Provide a secret passphrase to derive the AES-256 key.' },
+      { step: '3', title: 'Download Encrypted Vault', description: 'Save the locked .enc file directly to your storage.' }
+    ],
+    faqs: [
+      {
+        question: 'Can GS Softwares recover my password if I forget it?',
+        answer: 'No. This is true zero-knowledge encryption. Without your password, mathematical recovery is impossible.'
+      },
+      {
+        question: 'Which encryption standard is used?',
+        answer: 'Industry-standard AES-256-GCM with PBKDF2 key derivation and random initialization vectors (IV).'
+      },
+      {
+        question: 'Can I decrypt the file offline on another computer?',
+        answer: 'Yes. Simply open the Decryptor tool in GS Softwares on any computer and enter your password.'
+      }
+    ],
+    actionLabel: 'Launch File Encryptor'
   }
 };
+

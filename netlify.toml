@@ -24,3 +24,10 @@
   for = "/registerSW.js"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Catch-all rewrite for client-side SPA routing (returns 200, not 404)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+

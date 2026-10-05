@@ -20,8 +20,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Compress, crop, resize, convert formats, extract palettes, and scrub EXIF metadata.',
     iconName: 'Image',
     gradient: 'from-cyan-600 to-teal-500',
-    toolsCountLabel: '6 Tools',
-    component: lazy(() => import('../pages/PixelsApp').then(m => ({ default: m.PixelsApp }))),
+    toolsCountLabel: '13 Categories',
+    component: lazy(() => import('../suites/image/ImageSuite').then(m => ({ default: m.ImageSuite }))),
     tools: [
       {
         id: 'image.compress',
@@ -97,13 +97,13 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
   pdf: {
     id: 'pdf',
     name: 'GS-PDF',
-    badge: 'PDF Tools',
+    badge: 'AI PDF Studio',
     category: 'documents',
-    description: 'Merge, split, compress, reorder, convert, and stamp PDF files 100% offline.',
+    description: 'Professional browser-native AI PDF operating system: 23 domains, viewer, page organizer, AcroForms, OCR, true redaction & AI document intelligence.',
     iconName: 'FileText',
     gradient: 'from-rose-600 to-pink-500',
-    toolsCountLabel: '5 Tools',
-    component: lazy(() => import('../pages/PdfApp').then(m => ({ default: m.PdfApp }))),
+    toolsCountLabel: '23 Domains',
+    component: lazy(() => import('../suites/pdf/PdfSuite').then(m => ({ default: m.PdfSuite }))),
     tools: [
       {
         id: 'pdf.merge',
@@ -143,8 +143,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Frame-accurate video trimmer, converter, GIF maker, and audio extractor powered by WebAssembly.',
     iconName: 'Video',
     gradient: 'from-purple-600 to-indigo-600',
-    toolsCountLabel: '4 Tools',
-    component: lazy(() => import('../pages/VideoApp').then(m => ({ default: m.VideoApp }))),
+    toolsCountLabel: '17 Domains',
+    component: lazy(() => import('../suites/video/VideoSuite').then(m => ({ default: m.VideoSuite }))),
     tools: [
       {
         id: 'video.trim',
@@ -179,13 +179,13 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
   audio: {
     id: 'audio',
     name: 'GS-Audio',
-    badge: 'WebAudio Studio',
+    badge: 'AI Audio DAW',
     category: 'media',
-    description: 'High-res audio trimmer, 10-band equalizer, format converter, and spectrum visualizer.',
+    description: 'Professional browser-native AI Audio DAW: Triad Record-Edit-Play loop, multitrack timeline, console mixer, speech transcription & restoration.',
     iconName: 'Music',
     gradient: 'from-pink-600 to-rose-500',
-    toolsCountLabel: '3 Tools',
-    component: lazy(() => import('../pages/AudioApp').then(m => ({ default: m.AudioApp }))),
+    toolsCountLabel: '24 Domains',
+    component: lazy(() => import('../suites/audio/AudioSuite').then(m => ({ default: m.AudioSuite }))),
     tools: [
       {
         id: 'audio.trim',
@@ -206,13 +206,13 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
   text: {
     id: 'text',
     name: 'GS-Text',
-    badge: 'Code & Diff',
+    badge: 'AI Text Suite',
     category: 'developer',
-    description: 'Side-by-side diff comparator, JSON/YAML formatter, Regex testing studio, and Base64 encoder.',
-    iconName: 'FileCode',
+    description: 'Professional browser-native AI Text & Document Suite: structured block editor, synchronized Markdown matrix, research citations, and AI writing studio.',
+    iconName: 'FileText',
     gradient: 'from-emerald-600 to-teal-500',
-    toolsCountLabel: '4 Tools',
-    component: lazy(() => import('../pages/TextApp').then(m => ({ default: m.TextApp }))),
+    toolsCountLabel: '16 Domains',
+    component: lazy(() => import('../suites/text/TextSuite').then(m => ({ default: m.TextSuite }))),
     tools: [
       {
         id: 'text.diff',
@@ -238,8 +238,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Inspect, compress, extract, and convert multi-file ZIP and TAR archives in-memory.',
     iconName: 'Archive',
     gradient: 'from-amber-600 to-orange-500',
-    toolsCountLabel: '3 Tools',
-    component: lazy(() => import('../pages/ArchiveApp').then(m => ({ default: m.ArchiveApp }))),
+    toolsCountLabel: '15 Domains',
+    component: lazy(() => import('../suites/archive/ArchiveSuite').then(m => ({ default: m.ArchiveSuite }))),
     tools: [
       {
         id: 'archive.zip',
@@ -265,8 +265,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Generate custom branded QR codes, WiFi access cards, vCards, and Code128 barcodes.',
     iconName: 'QrCode',
     gradient: 'from-violet-600 to-purple-500',
-    toolsCountLabel: '2 Tools',
-    component: lazy(() => import('../pages/QrApp').then(m => ({ default: m.QrApp }))),
+    toolsCountLabel: '12 Domains',
+    component: lazy(() => import('../suites/qr/QrSuite').then(m => ({ default: m.QrSuite }))),
     tools: [
       {
         id: 'qr.generate',
@@ -292,8 +292,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Fast offline spreadsheet viewer, delimiter cleaner, and CSV to JSON/Markdown converter.',
     iconName: 'Table',
     gradient: 'from-emerald-600 to-green-500',
-    toolsCountLabel: '2 Tools',
-    component: lazy(() => import('../pages/SpreadsheetApp').then(m => ({ default: m.SpreadsheetApp }))),
+    toolsCountLabel: '12 Domains',
+    component: lazy(() => import('../suites/spreadsheet/SpreadsheetSuite').then(m => ({ default: m.SpreadsheetSuite }))),
     tools: [
       {
         id: 'sheet.viewer',
@@ -346,8 +346,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Markdown to 16:9 slide presenter mode with vector printable PDF handouts.',
     iconName: 'Presentation',
     gradient: 'from-indigo-600 to-blue-500',
-    toolsCountLabel: '2 Tools',
-    component: lazy(() => import('../pages/PresentationApp').then(m => ({ default: m.PresentationApp }))),
+    toolsCountLabel: '12 Domains',
+    component: lazy(() => import('../suites/presentation/PresentationSuite').then(m => ({ default: m.PresentationSuite }))),
     tools: [
       {
         id: 'slides.present',
@@ -373,8 +373,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Client-side PBKDF2 password-protected AES-256-GCM file encryption and decryption.',
     iconName: 'Lock',
     gradient: 'from-blue-600 to-indigo-600',
-    toolsCountLabel: '2 Tools',
-    component: lazy(() => import('../pages/SecurityApp').then(m => ({ default: m.SecurityApp }))),
+    toolsCountLabel: '10 Domains',
+    component: lazy(() => import('../suites/security/SecuritySuite').then(m => ({ default: m.SecuritySuite }))),
     tools: [
       {
         id: 'security.encrypt',
@@ -400,8 +400,8 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
     description: 'Compute SHA-256, SHA-512, SHA-1, and MD5 file digests for tamper verification.',
     iconName: 'Sliders',
     gradient: 'from-teal-600 to-cyan-500',
-    toolsCountLabel: '4 Algorithims',
-    component: lazy(() => import('../pages/HashApp').then(m => ({ default: m.HashApp }))),
+    toolsCountLabel: '11 Domains',
+    component: lazy(() => import('../suites/hash/HashSuite').then(m => ({ default: m.HashSuite }))),
     tools: [
       {
         id: 'hash.calculate',
@@ -421,25 +421,25 @@ export const STUDIOS_REGISTRY: Record<StudioId, StudioRegistration> = {
   },
   bridge: {
     id: 'bridge',
-    name: 'GS-Bridge',
-    badge: 'Transmutation',
-    category: 'security',
-    description: 'Cross-domain transmutation pipeline linking video, audio, image, PDF, and OCR text.',
+    name: 'GS-Workflow',
+    badge: 'Automation',
+    category: 'developer',
+    description: 'Cross-suite workflow automation studio with 40+ prebuilt templates and DAG builder.',
     iconName: 'Sparkles',
     gradient: 'from-amber-500 via-rose-500 to-cyan-500',
-    toolsCountLabel: 'Transmute Pipeline',
-    component: lazy(() => import('../pages/BridgeApp').then(m => ({ default: m.BridgeApp }))),
+    toolsCountLabel: '40+ Templates',
+    component: lazy(() => import('../suites/workflow/WorkflowSuite').then(m => ({ default: m.WorkflowSuite }))),
     tools: [
       {
-        id: 'bridge.transmute',
-        name: 'Cross-Domain Bridge',
-        slug: 'cross-domain-bridge',
+        id: 'bridge.workflow',
+        name: 'Workflow Pipeline Studio',
+        slug: 'workflow-studio',
         studioId: 'bridge',
-        category: 'convert',
-        description: 'Transmute formats across audio, video, pdf, and text domains',
+        category: 'automate',
+        description: 'Orchestrate 99 tools into reusable multi-step pipelines',
         version: '2.0.0',
         iconName: 'Sparkles',
-        inputs: [{ name: 'file', type: '*/*' }],
+        inputs: [{ name: 'payload', type: '*/*' }],
         outputs: [{ name: 'result', type: '*/*' }],
         execution: { mode: 'worker', weight: 'H', supportsBatch: true, supportsChaining: true },
         permissions: { network: false, persistentStorage: true }

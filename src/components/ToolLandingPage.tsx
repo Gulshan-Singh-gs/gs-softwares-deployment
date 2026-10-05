@@ -14,6 +14,7 @@ import {
   Check
 } from 'lucide-react';
 import { ToolLandingContent } from '../lib/seoLandingData';
+import { AdContainer } from './ads/AdContainer';
 
 interface ToolLandingPageProps {
   content: ToolLandingContent;
@@ -124,6 +125,9 @@ export const ToolLandingPage: React.FC<ToolLandingPageProps> = ({
           </div>
         </div>
       </header>
+
+      {/* High-Intent SEO Monetization Banner */}
+      <AdContainer slotType="banner" />
 
       {/* Mechanism & Architecture Section */}
       <section className="space-y-6 text-left">

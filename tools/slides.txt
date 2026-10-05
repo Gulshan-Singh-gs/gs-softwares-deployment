@@ -1,0 +1,1553 @@
+# GS SOFTWARES — GS-SLIDES
+
+# NON-AI PRESENTATION / DECK STUDIO
+
+## Research → Capability Classification → Architecture → Responsive UI → Interaction Specification
+
+You are a senior product architect, UX engineer, frontend systems architect, document-engineering architect, and presentation-software researcher.
+
+Your task is to research, define, and architect the **GS-Slides / Deck Studio** inside the GS Softwares PWA.
+
+This studio is intentionally:
+
+* Non-AI
+* Browser-first
+* Client-side
+* Offline-capable
+* Zero-upload
+* PWA-compatible
+* Local-file compatible
+
+The current canonical tools are:
+
+1. Markdown Slide Presenter
+2. Slide Deck → PDF
+
+The objective of this phase is:
+
+**Research → Capability Classification → Non-AI Tool Taxonomy → Presentation Architecture → Canvas Architecture → Responsive UI → Interaction Design → STOP**
+
+Do NOT implement advanced algorithms or unrelated AI functionality during this phase.
+
+# 1. PRODUCT OBJECTIVE
+
+GS-Slides should function as a professional browser-based presentation studio.
+
+The user should be able to:
+
+* create a presentation
+* open an existing presentation/project
+* write slides using Markdown
+* preview slides
+* navigate between slides
+* reorder slides
+* duplicate slides
+* delete slides
+* edit slide content
+* inspect slide structure
+* present fullscreen
+* control presentation navigation
+* export the deck to PDF
+* save the project locally
+* reopen the project later
+* work without uploading files to a server
+
+The product should feel like a native member of:
+
+# GS SOFTWARES
+
+rather than a standalone presentation application.
+
+# 2. NON-AI BOUNDARY
+
+This is NOT an AI presentation generator.
+
+Do NOT add:
+
+* AI presentation generation
+* AI slide generation
+* AI writing assistant
+* AI image generation
+* AI design assistant
+* AI layout generation
+* prompt boxes
+* "Generate with AI"
+* AI slide rewriting
+* AI summarization
+* AI speaker generation
+* AI presentation coach
+
+unless such functionality is explicitly added to the canonical GS-Slides tool registry later.
+
+The current studio is a deterministic/browser-native presentation environment.
+
+# 3. RESEARCH THE PRESENTATION DOMAIN
+
+Before implementation, research professional presentation applications and identify common capabilities.
+
+Research concepts such as:
+
+* slide canvas
+* slide thumbnails
+* slide navigation
+* deck outline
+* slide layouts
+* presentation mode
+* speaker notes
+* slide duplication
+* slide reordering
+* slide deletion
+* slide numbering
+* aspect ratios
+* themes
+* typography
+* presentation controls
+* export
+* PDF generation
+* Markdown-based slides
+* keyboard navigation
+* fullscreen presentation
+* local project persistence
+* responsive presentation interfaces
+
+Do NOT blindly copy another product.
+
+Extract interaction patterns that are useful for GS-Slides.
+
+# 4. CLASSIFY CAPABILITIES
+
+Create a capability matrix.
+
+Columns:
+
+| Capability | Browser-Native | Requires Server | Existing Tool | Recommended | Complexity |
+| ---------- | -------------- | --------------- | ------------- | ----------- | ---------- |
+
+Classify every proposed capability.
+
+Prioritize browser-native functionality.
+
+Examples:
+
+### Browser-native
+
+* Markdown parsing
+* slide parsing
+* slide rendering
+* slide navigation
+* slide thumbnails
+* slide reordering
+* slide duplication
+* slide deletion
+* slide numbering
+* fullscreen presentation
+* keyboard navigation
+* local project persistence
+* theme application
+* typography controls
+* layout selection
+* PDF generation
+* PDF export
+* print preview
+* aspect-ratio management
+* deck metadata
+* speaker notes
+* presentation timer
+* outline view
+
+# 5. FINAL GS-SLIDES TOOL TAXONOMY
+
+Organize the studio into semantic domains.
+
+## A. DECK
+
+Core presentation management.
+
+Tools:
+
+1. New Deck
+2. Open Deck
+3. Save Deck
+4. Duplicate Deck
+5. Rename Deck
+6. Deck Information
+7. Deck Outline
+8. Presentation Metadata
+
+## B. SLIDES
+
+Slide-level operations.
+
+1. Add Slide
+2. Duplicate Slide
+3. Delete Slide
+4. Reorder Slide
+5. Move Slide
+6. Hide Slide
+7. Show Slide
+8. Slide Numbering
+9. Slide Dimensions
+10. Slide Background
+
+## C. CONTENT
+
+Content editing.
+
+1. Markdown Editor
+2. Text Blocks
+3. Headings
+4. Lists
+5. Code Blocks
+6. Blockquotes
+7. Links
+8. Tables
+9. Images
+10. Horizontal Rules
+11. Embedded Content
+12. Speaker Notes
+
+Must respect what the Markdown presentation engine actually supports.
+
+Do not expose controls that the renderer cannot represent.
+
+# 6. MARKDOWN ENGINE
+
+The Markdown editor is a first-class part of GS-Slides.
+
+Architecture:
+
+```
+Markdown Source
+↓
+Markdown Parser
+↓
+Slide Boundary Parser
+↓
+Slide AST / Intermediate Representation
+↓
+Presentation Renderer
+↓
+Slide Canvas
+```
+
+The system should maintain a structured representation of:
+
+```
+Deck
+├── Slide
+│ ├── Metadata
+│ ├── Content
+│ ├── Layout
+│ └── Notes
+│
+├── Slide
+└── Slide
+```
+
+Do not treat the entire presentation as an unstructured text blob once parsed.
+
+# 7. SLIDE INTERMEDIATE REPRESENTATION
+
+Define a slide model.
+
+Conceptually:
+
+```
+Slide
+id
+index
+title
+content
+markdown
+layout
+background
+notes
+hidden
+metadata
+```
+
+The exact implementation should follow the existing application architecture.
+
+Goal: make the presentation system capable of manipulating individual slides without destroying the source representation.
+
+# 8. PRESENTATION CANVAS
+
+The central workspace must be the active slide.
+
+The slide should visually dominate the application.
+
+Desktop structure:
+
+┌─────────────────────────────────────────────────────┐
+│ GLOBAL GS SOFTWARES SHELL │
+├─────────────────────────────────────────────────────┤
+│ SLIDES TOOLBAR │
+├─────────────┬──────────────────────────┬────────────┤
+│ │ │ │
+│ THUMBNAILS │ SLIDE CANVAS │ INSPECTOR │
+│ │ │ │
+│ Slide 1 │ │ Slide │
+│ Slide 2 │ │ Layout │
+│ Slide 3 │ │ Background │
+│ Slide 4 │ │ Metadata │
+│ │ │ │
+├─────────────┴──────────────────────────┴────────────┤
+│ STATUS / PRESENTATION / EXPORT │
+└─────────────────────────────────────────────────────┘
+
+The canvas must remain the visual center.
+
+# 9. THREE UI LAYERS
+
+Follow the GS Softwares architecture.
+
+## Layer 1 — GLOBAL PWA SHELL
+
+Shared across all suites:
+
+* GS Softwares branding
+* Active Suite selector
+* Search
+* Themes
+* PWA installation
+* Global settings
+* Help
+* Notifications
+
+## Layer 2 — GS-SLIDES SHELL
+
+Slides-specific:
+
+* Deck title
+* Slides navigation
+* Deck actions
+* Presentation mode
+* Export
+* Markdown mode
+* Outline mode
+
+## Layer 3 — CONTEXTUAL TOOL UI
+
+Depends on the active object/tool.
+
+For example:
+
+Selected slide:
+
+* Layout
+* Background
+* Visibility
+* Notes
+* Metadata
+
+Selected text/content:
+
+* Markdown formatting
+* Typography
+* Alignment
+* Link
+* Code formatting
+
+Presentation mode:
+
+* Previous
+* Next
+* Progress
+* Timer
+* Exit
+
+# 10. DESKTOP WORKSPACE
+
+For large screens:
+
+### Top
+
+Shared GS Softwares shell.
+
+### Secondary toolbar
+
+Include only presentation-specific actions:
+
+```
+Undo
+Redo
+Save
+Markdown
+Outline
+Present
+Export
+```
+
+### Left panel
+
+Slide navigator.
+
+Each thumbnail should show:
+
+* slide preview
+* slide number
+* title where available
+* hidden status
+* selection state
+
+Support:
+
+* drag to reorder
+* duplicate
+* delete
+* context menu
+
+### Center
+
+Presentation canvas.
+
+### Right panel
+
+Contextual slide inspector.
+
+### Bottom
+
+Compact status bar:
+
+* current slide
+* total slides
+* zoom
+* aspect ratio
+* presentation status
+* save status
+
+# 11. MOBILE WORKSPACE
+
+Do NOT simply compress the desktop layout.
+
+Mobile should become:
+
+```
+┌─────────────────────┐
+│ GS-Slides Header │
+├─────────────────────┤
+│ │
+│ ACTIVE SLIDE │
+│ │
+├─────────────────────┤
+│ Slide 3 / 12 │
+├─────────────────────┤
+│ Tools │
+│ Slides | Edit | ... │
+└─────────────────────┘
+```
+
+Use:
+
+* bottom sheets
+* slide drawer
+* contextual inspector
+* compact toolbar
+* swipe navigation
+* pinch zoom
+* fullscreen presentation
+
+Do not permanently display desktop sidebars.
+
+# 12. SLIDE NAVIGATION
+
+### Desktop
+
+* mouse click
+* keyboard arrows
+* Page Up
+* Page Down
+* Home
+* End
+* thumbnail selection
+
+### Mobile
+
+* horizontal swipe
+* tap navigation zones
+* thumbnail drawer
+* next/previous controls
+
+During presentation:
+
+```
+Swipe left → next slide
+Swipe right → previous slide
+```
+
+Avoid gesture conflicts while editing.
+
+# 13. SLIDE THUMBNAIL SYSTEM
+
+The thumbnail navigator is a core component.
+
+Each thumbnail should support:
+
+* selection
+* drag reorder
+* duplicate
+* delete
+* hide/show
+* context menu
+
+Visual hierarchy:
+
+```
+Slide number
+Preview
+Optional title
+```
+
+Do not overload thumbnails with unnecessary controls.
+
+Controls should appear contextually.
+
+# 14. SLIDE CANVAS
+
+The canvas must preserve presentation aspect ratio.
+
+Primary supported ratio:
+
+```
+16:9
+```
+
+Potential support:
+
+```
+4:3
+Custom
+```
+
+The canvas should maintain a consistent coordinate system.
+
+```
+logical slide coordinates
+↓
+viewport transformation
+↓
+rendered slide
+```
+
+Zoom should affect the viewport, not the underlying slide geometry.
+
+# 15. CANVAS CONTROLS
+
+* zoom in
+* zoom out
+* fit slide
+* actual size
+* fullscreen
+* grid/guides where supported
+
+Keyboard:
+
+```
++ zoom in
+- zoom out
+0 fit slide
+```
+
+Do not add Photoshop-style image editing controls.
+
+This is a presentation canvas.
+
+# 16. MARKDOWN MODE
+
+Provide a dedicated Markdown workspace.
+
+Possible desktop layout:
+
+┌──────────────────┬──────────────────────────┐
+│ MARKDOWN SOURCE │ LIVE SLIDE PREVIEW │
+│ │ │
+│ # Title │ │
+│ │ TITLE │
+│ --- │ │
+│ │ Content │
+│ ## Section │ │
+└──────────────────┴──────────────────────────┘
+
+Support synchronized preview.
+
+When the Markdown changes:
+
+```
+Parse
+↓
+Update slide model
+↓
+Update preview
+```
+
+Do not require a server.
+
+# 17. OUTLINE MODE
+
+Provide a deck-level outline.
+
+Example:
+
+```
+01 — Introduction
+02 — Problem
+03 — Solution
+04 — Architecture
+05 — Results
+06 — Conclusion
+```
+
+Users should be able to navigate directly to a slide.
+
+If supported by the underlying model, allow slide reordering from the outline.
+
+# 18. PRESENTATION MODE
+
+Presentation mode should be treated as a distinct application state.
+
+Transition:
+
+```
+Editor
+↓
+Presentation Mode
+```
+
+Hide editing chrome.
+
+Display:
+
+```
+slide
+navigation
+progress
+```
+
+Optional controls:
+
+* slide number
+* timer
+* presentation progress
+* exit presentation
+
+```
+Arrow Right → Next
+Arrow Left → Previous
+Space → Next
+Esc → Exit
+```
+
+# 19. PRESENTATION FULLSCREEN
+
+The presentation should occupy the maximum available viewport.
+
+Do not display:
+
+* editor sidebars
+* inspector
+* thumbnails
+* Markdown editor
+* unnecessary application chrome
+
+Presentation mode should feel like a real deck presenter.
+
+# 20. PDF EXPORT
+
+The existing:
+
+# Slide Deck → PDF
+
+tool should become a first-class export pipeline.
+
+```
+Slide Model
+↓
+Render Engine
+↓
+PDF Compiler
+↓
+PDF Blob
+↓
+Local Download
+```
+
+The exported PDF should preserve:
+
+* slide dimensions
+* text
+* layout
+* images
+* backgrounds
+* slide order
+
+Where technically supported.
+
+Do not add a server dependency simply for PDF generation.
+
+# 21. EXPORT PANEL
+
+Create a contextual export panel.
+
+Options should be based on actual implementation capability.
+
+Possible controls:
+
+```
+Format
+PDF
+
+Slide Range
+All
+Current
+Custom
+
+Quality
+Standard
+High
+
+Include
+Hidden Slides
+Slide Numbers
+```
+
+Only expose options that are actually implemented.
+
+Do not create fake settings.
+
+# 22. DECK MANAGEMENT
+
+Support local-first project persistence.
+
+Possible project structure:
+
+```
+.gsdeck
+```
+
+```
+project
+├── metadata
+├── deck
+├── slides
+├── markdown
+├── assets
+└── settings
+```
+
+Use the existing GS Softwares local-storage architecture .
+
+Do not introduce cloud storage.
+
+# 23. LOCAL-FIRST REQUIREMENT
+
+Prime directives:
+
+### D1 — ZERO UPLOAD
+
+Presentation content must remain local unless the user explicitly exports/shares it.
+
+### D2 — OFFLINE CAPABLE
+
+Core presentation functionality should work without network access.
+
+### D3 — LOCAL PROCESSING
+
+Markdown parsing, slide rendering, navigation, and PDF compilation should operate locally where technically possible.
+
+# 24. SLIDE ACTION SYSTEM
+
+Contextual actions:
+
+### Deck actions
+
+* New
+* Open
+* Save
+* Rename
+* Export
+* Present
+
+### Slide actions
+
+* Add
+* Duplicate
+* Delete
+* Hide
+* Move
+* Reorder
+
+### Presentation actions
+
+* Previous
+* Next
+* Start
+* Exit
+
+Do not put every action on the primary toolbar.
+
+Use progressive disclosure.
+
+# 25. KEYBOARD SHORTCUTS
+
+Desktop:
+
+```
+Ctrl/Cmd + N New deck
+Ctrl/Cmd + O Open
+Ctrl/Cmd + S Save
+Ctrl/Cmd + Z Undo
+Ctrl/Cmd + Shift + Z Redo
+```
+
+Navigation:
+
+```
+↑ / ↓ Previous / next slide
+Page Up Previous
+Page Down Next
+Home First slide
+End Last slide
+```
+
+Presentation:
+
+```
+F5 Start presentation
+Esc Exit presentation
+Space Next slide
+```
+
+Canvas:
+
+Do not introduce shortcuts that conflict with existing global PWA shortcuts.
+
+# 26. TOUCH INTERACTIONS
+
+Mobile:
+
+### Slide navigation
+
+```
+Swipe left → next
+Swipe right → previous
+```
+
+### Thumbnail drawer
+
+```
+Edge swipe → slide navigator
+```
+
+### Canvas
+
+```
+Pinch → zoom
+Two-finger drag → pan
+```
+
+### Presentation
+
+```
+Tap → reveal controls
+Swipe → navigation
+```
+
+Gestures must be mode-aware.
+
+# 27. HAPTIC FEEDBACK
+
+If supported by the device:
+
+Use haptics for meaningful interactions.
+
+* slide selection
+* successful reorder
+* presentation transition
+* export completion
+* invalid action
+* reaching first/last slide
+
+Do NOT use constant haptic feedback.
+
+Gracefully degrade where the browser does not support haptics.
+
+# 28. ACCESSIBILITY
+
+Presentation editing must support:
+
+* keyboard navigation
+* visible focus states
+* semantic buttons
+* screen-reader labels
+* sufficient contrast
+* reduced motion
+* accessible slide navigation
+* accessible export controls
+
+Do not rely solely on icons.
+
+Icons must have accessible labels/tooltips.
+
+# 29. THEME INTEGRATION
+
+GS-Slides must inherit the existing three global PWA themes.
+
+Do NOT create an independent Slides theme system for the application chrome.
+
+Separate:
+
+### Application theme
+
+Controls:
+
+* interface background
+* panels
+* controls
+* typography
+* borders
+* focus states
+
+### Presentation theme
+
+* actual slide appearance
+
+These are different concepts.
+
+A dark application interface does not necessarily mean the presentation itself should be dark.
+
+# 30. PRESENTATION THEME SYSTEM
+
+If presentation themes are implemented, keep them scoped to the deck.
+
+Possible properties:
+
+* background
+* typography
+* heading scale
+* body scale
+* spacing
+* accent
+* code styling
+
+Do not confuse these with GS Softwares' global application themes.
+
+# 31. NO "ALIEN UI"
+
+The Slides studio must NOT inherit:
+
+* image-editing sliders
+* image-generation controls
+* portrait controls
+* AI assistant panels
+* video timelines
+* audio mixers
+* PDF page inspectors
+* spreadsheet grids
+* hash/security controls
+
+unless a feature explicitly requires them.
+
+BAD:
+
+```
+Strength
+Fidelity
+Creativity
+AI Synthesis
+```
+
+GOOD:
+
+```
+Slide Layout
+Background
+Notes
+Aspect Ratio
+Presentation
+```
+
+# 32. CONTEXTUAL INSPECTOR
+
+The right inspector changes based on the current selection.
+
+### No selection
+
+Show:
+
+```
+Deck Information
+Slide Count
+Aspect Ratio
+Presentation Settings
+```
+
+### Slide selected
+
+```
+Slide
+Layout
+Background
+Visibility
+Notes
+```
+
+### Text/content selected
+
+Show only supported content controls.
+
+### Presentation mode
+
+Hide inspector completely.
+
+# 33. EDITOR MODES
+
+Use explicit modes rather than mixing every interface together.
+
+Recommended:
+
+```
+EDIT
+MARKDOWN
+OUTLINE
+PRESENT
+```
+
+Possible mode flow:
+
+```
+EDIT
+↕
+MARKDOWN
+↕
+OUTLINE
+↓
+PRESENT
+```
+
+The user should always know which mode they are in.
+
+# 34. STATE ARCHITECTURE
+
+Define clear application states.
+
+```
+AppState
+├── deck
+├── slides
+├── activeSlide
+├── selectedElement
+├── editorMode
+├── zoom
+├── presentationState
+├── markdownState
+├── exportState
+└── persistenceState
+```
+
+Avoid unrelated global state.
+
+# 35. HISTORY SYSTEM
+
+Presentation edits should be reversible.
+
+```
+Undo
+Redo
+```
+
+History should capture meaningful operations:
+
+```
+Add Slide
+Delete Slide
+Reorder Slide
+Duplicate Slide
+Edit Content
+Change Layout
+Change Background
+```
+
+Avoid creating history entries for every tiny rendering update.
+
+# 36. FILE INPUT
+
+Support local file workflows appropriate to the actual implementation.
+
+Possible inputs:
+
+* Markdown
+* existing deck project
+* images used by slides
+
+Do not advertise support for:
+
+```
+PPTX
+Google Slides
+Keynote
+```
+
+unless those formats are actually implemented.
+
+Never create fake import buttons.
+
+# 37. ERROR HANDLING
+
+Presentation-specific errors should be understandable.
+
+### Markdown parse failure
+
+```
+Unable to parse this slide.
+```
+
+```
+line
+section
+error explanation
+```
+
+### Export failure
+
+```
+PDF export could not be completed.
+```
+
+Provide:
+
+```
+Retry
+Return to editor
+```
+
+### Unsupported content
+
+Explain exactly what cannot be rendered.
+
+Do not show generic:
+
+```
+"Something went wrong."
+```
+
+# 38. LOADING STATES
+
+Use meaningful states:
+
+```
+Parsing Markdown...
+Rendering slides...
+Preparing PDF...
+Exporting...
+Saved locally
+```
+
+Do not use generic AI-style:
+
+```
+"Thinking..."
+"Generating..."
+"Synthesizing..."
+```
+
+unless an actual operation requires those terms.
+
+# 39. RESPONSIVE BREAKPOINTS
+
+Use the existing GS Softwares responsive system.
+
+```
+≥1200px
+```
+
+Full:
+
+```
+thumbnails
+canvas
+inspector
+```
+
+### Tablet
+
+```
+768–1199px
+```
+
+```
+compact thumbnails
+collapsible inspector
+canvas-first layout
+```
+
+```
+<768px
+```
+
+```
+canvas
+slide drawer
+bottom sheets
+contextual controls
+```
+
+Do not hardcode these values if the existing platform has established breakpoints.
+
+# 40. VISUAL DESIGN
+
+Follow the existing GS Softwares design language.
+
+Requirements:
+
+* no emojis
+* SVG icons
+* existing icon library
+* consistent typography
+* existing theme tokens
+* controlled contrast
+* restrained shadows
+* consistent borders
+* consistent radius
+* professional density
+* responsive spacing
+
+Do not create a separate visual identity for GS-Slides.
+
+# 41. MICROINTERACTIONS
+
+Use subtle transitions for:
+
+* slide selection
+* thumbnail reorder
+* panel open/close
+* mode switching
+* presentation entry
+* presentation exit
+* export completion
+
+Avoid decorative animation.
+
+Motion should communicate state.
+
+# 42. PERFORMANCE
+
+Presentation rendering should remain responsive.
+
+Consider:
+
+* thumbnail virtualization for large decks
+* lazy rendering
+* debounced Markdown parsing
+* cached slide render results
+* efficient DOM updates
+* avoiding unnecessary full-deck rerenders
+
+Do not optimize prematurely.
+
+First establish the correct architecture.
+
+# 43. LARGE-DECK HANDLING
+
+Architecture: not assume a presentation contains only 5–10 slides.
+
+Test conceptually with:
+
+```
+10 slides
+50 slides
+100+ slides
+```
+
+Thumbnail navigation should remain usable.
+
+Large Markdown files should not cause unnecessary complete UI rerenders.
+
+# 44. TOOL REGISTRY INTEGRATION
+
+The Slides suite must integrate with the existing canonical tool registry.
+
+Existing tools:
+
+```
+Markdown Slide Presenter
+Slide Deck → PDF
+```
+
+Do not create a second independent tool registry.
+
+Extend the existing registry if required.
+
+Each tool should declare:
+
+```
+id
+name
+category
+icon
+description
+input type
+output type
+capabilities
+UI component
+availability
+```
+
+Follow the existing GS Softwares registry conventions.
+
+# 45. SUITE ARCHITECTURE
+
+```
+GS-Slides
+│
+├── SuiteShell
+│
+├── DeckManager
+│
+├── SlideNavigator
+│
+├── SlideCanvas
+│
+├── MarkdownEditor
+│
+├── OutlineView
+│
+├── PresentationMode
+│
+├── SlideInspector
+│
+├── ExportPanel
+│
+└── LocalProjectStore
+```
+
+Shared platform services remain outside the suite.
+
+# 46. DO NOT BUILD THE ALGORITHM YET
+
+At this stage do NOT implement:
+
+* custom PDF rendering algorithms
+* advanced Markdown parser algorithms
+* custom presentation engine internals
+* complex PDF compiler internals
+* advanced typography engines
+* advanced layout algorithms
+* animation engines
+* PPTX compatibility
+* cloud collaboration
+* AI models
+
+Define their interfaces and architecture only where necessary.
+
+The implementation phase will be separate.
+
+# 47. REQUIRED RESEARCH OUTPUT
+
+Produce:
+
+### A. Presentation software capability research
+
+### B. Browser-native capability analysis
+
+### C. Existing GS-Slides capability audit
+
+### D. Proposed tool taxonomy
+
+### E. Tool capability matrix
+
+### F. Presentation architecture
+
+### G. Slide data model
+
+### H. Markdown architecture
+
+### I. Canvas architecture
+
+### J. Desktop UI architecture
+
+### K. Mobile UI architecture
+
+### L. Presentation-mode architecture
+
+### M. PDF export architecture
+
+### N. State model
+
+### O. Component hierarchy
+
+### P. Interaction specification
+
+### Q. Accessibility specification
+
+### R. Performance considerations
+
+# 48. IMPLEMENTATION BOUNDARY
+
+The final output of this phase must be a complete specification from which a coding agent can subsequently implement the studio.
+
+The result should answer:
+
+```
+What exists?
+Where does it live?
+How does the user interact with it?
+What state does it consume?
+What state does it produce?
+Which components are shared?
+Which components belong to Slides?
+Which operations are browser-native?
+How does desktop differ from mobile?
+How does editor mode differ from presentation mode?
+How does Markdown become slides?
+How does a deck become PDF?
+```
+
+# 49. CRITICAL "ALIEN UI" TEST
+
+Open GS-Slides.
+
+Ask:
+
+> Would a user immediately recognize this as a presentation/deck environment?
+
+If not:
+
+```
+redesign the workspace.
+```
+
+Then ask:
+
+> Does any control look inherited from GS-Pixels, GS-PDF, GS-Video, GS-Audio, GS-Hash, or another unrelated suite?
+
+If yes:
+
+```
+remove or replace it.
+```
+
+> Does every visible control have a meaningful relationship with presentations?
+
+If no:
+
+```
+remove it.
+```
+
+# 50. FINAL ACCEPTANCE CRITERIA
+
+The architecture is acceptable only when:
+
+✓ GS-Slides uses the global GS Softwares shell
+
+✓ All three global application themes work
+
+✓ No emojis are used
+
+✓ Existing SVG/icon system is used
+
+✓ Slides has its own domain-specific workspace
+
+✓ Markdown Presenter is a first-class tool
+
+✓ Slide Deck → PDF is a first-class export workflow
+
+✓ Slide thumbnails are first-class navigation
+
+✓ Slide canvas is the visual center
+
+✓ Desktop workspace is properly structured
+
+✓ Mobile workspace is independently designed
+
+✓ Presentation mode is distinct from editing mode
+
+✓ Markdown editing has a synchronized preview
+
+✓ Slide navigation works through mouse, keyboard, and touch
+
+✓ Slide reordering is supported architecturally
+
+✓ Contextual inspectors are used
+
+✓ No generic AI inspector exists
+
+✓ No image-suite controls appear
+
+✓ No unrelated PDF/video/audio controls appear
+
+✓ Local-first architecture is preserved
+
+✓ Zero-upload principle is preserved
+
+✓ Offline-capable operation is preserved
+
+✓ Existing registry architecture is respected
+
+✓ Existing tools are preserved
+
+✓ No fake functionality is introduced
+
+✓ No unnecessary backend dependency is introduced
+
+✓ Accessibility is considered
+
+✓ Large decks are considered
+
+✓ PDF export is architecturally defined
+
+✓ The UI feels like GS Softwares
+
+✓ The workspace feels specifically like GS-Slides
+
+# CRITICAL STOP CONDITION
+
+After completing:
+
+```
+Research
+↓
+Capability Classification
+↓
+Non-AI Tool Taxonomy
+↓
+Browser-Native Architecture
+↓
+Slide Data Model
+↓
+Markdown Architecture
+↓
+Canvas Architecture
+↓
+Desktop UI
+↓
+Mobile UI
+↓
+Presentation Mode
+↓
+Export Architecture
+↓
+Interaction Specification
+↓
+Component Architecture
+```
+
+STOP.
+
+Do NOT automatically proceed into:
+
+* algorithm implementation
+* PDF rendering implementation
+* custom Markdown parser implementation
+* PPTX implementation
+* AI integration
+* cloud services
+* collaboration backend
+* server architecture
+* presentation-generation models
+
+The purpose of this phase is to produce the complete:
+
+# GS-SLIDES PRODUCT + UX + SYSTEM ARCHITECTURE
+
+ready for a separate engineering/implementation phase.

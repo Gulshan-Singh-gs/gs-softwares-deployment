@@ -1,0 +1,1034 @@
+Yes. Applying the **same non-AI framework** to a **File Security Suite** means we first define the security capabilities that can be implemented locally in the browser, then separate them from anything requiring privileged OS access or a server.
+
+The core principle:
+
+> **Local-first file security: inspect, protect, transform, verify, and manage files without AI, cloud upload, or server-side processing.**
+
+# File Security Suite — Non-AI Framework
+
+## 1. Suite Definition
+
+```text
+FILE SECURITY SUITE
+│
+┌────────────────────┼────────────────────┐
+│ │ │
+INSPECT PROTECT VERIFY
+│ │ │
+File analysis Encryption Integrity
+Metadata Password Hashing
+Structure Secure deletion* Signatures
+Permissions* Access control* Verification
+│ │ │
+└────────────────────┼────────────────────┘
+│
+LOCAL ENGINE
+│
+┌─────────────┼─────────────┐
+│ │ │
+Browser WebCrypto Storage
+APIs / WASM APIs
+```
+
+`*` Some capabilities depend on whether the application is running as a browser PWA, desktop application, or privileged native application.
+
+# 2. Security Suite Categories
+
+The main navigation should be:
+
+```text
+FILE SECURITY
+│
+├── Inspect
+├── Protect
+├── Encrypt
+├── Verify
+├── Privacy
+├── Secure Transfer
+├── Archive
+├── Recovery
+├── Monitor
+├── Utilities
+└── Audit
+```
+
+# 3. Inspect
+
+The first principle is:
+
+> **Never modify a file merely to inspect it.**
+
+### File Information
+
+* Filename
+* Extension
+* MIME type
+* File size
+* Creation date
+* Modification date
+* Access date where available
+* File location
+* File type
+* File signature / magic bytes
+* Encoding
+* Compression status
+
+### Structural Inspection
+
+* File header inspection
+* File footer inspection
+* Binary viewer
+* Hex viewer
+* Text viewer
+* Archive structure
+* Container structure
+* Embedded-file detection
+* File-type mismatch detection
+
+### Metadata
+
+* EXIF
+* XMP
+* IPTC
+* PDF metadata
+* Office metadata
+* Document properties
+* Author
+* Application information
+* GPS metadata where present
+
+# 4. Hash & Integrity
+
+A major browser-native security category.
+
+### Hash Algorithms
+
+* MD5
+* SHA-1
+* SHA-256
+* SHA-384
+* SHA-512
+
+, expose modern algorithms prominently and mark legacy algorithms clearly.
+
+### Operations
+
+* Generate hash
+* Compare hashes
+* Verify checksum
+* Batch hashing
+* Hash manifest
+* Export hash manifest
+* Import hash manifest
+* File fingerprint
+
+### Workflow
+
+```text
+FILE
+│
+▼
+HASH
+│
+▼
+SHA-256
+│
+▼
+Fingerprint
+│
+├── Save
+├── Compare
+└── Verify later
+```
+
+# 5. Encryption
+
+This becomes one of the core features.
+
+### File Encryption
+
+* Encrypt file
+* Decrypt file
+* Password-based encryption
+* Key-based encryption
+* Encrypt multiple files
+* Encrypt archive
+* Decrypt archive
+
+### Cryptographic Architecture
+
+Use established browser cryptography primitives rather than implementing cryptography manually.
+
+```text
+File
+│
+▼
+Key Derivation
+│
+▼
+Encryption
+│
+▼
+Encrypted Container
+```
+
+The implementation should use the browser's cryptographic APIs .
+
+# 6. Password Protection
+
+### Password Operations
+
+* Password input
+* Password confirmation
+* Password strength indicator
+* Password generation
+* Password visibility toggle
+* Password-based encryption
+* Key derivation
+* Encryption/decryption
+
+### Security UX
+
+Do **not** show fake claims such as:
+
+> "Your password is 97% secure."
+
+Instead provide concrete characteristics:
+
+```text
+Password
+████████████
+
+Length: 18
+Character classes: 4
+Estimated strength: Strong
+```
+
+# 7. Secure File Containers
+
+The suite can provide a local encrypted container format.
+
+```text
+Secure Container
+│
+├── Header
+├── Version
+├── Encryption parameters
+├── File manifest
+├── Encrypted metadata
+└── Encrypted payload
+```
+
+The user could create:
+
+```text
+project.secure
+```
+
+containing:
+
+```text
+documents/
+images/
+contracts/
+notes/
+```
+
+The contents remain encrypted until unlocked.
+
+# 8. Archive Security
+
+### Archive Operations
+
+* Create archive
+* Extract archive
+* Inspect archive
+* Password-protected archive
+* Encrypted archive
+* Archive integrity test
+* Archive contents viewer
+* File extraction
+* Batch extraction
+
+### Supported Formats
+
+Depending on browser/library support:
+
+* ZIP
+* TAR
+* GZIP
+* 7Z where an appropriate WASM implementation is available
+
+# 9. Privacy Tools
+
+## Metadata Removal
+
+* EXIF removal
+* GPS removal
+* Author removal
+* Application metadata removal
+* Document properties removal
+* PDF metadata cleanup
+* Image metadata cleanup
+
+### Privacy Report
+
+```text
+PRIVACY ANALYSIS
+
+Metadata found
+────────────────
+Author Present
+GPS Present
+Device Present
+Timestamp Present
+Software Present
+
+[Remove Metadata]
+```
+
+# 10. File Sanitization
+
+The suite can provide deterministic sanitization where technically supported.
+
+### Examples
+
+* Metadata removal
+* Document property removal
+* Hidden-file detection
+* Embedded-file inspection
+* Archive extraction
+* Repackaging
+* Filename normalization
+* Content-type verification
+
+The system should distinguish:
+
+> **"Metadata removed"**
+
+from the much stronger and often unjustified claim:
+
+> **"File completely sanitized."**
+
+# 11. File-Type Verification
+
+This is a useful security feature.
+
+Example:
+
+```text
+Filename:
+invoice.pdf
+
+Extension:
+.pdf
+
+MIME:
+application/pdf
+
+Magic bytes:
+PNG
+
+⚠ FILE TYPE MISMATCH
+```
+
+The suite can detect discrepancies between:
+
+* Extension
+* MIME type
+* File signature
+* Actual parser-detected structure
+
+This is useful against misleading file names.
+
+# 12. Duplicate Detection
+
+### Exact Duplicates
+
+Use cryptographic hashes:
+
+```text
+File A → SHA-256
+File B → SHA-256
+
+Hashes equal
+↓
+Exact duplicate
+```
+
+### Near-Duplicate Detection
+
+This is more complicated.
+
+Without AI, the suite can still use deterministic techniques such as:
+
+* File size
+* Perceptual hashes for images
+* Binary similarity
+* Structural comparison
+
+But these should be clearly distinguished from cryptographic equality.
+
+# 13. Secure Comparison
+
+### Compare Files
+
+```text
+FILE A FILE B
+────────────────────────────────────
+Size Size
+Hash Hash
+Type Type
+Metadata Metadata
+Structure Structure
+```
+
+### Comparison Modes
+
+* Hash comparison
+* Binary comparison
+* Text comparison
+* Metadata comparison
+* Image comparison
+* Archive comparison
+
+# 14. Binary / Hex Viewer
+
+A professional security-oriented tool should include:
+
+```text
+Offset Hexadecimal ASCII
+──────────────────────────────────────────────
+00000000 25 50 44 46 2D 31 2E 37 %PDF-1.7
+00000008 0A 25 E2 E3 CF D3 0A 0D ........
+```
+
+Features:
+
+* Hexadecimal view
+* Decimal offsets
+* ASCII representation
+* Search
+* Go to offset
+* Byte selection
+* Copy bytes
+* Export selection
+
+# 15. Text / Code Inspection
+
+For text-based files:
+
+* Plain-text viewer
+* Encoding detection
+* UTF-8
+* UTF-16
+* ASCII
+* Line numbers
+* Search
+* Regex search
+* Syntax highlighting
+* Read-only inspection
+
+No code execution.
+
+# 16. File Permissions
+
+This requires an important architecture distinction.
+
+### Browser
+
+A browser generally cannot arbitrarily inspect or modify operating-system file permissions.
+
+Therefore:
+
+**Do not pretend this is browser-native.**
+
+For a pure browser/PWA version:
+
+* Show permissions exposed by the browser/file API where available.
+* Do not claim complete OS permission control.
+
+For a desktop/native version:
+
+* Read permissions
+* Modify permissions
+* Owner
+* Group
+* Access rules
+* Read/write/execute flags
+
+These belong to a privileged desktop layer.
+
+# 17. Secure Deletion
+
+Another capability that must be classified carefully.
+
+A browser cannot guarantee secure physical deletion from an SSD or operating-system storage subsystem.
+
+Therefore the browser suite should **not** claim:
+
+> "This permanently destroys the original file."
+
+Instead:
+
+### Browser-safe functionality
+
+* Remove local project copy
+* Clear application cache
+* Clear IndexedDB data
+* Delete generated temporary files where supported
+
+### Desktop/native extension
+
+Potentially:
+
+* Secure deletion workflows
+* File-system deletion
+* Temporary-file cleanup
+
+But even then, SSD wear leveling makes traditional overwrite-based "secure deletion" claims technically problematic.
+
+# 18. File Recovery
+
+A browser-only application cannot provide unrestricted disk recovery.
+
+But it can provide:
+
+* Recovery of deleted project states
+* Version recovery
+* Backup restoration
+* Corrupted archive detection
+* Partial document recovery where parsers support it
+
+### Local version system
+
+```text
+Document
+│
+├── Version 1
+├── Version 2
+├── Version 3
+└── Current
+```
+
+# 19. Secure Transfer
+
+Without a server, the suite can support local/browser mechanisms where available:
+
+* Download encrypted file
+* Upload encrypted file
+* Local file handoff
+* QR-based small encrypted payload transfer
+* Clipboard-safe encrypted text
+* Export encrypted package
+
+The important principle:
+
+> **Encrypt before the file leaves the user's controlled environment.**
+
+# 20. Audit System
+
+Every security operation can generate a local audit record.
+
+```text
+AUDIT LOG
+
+23:41:03
+File imported
+SHA-256 calculated
+
+23:41:05
+Metadata inspected
+
+23:41:09
+Metadata removed
+
+23:41:14
+File encrypted
+
+23:41:16
+Integrity verified
+```
+
+The audit log itself should contain no secret keys or passwords.
+
+# 21. Security Dashboard
+
+The dashboard should not use decorative "security scores" without technical meaning.
+
+```text
+FILE SECURITY STATUS
+
+File
+────────────────────
+contract.pdf
+
+Integrity
+✓ SHA-256 calculated
+
+Metadata
+! 4 metadata fields found
+
+File Type
+✓ Signature matches extension
+
+Encryption
+Not encrypted
+
+Privacy
+! GPS metadata present
+```
+
+Actions:
+
+```text
+[Remove Metadata]
+[Encrypt]
+[Calculate Hash]
+[Inspect]
+```
+
+# 22. Desktop UI
+
+```text id="c0u4sq"
+┌──────────────────────────────────────────────────────────────┐
+│ File Inspect Protect Encrypt Verify Privacy Tools │
+├──────────────┬───────────────────────────────┬───────────────┤
+│ │ │ │
+│ FILES │ FILE INSPECTOR │ SECURITY │
+│ │ │ PANEL │
+│ Documents │ │ │
+│ Images │ File / Hex / Text │ Hash │
+│ Archives │ Preview │ Metadata │
+│ Secure │ │ Encryption │
+│ Containers │ │ Integrity │
+│ │ │ Privacy │
+├──────────────┴───────────────────────────────┴───────────────┤
+│ Hash │ Metadata │ Structure │ Audit │ History │ Status │
+└──────────────────────────────────────────────────────────────┘
+```
+
+# 23. Mobile UI
+
+Security tools have to remain understandable on a small screen.
+
+```text id="0l0s0n"
+┌──────────────────────────────┐
+│ ← File Security ⋮ │
+├──────────────────────────────┤
+│ │
+│ FILE PREVIEW │
+│ │
+│ contract.pdf │
+│ │
+├──────────────────────────────┤
+│ Inspect │ Protect │ Verify │
+├──────────────────────────────┤
+│ Hash │ Encrypt │ Privacy │
+└──────────────────────────────┘
+```
+
+Selecting **Verify**:
+
+```text id="zpwf4q"
+┌──────────────────────────────┐
+│ VERIFY FILE │
+├──────────────────────────────┤
+│ SHA-256 │
+│ │
+│ 8f4e...a92d │
+│ │
+│ [Copy] [Compare] │
+│ │
+│ File type ✓ │
+│ Integrity ✓ │
+└──────────────────────────────┘
+```
+
+# 24. Mobile Gestures
+
+Security software should avoid overly complex gestures because accidental actions can be dangerous.
+
+### Safe gestures
+
+* Tap → select
+* Long press → contextual menu
+* Swipe → navigate
+* Pinch → preview zoom
+* Pull down → refresh inspection
+* Two-finger drag → pan document/hex viewer
+
+### Avoid gesture-only destructive operations.
+
+For example:
+
+**Never make swipe-to-delete the only deletion mechanism.**
+
+Require explicit confirmation for destructive operations.
+
+# 25. Haptic System
+
+Use haptics for state feedback:
+
+| Event | Feedback |
+| ----------------------- | ------------------- |
+| File selected | Light |
+| Hash completed | Light double pulse |
+| Verification successful | Confirmation pulse |
+| Verification mismatch | Warning pulse |
+| Encryption completed | Confirmation pulse |
+| Invalid operation | Warning |
+| Destructive action | Strong confirmation |
+
+# 26. Security-Critical UX
+
+The interface should explicitly distinguish:
+
+```text
+READ
+```
+
+from
+
+```text
+MODIFY
+```
+
+and:
+
+```text
+DELETE
+```
+
+This can be represented through action hierarchy.
+
+### Safe
+
+* Inspect
+* Calculate
+* Compare
+* Preview
+
+### Modifying
+
+* Strip metadata
+* Repackage
+* Encrypt
+* Decrypt
+
+### Destructive
+
+* Delete
+* Clear local project
+* Remove stored version
+
+Destructive actions should require deliberate confirmation.
+
+# 27. Browser Architecture
+
+```text id="5dy2gz"
+APPLICATION SHELL
+│
+┌───────────┴───────────┐
+│ │
+FILE MANAGER SECURITY UI
+│ │
+└───────────┬───────────┘
+▼
+FILE ENGINE
+│
+┌─────────────────┼─────────────────┐
+▼ ▼ ▼
+Inspector Crypto Engine Metadata
+│ │ │
+MIME/Headers Web Crypto Parsers
+Hex/Text Hashing Sanitizer
+│ │ │
+└─────────────────┼─────────────────┘
+▼
+DOCUMENT MODEL
+│
+┌───────────┼───────────┐
+▼ ▼ ▼
+History Audit Storage
+```
+
+# 28. Local-First Security Model
+
+The most important architectural property:
+
+```text
+USER FILE
+│
+▼
+Browser Memory
+│
+┌──────────┼──────────┐
+▼ ▼ ▼
+Inspect Encrypt Hash
+│ │ │
+└──────────┼──────────┘
+▼
+Local Storage
+```
+
+**No automatic upload.**
+
+No file should leave the browser merely because the user selected it.
+
+# 29. Cryptography Boundary
+
+Do **not** build custom cryptographic algorithms.
+
+Architecture: delegate cryptographic primitives to established implementations:
+
+```text
+Application
+│
+▼
+Crypto Abstraction
+│
+▼
+Web Crypto API / Audited WASM Library
+```
+
+The suite implements the **workflow**, not novel cryptography.
+
+# 30. Demo / Buffer File
+
+Following the same framework:
+
+The suite opens with a bundled **security demonstration file set**.
+
+```text
+DEMO FILES
+
+├── sample.pdf
+├── sample.jpg
+├── sample.txt
+├── sample.zip
+├── sample.csv
+└── sample.secure
+```
+
+The user can experiment immediately with:
+
+* Hashing
+* Metadata inspection
+* File-type verification
+* Encryption
+* Decryption
+* Archive inspection
+* Hex viewing
+* Privacy cleanup
+* Comparison
+* Audit logging
+
+The demo files remain immutable.
+
+**Restore Demo Files**
+
+# 31. Responsive Breakpoints
+
+### Desktop — `≥1200px`
+
+Full:
+
+```text
+File Navigator
++
+Inspector
++
+Security Inspector
++
+Audit/History
+```
+
+### Tablet — `768–1199px`
+
+```text
+File Navigator
++
+Main Inspector
+
+Security panel → collapsible
+Audit → bottom sheet
+```
+
+### Mobile — `<768px`
+
+```text
+File
+↓
+Security status
+↓
+Contextual action panel
+```
+
+# 32. Component Architecture
+
+```text
+AppShell
+│
+├── TopBar
+│
+├── FileNavigator
+│
+├── FileInspector
+│ ├── Preview
+│ ├── HexViewer
+│ ├── TextViewer
+│ └── StructureViewer
+│
+├── SecurityInspector
+│ ├── HashPanel
+│ ├── EncryptionPanel
+│ ├── MetadataPanel
+│ ├── IntegrityPanel
+│ └── PrivacyPanel
+│
+├── AuditPanel
+├── HistoryPanel
+└── StatusBar
+```
+
+# 33. Core State Model
+
+```text id="vjq9rs"
+Application
+│
+├── files
+├── activeFile
+├── filePreview
+├── inspection
+├── metadata
+├── hashes
+├── encryption
+├── archive
+├── history
+├── auditLog
+├── selectedOperation
+└── preferences
+```
+
+Sensitive values such as encryption keys should **not** be persisted casually in application state or local storage.
+
+# 34. Capability Classification
+
+| Capability | Browser-only |
+| --------------------------- | ------------------------- |
+| File inspection | Yes |
+| Hashing | Yes |
+| Metadata reading | Yes, format-dependent |
+| Metadata removal | Yes, format-dependent |
+| Hex viewer | Yes |
+| Text viewer | Yes |
+| MIME inspection | Yes |
+| Magic-byte inspection | Yes |
+| File comparison | Yes |
+| Duplicate detection | Yes |
+| ZIP inspection | Yes |
+| ZIP creation | Yes |
+| Encryption | Yes |
+| Decryption | Yes |
+| Password-based encryption | Yes |
+| Local encrypted containers | Yes |
+| Audit logs | Yes |
+| Version history | Yes |
+| IndexedDB storage | Yes |
+| Drag/drop | Yes |
+| File preview | Yes |
+| OS permissions | **No — privileged layer** |
+| Guaranteed secure disk wipe | **No** |
+| Full disk recovery | **No** |
+| Kernel-level monitoring | **No** |
+| Antivirus scanning | **No** |
+| Network traffic inspection | **No** |
+| System-wide file monitoring | **No** |
+
+This distinction is critical. A browser security application should **never pretend that browser sandbox capabilities equal OS-level security controls**.
+
+# 35. Final Suite Navigation
+
+```text
+FILE SECURITY
+│
+├── Files
+│
+├── Inspect
+│ ├── File Info
+│ ├── Hex Viewer
+│ ├── Text Viewer
+│ ├── Structure
+│ └── File Signature
+│
+├── Verify
+│ ├── Hash
+│ ├── Compare
+│ ├── Integrity
+│ └── Duplicate Detection
+│
+├── Protect
+│ ├── Encrypt
+│ ├── Decrypt
+│ ├── Secure Container
+│ └── Archive
+│
+├── Privacy
+│ ├── Metadata
+│ ├── Remove Metadata
+│ └── File Sanitization
+│
+├── History
+│ ├── Versions
+│ └── Recovery
+│
+├── Audit
+│ └── Security Log
+│
+└── Utilities
+├── File Compare
+├── Archive Tools
+├── Hash Manifest
+└── Format Inspection
+```
+
+# 36. Final Architecture
+
+```text
+FILE SECURITY SUITE
+│
+┌────────────────────┼────────────────────┐
+│ │ │
+INSPECT PROTECT VERIFY
+│ │ │
+Metadata Encryption Hash
+Hex viewer Containers Integrity
+Structure Archives Compare
+File type Passwords Duplicates
+│ │ │
+└────────────────────┼────────────────────┘
+│
+PRIVACY ENGINE
+│
+Metadata / Sanitization
+│
+▼
+DOCUMENT / FILE MODEL
+│
+┌────────────────┼────────────────┐
+▼ ▼ ▼
+HISTORY AUDIT STORAGE
+│ │ │
+└────────────────┼────────────────┘
+▼
+LOCAL BROWSER
+```
+
+## STOP POINT
+
+The framework ends here:
+
+**Research → Non-AI Capability Map → Browser/OS Classification → Security Tool Taxonomy → Local Architecture → Desktop UI → Mobile UI → Gestures → Haptics → Security UX → STOP**
+
+No AI, no LLM, no cloud scanning, no server-side file processing, and no algorithm implementation has been introduced.

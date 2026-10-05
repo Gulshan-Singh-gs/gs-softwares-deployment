@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "generate:sitemap": "node tools/generate-sitemap.mjs",
     "test:bot": "tsx test_bot.ts",
     "check:viewport": "npx tsx tools/check-viewport.ts",
     "check:tap-targets": "npx tsx tools/check-tap-targets.ts",
@@ -30,7 +31,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.0.1",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^7.0.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

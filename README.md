@@ -1,179 +1,220 @@
 <div align="center">
 
-  <img src="./public/favicon.svg" alt="GS Softwares Logo" width="80" height="80" />
+  <img src="./public/favicon.svg" alt="GS Softwares Logo" width="88" height="88" />
 
-  # GS Softwares
+  # GS Softwares Suite
 
-  <p><strong>A high-performance, privacy-first, client-side web application suite and creative workstation platform built for modern workflows.</strong></p>
+  <p><strong>The Privacy-Preserving, Client-Native Operating System for Creative, Cryptographic & Document Engineering.</strong></p>
+  <p><em>100% In-Memory · Zero Server Uploads · Air-Gapped & Offline-First · WebAssembly & Multi-Core Web Workers</em></p>
 
   <p>
     <a href="./LICENSE">
       <img src="https://img.shields.io/badge/License-MIT-0a0a0a?style=flat-square&logo=opensourceinitiative&logoColor=white" alt="License" />
     </a>
     <img src="https://img.shields.io/badge/React-19-0a0a0a?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />
-    <img src="https://img.shields.io/badge/TypeScript-Strict-0a0a0a?style=flat-square&logo=typescript&logoColor=3178C6" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/TypeScript-5.7%20Strict-0a0a0a?style=flat-square&logo=typescript&logoColor=3178C6" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Vite-6-0a0a0a?style=flat-square&logo=vite&logoColor=646CFF" alt="Vite" />
     <img src="https://img.shields.io/badge/Tailwind-v4-0a0a0a?style=flat-square&logo=tailwindcss&logoColor=38BDF8" alt="Tailwind" />
-    <img src="https://img.shields.io/badge/PWA-Offline--First-0a0a0a?style=flat-square&logo=pwa&logoColor=white" alt="PWA" />
+    <img src="https://img.shields.io/badge/Architecture-AGENTS.md%20Compliant-0a0a0a?style=flat-square&logo=blueprint&logoColor=white" alt="AGENTS.md" />
+    <img src="https://img.shields.io/badge/PWA-100%25%20Offline-0a0a0a?style=flat-square&logo=pwa&logoColor=white" alt="PWA" />
   </p>
 
 </div>
 
 ---
 
-## 🧭 Overview
+## <img src="./public/readme-assets/neu-compass.svg" width="22" height="22" align="center" /> Executive Summary
 
-**GS Softwares** is an offline-capable, air-gapped web platform housing a comprehensive suite of media workstations, cryptographic utilities, and productivity tools. Every operation runs natively inside your browser using client-side Web APIs, Web Workers, and WebAssembly — guaranteeing zero latency from network roundtrips, offline reliability, and absolute data privacy.
+**GS Softwares** is a zero-telemetry, browser-native operating platform unifying professional workstations into an interconnected, non-destructive ecosystem. 
+
+Unlike traditional cloud-tethered platforms that ship your proprietary documents, media, and keys to remote servers, GS Softwares runs **100% client-side**. Leveraging standard browser primitives—**Web Workers**, **WebAssembly**, **OffscreenCanvas**, **Web Crypto API**, and the **Origin Private File System (OPFS)**—all computations execute in memory on the host machine. 
+
+Disconnect your Wi-Fi, enable airplane mode, and every single feature continues to perform with sub-millisecond responsiveness and zero privacy leaks.
 
 ---
 
-## 🏛️ Architecture & Platform Model
+## <img src="./public/readme-assets/neu-scale.svg" width="22" height="22" align="center" /> Immutable Prime Directives
 
-GS Softwares functions as a **browser-native operating system**, transforming isolated utilities into an interconnected, non-destructive workstation ecosystem:
+Every tool and subsystem strictly complies with the **GS Softwares Prime Directives**:
+
+| Directive | Law | Implementation Reality |
+| :--- | :--- | :--- |
+| **D1 · Zero Upload** | No file, key, payload, or derivative ever leaves the host device. | Network tab remains completely empty during all processing. No tracking, telemetry, or server round-trips. |
+| **D2 · Offline-Capable** | Every feature operates without network connectivity. | PWA Service Worker caching and complete in-browser WASM runtime bundles. |
+| **D3 · Non-Blocking Threads** | Never lock the main event loop with heavy calculations. | Heavy compute (PDF rasterization, OCR, transcode, crypto) runs in dedicated Web Worker pools. UI stays at 60 FPS / INP < 200ms. |
+| **D4 · Zero Memory Leaks** | Deterministic memory lifecycles. | Every `URL.createObjectURL` is registered through centralized tracking and immediately revoked upon cleanup. |
+| **D5 · Non-Destructive** | Edits store operations, not destructive snapshots. | Immutable source buffers coupled with replayable Command Pattern state trees. |
+| **D6 · Adaptive Tiers** | Hardware-aware performance profiles. | Responsive execution scaling across `eco`, `balanced`, and `performance` hardware concurrency tiers. |
+| **D7 · Structural Privacy** | Security by architecture, not by toggle. | Native cryptographic primitives, EXIF metadata scrubbing, and in-memory sandboxing. |
+| **D8 · Honesty Over Hype** | Refuse impossible operations client-side openly. | No fake operations or misleading simulation; exact mathematical and deterministic output guarantees. |
+
+---
+
+## <img src="./public/readme-assets/neu-architecture.svg" width="22" height="22" align="center" /> System Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│ GS SOFTWARES PLATFORM SHELL                                           │
-│ Header • Router • Command Palette (Ctrl+K) • Adaptive Performance Tiers│
+│  LAYER 3 · WORKSTATION STUDIOS & TOOL PLUGINS                          │
+│  Pixels · Canvas · PDF · Video · Audio · Text · Archive · QR · Sheets   │
+│  EBook · Slides · Security · Hash · Workflow (Automations)             │
 ├────────────────────────────────────────────────────────────────────────┤
-│ CANONICAL TOOL REGISTRY                                                │
-│ Single source of truth for all tools, metadata, permissions & routing  │
+│  LAYER 2 · CORE SUBSYSTEMS ("The Kernel")                              │
+│  • PerfTier Engine (Auto-benchmark & battery-aware thread profiles)    │
+│  • Canonical Tool Registry (Discovery, capability metadata, SEO/AEO)   │
+│  • DataBus & Command Pattern (Non-destructive undo/redo history)       │
+│  • WorkerPool Manager (Comlink Web Workers & SharedArrayBuffers)       │
+│  • Magic-Number File Router (Header sniffers: PDF, ZIP, PNG, MP4, etc) │
+│  • Workflow Automation DAG (Queueing, isolation, batching)             │
+│  • Storage & Memory Lifecycle (OPFS, IndexedDB, tracked Blob URLs)     │
 ├────────────────────────────────────────────────────────────────────────┤
-│ GLOBAL STORAGE & ASSET LAYER                                           │
-│ Multi-Tiered Storage: OPFS (Large Binaries) + IndexedDB + BroadcastSync │
-│ Stable Asset IDs • Version Histories • Cross-App Lineage • Trash       │
-├────────────────────────────────────────────────────────────────────────┤
-│ WORKSTATION STUDIOS                                                    │
-│ • GS-Pixels Studio (Canvas-First Image Workstation)                   │
-│ • GS-Canvas (Bézier Vector Studio & Node Graph)                        │
-│ • GS-PDF • GS-Video • GS-Audio • GS-Security • GS-Text • GS-Bridge     │
+│  LAYER 1 · PLATFORM CAPABILITIES                                       │
+│  Web Workers · OffscreenCanvas · WebCrypto API · WASM · OPFS · IDB     │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎨 GS-Pixels V2 Workstation
+## <img src="./public/readme-assets/neu-studios.svg" width="22" height="22" align="center" /> The 14 Workstation Studios
 
-GS-Pixels has been upgraded into a professional, non-destructive **Canvas-First Workstation**:
+GS Softwares provides 14 dedicated, domain-specific studios accessible via top-level routing, unified search, and the global Command Palette (`Ctrl+K` / `Cmd+K`):
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│ TOP BAR: GS-Pixels • Multi-Asset Tabs • Undo/Redo • Paste • Export ZIP │
-├────────────┬────────────────────────────────────────────┬──────────────┤
-│ TOOL RAIL  │               CANVAS VIEWPORT              │  INSPECTOR   │
-│ • Adjust   │ ┌────────────────────────────────────────┐ │ Context-     │
-│ • Crop     │ │ [Processed] [Original] [Split]  [Zoom] │ │ sensitive    │
-│ • Resize   │ │                                        │ │ sliders,     │
-│ • Rotate   │ │    Interactive Before/After Slider     │ │ presets &    │
-│ • AI Cutout│ │    with Drag Divider & Crop Overlays   │ │ fine-grained │
-│ • Watermark│ │                                        │ │ parameters   │
-│ • Privacy  │ └────────────────────────────────────────┘ │              │
-│ • Palette  │                                            │ [Reset All]  │
-│ • Convert  │                                            │ [Apply All]  │
-│ • ... (18) │                                            │              │
-├────────────┴────────────────────────────────────────────┴──────────────┤
-│ STATUS BAR: 🔒 LOCAL AIR-GAPPED • WebWorker • 1920×1080px • 1.2MB → 420KB (-65%)
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-### Key Workstation Capabilities:
-- **Canvas-First Viewport**: High-resolution image canvas with zoom (`25%` to `400%`), fit-to-screen, and centered checkered canvas texture.
-- **Before / After Split Compare**: Interactive split-view comparison with a draggable divider handle.
-- **Contextual Inspector**: Sliders and controls dynamically adapt to the active capability (`Adjust`, `Crop`, `Resize`, `Rotate`, `BG Remove`, `Watermark`, `Privacy`, `Palette`, `Convert`, `Vectorize`, `Upscale`, `Inpaint`, `Dither`, `Grid`, `Diff`, `Stitch`, `Batch`).
-- **Multi-Asset Tabs**: Seamless tab switcher (`[ image1.png ✕ ] [ image2.jpg ✕ ] [+]`) with isolated history stacks and state.
-- **AI & Computer Vision**: Client-side background removal, blemish removal via harmonic diffusion, 2x/4x super-resolution upscaling, and contour tracing to SVG.
-- **Privacy & EXIF**: Lossless metadata scrubbing (GPS, camera, timestamp) with mosaic/blackout redaction.
-- **Palette Studio**: 32-color extractor with live Eyedropper API, CSS Variables, and Tailwind CSS tokens.
+| Studio | Identifier | Capabilities & Architecture |
+| :--- | :--- | :--- |
+| **GS-Pixels** | `pixels` | **Canvas-First Image Workstation**: Non-destructive adjustments, crop framing, canvas zoom/pan (25%–400%), before/after split slider, color palette extractor, EXIF metadata scrubber, and batch export. |
+| **GS-Canvas** | `canvas` | **Vector Node Canvas**: Infinite vector surface with cubic/quadratic Bézier math, pressure-sensitive smoothing via `perfect-freehand`, shapes, layer graphs, and SVG/PNG vector exports. |
+| **GS-PDF** | `pdf` | **Document Engine**: High-fidelity PDF viewing via `pdfjs-dist`, vector page manipulation, document merging/splitting, in-browser compression, watermarking, AcroForm field editing, and OCR text extraction via Tesseract WASM. |
+| **GS-Video** | `video` | **WASM Video Studio**: Frame-accurate video trimming, interactive clip scrubbing, animated GIF compilation, and client-side audio track extraction without remote rendering. |
+| **GS-Audio** | `audio` | **AI Audio DAW**: Triad Record-Edit-Play pipeline, high-precision WebAudio waveform visualization, non-destructive slicer, volume normalization, and real-time audio playback control. |
+| **GS-Text** | `text` | **Structured Text Suite**: Synchronized Markdown matrix with live side-by-side preview, side-by-side Diff Comparator with line-level diffing, and reading analytics. |
+| **GS-Archive** | `archive` | **In-Memory Archive Manager**: Multi-file ZIP creation and inspection powered by `JSZip`, recursive directory nesting, file extraction, and in-memory compression. |
+| **GS-QR & Barcode** | `qr` | **Branded Matrix Studio**: Deterministic vector QR code generator with error correction levels (L/M/Q/H), vCard/WiFi/URL templates, foreground/background color styling, and barcode synthesis. |
+| **GS-Sheets** | `spreadsheet` | **Data Grid Studio**: Fast client-side CSV / TSV tabular processor with column sorting, live row filtering, delimiter sanitization, and export to CSV, JSON, and Markdown tables. |
+| **GS-EBook** | `ebook` | **EPUB Reader**: Distraction-free digital publication reader with chapter tree navigation, custom typography scaling, and offline reading persistence. |
+| **GS-Slides** | `presentation` | **Deck Studio (Strictly Non-AI)**: 4 explicit editor view modes (`Canvas`, `Markdown`, `Outline`, `Present`), synchronized `---` slide delimiter parsing, slide organizer rail, fullscreen F5 presenter mode with live timer, and 16:9 vector PDF deck export via `@cantoo/pdf-lib`. |
+| **GS-Security** | `security` | **Cryptographic Vault**: Military-grade file encryption and decryption using PBKDF2 (100,000 iterations) key derivation paired with authenticated AES-256-GCM ciphers via native `crypto.subtle`. |
+| **GS-Hash** | `hash` | **Integrity & Checksum Engine**: Fast streaming cryptographic digest calculator generating SHA-256, SHA-512, SHA-384, SHA-1, and MD5 file signatures with dual-file checksum match verification. |
+| **GS-Workflow** | `bridge` | **Cross-Suite Automation Studio**: Multi-step pipeline builder chaining inputs and outputs across tools (e.g., Image → WebP → Watermark → ZIP Archive) with 40+ prebuilt workflow templates. |
 
 ---
 
-## 📦 Core Suites
+## <img src="./public/readme-assets/neu-theme.svg" width="22" height="22" align="center" /> Responsive Theme System (Dark & Light Mode)
 
-| Studio | Capabilities & Engine |
-| :--- | :--- |
-| **GS-Pixels** | Canvas-first image workstation, non-destructive adjustments, crop, resize, AI cutout, inpaint, dithering, and batch export. |
-| **GS-Canvas** | Infinite vector node canvas featuring cubic & quadratic Bézier math, smart shape detection, layer composition, and SVG/PNG export. |
-| **GS-Audio** | Multi-track audio recorder, live waveform visualizers, non-destructive slicing, and playback manipulation via `WebAudio API`. |
-| **GS-Video** | Client-side video trimming, canvas frame extraction, format transformation, and local transcode without server roundtrips. |
-| **GS-PDF** | In-browser PDF parsing, multi-document merging, page extraction, watermarking, and structural document inspection. |
-| **GS-Security & Hash** | Air-gapped cryptographic hashing (SHA-256, SHA-512, MD5, SHA-1), checksum comparisons, and ciphers via `SubtleCrypto`. |
-| **GS-Bridge & Workflows** | Inter-studio asset bridge passing documents and media seamlessly across tools without re-uploading. |
-| **Productivity** | Local spreadsheet editor, formatted text processor, presentations, QR generator, and ZIP archiving. |
+GS Softwares features a bespoke, multi-tier design system crafted with **Tailwind CSS v4** and modern CSS variables:
+
+- **Full Dark Mode**: Deep obsidian and cosmic zinc palettes (`#07080A`, `#0C0E14`) engineered with ambient neon accents for focused, low-eye-strain creative sessions.
+- **High-Contrast Light Mode**: Clean, editorial-grade daylight palette utilizing balanced slate tones, crisp typography (`#0F172A` / `#1E293B`), refined border contrasts, and customized form controls (range sliders, scrollbars, dropdowns) with complete contrast compliance.
+- **Adaptive Aesthetics**: Seamless switching with persistent theme memory across all modal drawers, inspectors, canvas stages, and status bars.
 
 ---
 
-## 🔒 Security & Privacy Guarantee
+## <img src="./public/readme-assets/neu-tech.svg" width="22" height="22" align="center" /> Technology Stack
 
-- **Zero Uploads**: No files, tokens, or personal payloads are transmitted over the network. Processing stays strictly inside your browser tab.
-- **Strict Headers**: Configured with `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp`, and a strict `Content-Security-Policy`.
-- **Air-Gapped & Offline Ready**: Service worker caches runtime bundles for offline execution anywhere.
+| Layer | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **UI Framework** | React | 19.0 | Concurrent rendering, state transitions, modern hooks |
+| **Bundler & Dev Server**| Vite | 6.1 | Lightning-fast HMR, route-based code splitting, PWA integration |
+| **Language** | TypeScript | 5.7 | `strict: true`, strict types, zero `any` in production code |
+| **Styling** | Tailwind CSS | 4.0 | Utility-first token design, ultra-clean CSS bundling |
+| **State Architecture** | Zustand | 5.0 | Lightweight reactive state, Command Pattern stores, cross-slice sync |
+| **PDF Manipulation** | `@cantoo/pdf-lib` | 2.0 | Pure client-side PDF document synthesis and vector export |
+| **PDF Rendering** | `pdfjs-dist` | 6.2 | High-fidelity canvas rasterization and page text parsing |
+| **Optical Character Recognition** | `tesseract.js` | 7.0 | Offline WASM OCR running inside isolated workers |
+| **Vector Geometry** | `perfect-freehand` | 1.2 | Pressure-sensitive smoothing algorithms for freehand drawing |
+| **Archive Compression**| `jszip` | 3.10 | In-browser multi-file ZIP compression and extraction |
+| **Cryptography** | Web Crypto API | Native | Native `SubtleCrypto` AES-256-GCM, SHA-256/512, PBKDF2 |
+| **Icons** | `lucide-react` | 1.51 | Modern, consistent iconography across all tools and suites |
 
 ---
 
-## 📂 Project Structure
+## <img src="./public/readme-assets/neu-folder.svg" width="22" height="22" align="center" /> Repository Layout
 
 ```bash
 gs-softwares-deployment/
-├── public/                 # Static assets, PWA manifest, and security headers
+├── public/                 # Static assets, PWA manifest, and icons
 ├── src/
-│   ├── components/         # Workstation and studio components
-│   │   ├── pixels/         # GS-Pixels Tool Rail, Canvas, Inspector, TopBar, StatusBar
-│   │   ├── audio/          # Workstation visualizers, editors, recorders
-│   │   ├── canvas/         # Viewport engines, minimaps, radial menus
-│   │   ├── settings/       # Dynamic hardware controls & preference panels
-│   │   └── shared/         # Standardized drop-zones, loading stages, cards
-│   ├── platform/           # Core Platform Engine
-│   │   ├── registry.ts     # Canonical Tool Registry & discovery metadata
-│   │   ├── storage.ts      # Multi-tier Global Storage (OPFS, IDB, Memory)
-│   │   └── types.ts        # Tool contracts, capabilities, and permission schemas
-│   ├── context/            # Hardware & performance tier context providers
-│   ├── lib/                # Media engines & mathematical utilities
-│   │   ├── imageEngine.ts  # Canvas pixel manipulation, AI segmentation, inpainting
-│   │   ├── audioEngine.ts  # WebAudio graph orchestrator
-│   │   ├── cryptoEngine.ts # WebCrypto hash/cipher implementations
-│   │   ├── pdfEngine.ts    # PDF page extraction and manipulation
-│   │   └── canvas/         # Bézier math, export pipelines, storage
-│   ├── pages/              # Studio view controllers
-│   └── App.tsx             # Registry-driven application shell & routing
+│   ├── platform/           # Layer 2 Kernel
+│   │   ├── registry.ts     # Canonical registry of all 14 studios & 100+ tools
+│   │   ├── types.ts        # Global contracts, permissions, execution modes
+│   │   └── storage.ts      # Multi-tier storage orchestration (OPFS / IDB)
+│   ├── suites/             # Layer 3 Workstation Studios
+│   │   ├── image/          # GS-Pixels Image Workstation
+│   │   ├── pdf/            # GS-PDF Document Operating System
+│   │   ├── video/          # GS-Video Trimmer, GIF & Converter Studio
+│   │   ├── audio/          # GS-Audio WebAudio DAW
+│   │   ├── presentation/   # GS-Slides Deck Studio (Canvas, Markdown, Outline, PDF)
+│   │   ├── security/       # GS-Security AES-256-GCM Cryptographic Vault
+│   │   ├── hash/           # GS-Hash Integrity & Checksum Calculator
+│   │   ├── text/           # GS-Text Markdown Matrix & Diff Comparator
+│   │   ├── archive/        # GS-Archive In-Memory ZIP/TAR Compression
+│   │   ├── qr/             # GS-QR Matrix & Barcode Studio
+│   │   ├── spreadsheet/    # GS-Sheets Tabular Grid Processor
+│   │   └── workflow/       # GS-Workflow Cross-Suite Automation Pipeline
+│   ├── components/         # Shared workspace chrome, modals, topbars & dropzones
+│   ├── lib/                # Engine helpers (pdfEngine, markdownSync, fileUtils)
+│   ├── App.tsx             # Main application shell with lazy route boundaries
+│   ├── main.tsx            # Application entry point
+│   └── index.css           # Global Tailwind v4 design tokens and theme styles
 ├── vite.config.ts          # Bundler configuration and PWA plugins
-└── package.json            # Dependencies and pipeline scripts
+├── tsconfig.json           # Strict TypeScript configuration
+└── package.json            # Scripts and platform dependencies
 ```
 
 ---
 
-## 🚀 Getting Started
+## <img src="./public/readme-assets/neu-rocket.svg" width="22" height="22" align="center" /> Getting Started
 
 ### Prerequisites
 
 * **Node.js** >= 20.0.0
 * **npm** >= 9.0.0 (or **pnpm** / **yarn**)
 
-### Installation
+### Development Setup
 
-1. Clone the repository:
-```bash
-git clone https://github.com/gulshan-singh-gs/gs-softwares-deployment.git
-cd gs-softwares-deployment
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/gulshan-singh-gs/gs-softwares-deployment.git
+   cd gs-softwares-deployment
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-3. Launch development server:
-```bash
-npm run dev
-```
+3. **Start local development server:**
+   ```bash
+   npm run dev
+   ```
+   Open your browser at `http://localhost:5173`.
 
-4. Typecheck & Build production bundle:
-```bash
-npm run typecheck
-npm run build
-```
+4. **Verify TypeScript compilation:**
+   ```bash
+   npm run typecheck
+   ```
+
+5. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+6. **Preview production build locally:**
+   ```bash
+   npm run preview
+   ```
 
 ---
 
-## 📜 License
+## <img src="./public/readme-assets/neu-security.svg" width="22" height="22" align="center" /> Security & Privacy Guarantees
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for details.
+- **No Remote Telemetry**: No Google Analytics, no error telemetry servers, no marketing beacons.
+- **Air-Gapped Operation**: Run inside completely offline corporate networks or classified environments with zero external dependencies.
+- **Secure Sandbox Headers**:
+  - `Cross-Origin-Opener-Policy: same-origin`
+  - `Cross-Origin-Embedder-Policy: require-corp`
+  - Strict Content Security Policy (`CSP`) restricting outbound connections.
+
+---
+
+## <img src="./public/readme-assets/neu-license.svg" width="22" height="22" align="center" /> License
+
+Distributed under the **MIT License**. See [LICENSE](./LICENSE) for full details.

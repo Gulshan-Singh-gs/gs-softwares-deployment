@@ -1,0 +1,1484 @@
+# Barcode & QR Suite
+
+## Research → Capability Classification → Architecture → Responsive UI → Interaction Specification
+
+## 0. Objective
+
+Design a professional, privacy-first **Barcode & QR Suite** capable of:
+
+* Creating QR codes
+* Creating 1D barcodes
+* Creating 2D barcodes
+* Scanning codes using the camera
+* Scanning uploaded images
+* Reading codes from screenshots/photos
+* Managing decoded results
+* Creating printable labels
+* Generating serial/batch codes
+* Converting structured information into codes
+* Exporting codes in professional formats
+* Providing barcode/QR diagnostics
+* Supporting offline/browser-native workflows wherever technically practical
+
+The suite must feel like a professional utility application rather than a collection of unrelated generators.
+
+The primary design principle is:
+
+**The code/result is the center of the workspace; tools surround it contextually.**
+
+Do not begin algorithm implementation during this phase.
+
+# PHASE 1 — SUITE CAPABILITY RESEARCH
+
+Research the professional barcode/QR ecosystem and consolidate capabilities from:
+
+* Barcode generators
+* QR generators
+* Barcode scanners
+* QR scanners
+* Label-generation software
+* Inventory systems
+* Data-capture systems
+* Developer barcode SDKs
+* Browser-native scanning APIs
+* Offline barcode applications
+* Dynamic QR platforms
+
+Research categories including:
+
+### QR
+
+* URL
+* Plain text
+* Email
+* Phone
+* SMS
+* Wi-Fi
+* vCard/contact
+* Location
+* Calendar event
+* Social profile
+* App link
+* File reference
+* Payment payload
+* Custom payload
+* Dynamic URL
+* Link hub
+* Coupon
+* Review link
+* Form link
+
+### 1D Barcodes
+
+* Code 128
+* Code 39
+* Code 93
+* Codabar
+* ITF / ITF-14
+* EAN-8
+* EAN-13
+* UPC-A
+* UPC-E
+* RSS / GS1 DataBar families
+
+### 2D Codes
+
+* QR
+* Micro QR
+* Data Matrix
+* Aztec
+* PDF417
+* MaxiCode
+
+### Enterprise / GS1
+
+Research:
+
+* GS1-128
+* GS1 DataMatrix
+* GS1 DataBar
+* Application Identifiers
+* GTIN
+* SSCC
+* product identifiers
+* batch/lot numbers
+* serial numbers
+* expiry dates
+
+Do not assume every symbology should be included in the first implementation.
+
+Classify each according to:
+
+1. Consumer relevance
+2. Enterprise relevance
+3. Browser feasibility
+4. Encoding complexity
+5. Decoding complexity
+6. Printing requirements
+7. Validation requirements
+8. Offline feasibility
+9. Need for backend services
+10. Priority
+
+# PHASE 2 — BROWSER-NATIVE VS SERVICE-DEPENDENT CLASSIFICATION
+
+Every capability must be classified into one of three groups.
+
+## A. Browser-native
+
+These should operate without a server wherever practical.
+
+Examples:
+
+* Static QR generation
+* Static barcode generation
+* Text → barcode
+* Number → barcode
+* URL → QR
+* vCard → QR
+* Wi-Fi → QR
+* Contact → QR
+* Email → QR
+* Phone → QR
+* SMS → QR
+* Calendar → QR
+* Location → QR
+* Image-based barcode decoding
+* Camera-based scanning
+* Screenshot scanning
+* Clipboard scanning
+* Local file scanning
+* Batch generation
+* Serial-number generation
+* Code validation
+* Code preview
+* Code customization
+* SVG export
+* PNG export
+* print layout generation
+* local scan history
+* local project storage
+* local templates
+* local presets
+
+## B. Browser + optional local/embedded processing
+
+Potentially browser-native but may require specialized libraries, WASM, Web Workers, or device capabilities.
+
+* Multi-format decoding
+* Perspective correction
+* difficult-image scanning
+* low-light enhancement
+* damaged-code recovery
+* document/camera preprocessing
+* image denoising
+* automatic crop
+* automatic orientation detection
+* high-speed continuous scanning
+
+The architecture must permit these capabilities without forcing a server dependency.
+
+## C. Backend/service-dependent
+
+These should NOT be falsely represented as offline features.
+
+* Dynamic QR redirect
+* QR destination editing after distribution
+* Hosted file QR
+* Scan analytics
+* Geographic scan analytics
+* device analytics
+* campaign tracking
+* cloud scan history
+* multi-user projects
+* team collaboration
+* cloud asset storage
+* remotely managed QR codes
+* URL shortening
+* server-side redirects
+* authentication
+* enterprise synchronization
+
+Important:
+
+**A "file QR code" has two distinct meanings.**
+
+### Local file encoding
+
+The file/data itself is encoded into a suitable code where technically possible.
+
+This is browser-native but limited by the code's data capacity.
+
+### Hosted file QR
+
+The QR contains a URL pointing to a file hosted somewhere.
+
+This requires hosting/storage and therefore belongs to the optional service layer.
+
+Never confuse these two concepts in the UI.
+
+# PHASE 3 — FINAL TOOL TAXONOMY
+
+The final application should use the following primary categories.
+
+# 1. CREATE
+
+### QR Generator
+
+* URL QR
+* Text QR
+* Wi-Fi QR
+* vCard QR
+* Email QR
+* Phone QR
+* SMS QR
+* Location QR
+* Calendar QR
+* Social QR
+* App QR
+* Payment QR
+* File QR
+* Custom QR
+
+### Barcode Generator
+
+* EAN-8
+* EAN-13
+* UPC-A
+* UPC-E
+* Code 39
+* Code 93
+* Code 128
+* Codabar
+* ITF
+* GS1 formats
+
+### 2D Generator
+
+* Data Matrix
+* Aztec
+* PDF417
+* MaxiCode
+* Micro QR
+
+# 2. SCAN
+
+### Camera Scanner
+
+* QR scanner
+* Barcode scanner
+* Multi-format scanner
+* Continuous scanning
+* Auto-detection
+* Flash/torch control where supported
+* Camera switching
+* scan pause/resume
+* scan confirmation
+
+### Image Scanner
+
+* Upload image
+* Drag/drop image
+* Paste image
+* Screenshot import
+* Scan from clipboard
+
+### Document Scanner
+
+* Scan a photographed document
+* Detect multiple codes
+* Display code positions
+* associate codes with document regions
+
+# 3. READ & INSPECT
+
+When a code is detected, display:
+
+* decoded value
+* format
+* raw data
+* parsed data
+* code type
+* bounding box
+* confidence/status where available
+* validation status
+* structured fields
+* actionable content
+
+A URL should become:
+
+* URL
+* domain
+* protocol
+* path
+
+A vCard should become:
+
+* name
+* phone
+* email
+* organization
+* address
+
+A Wi-Fi QR should become:
+
+* SSID
+* security
+* password field
+* hidden-network state
+
+The result interface should never force users to inspect raw payload syntax unless they explicitly request it.
+
+# 4. VALIDATE
+
+Create a dedicated validation tool.
+
+Capabilities:
+
+* Validate QR payload
+* Validate barcode input
+* Validate check digit
+* Validate EAN
+* Validate UPC
+* Validate GS1 syntax
+* Validate Application Identifiers
+* Detect invalid characters
+* Detect invalid length
+* Detect malformed structured payload
+* Detect unsupported payload
+* Show correction guidance
+
+Use a clear state model:
+
+**Valid**
+
+**Warning**
+
+**Invalid**
+
+**Unsupported**
+
+# 5. DESIGN
+
+The code itself should be visually customizable without compromising machine readability.
+
+Controls:
+
+* foreground color
+* background color
+* transparency
+* module style
+* finder pattern style
+* corner style
+* quiet zone
+* margin
+* size
+* density
+* error correction
+* logo
+* logo size
+* logo padding
+* label
+* human-readable text
+* typography
+* alignment
+
+For barcodes:
+
+* bar width
+* bar height
+* text visibility
+* text position
+* text size
+* margins
+* bearer bars where applicable
+* label text
+* orientation
+
+The interface must warn users when customization can reduce scan reliability.
+
+# 6. LABEL STUDIO
+
+Create a professional print-oriented workspace.
+
+* single label
+* multiple labels
+* sheet layouts
+* A4
+* Letter
+* thermal-label presets
+* custom dimensions
+* margins
+* spacing
+* columns
+* rows
+* bleed
+* safe area
+* barcode positioning
+* text positioning
+* product information
+* SKU
+* GTIN
+* serial number
+* batch number
+* expiry date
+
+Preview:
+
+* actual-size mode
+* print preview
+* zoom
+* rulers
+* guides
+* snapping
+* grid
+
+# 7. BATCH GENERATOR
+
+Allow users to generate multiple codes from structured data.
+
+Inputs:
+
+* CSV
+* pasted table
+* JSON
+* manually entered rows
+
+Columns may contain:
+
+* product name
+* SKU
+* GTIN
+* serial
+* URL
+* text
+* batch
+* expiry
+* custom payload
+
+Output:
+
+* individual codes
+* contact sheet
+* label sheet
+* ZIP package
+* CSV mapping
+* PDF print sheet
+
+No cloud processing should be required for ordinary batch generation.
+
+# 8. SERIAL GENERATOR
+
+Generate sequences such as:
+
+* SKU sequences
+* serial numbers
+* inventory identifiers
+* batch identifiers
+
+* prefix
+* suffix
+* starting value
+* ending value
+* increment
+* zero padding
+* random mode
+* alphanumeric mode
+* date component
+* checksum where applicable
+
+# 9. CONVERT
+
+Create a transformation workspace.
+
+* Text → QR
+* URL → QR
+* CSV → Barcodes
+* CSV → QR
+* Barcode → structured data
+* QR → structured data
+* QR → URL
+* Barcode image → decoded value
+* JSON → QR
+* vCard → QR
+* Wi-Fi credentials → QR
+
+# 10. CHECK / DIAGNOSE
+
+Create a barcode-quality inspection tool.
+
+Analyze:
+
+* quiet zone
+* dimensions
+* contrast
+* module clarity
+* orientation
+* distortion
+* perspective
+* apparent damage
+* readability
+* payload validity
+* expected format
+* print suitability
+
+The diagnostic system should explain problems in human-readable language.
+
+Example:
+
+> Insufficient quiet zone. Increase the surrounding margin before printing.
+
+Not:
+
+> QUIET_ZONE_ERROR = 0x0042.
+
+# 11. HISTORY
+
+Local-first history:
+
+* recent scans
+* generated codes
+* projects
+* templates
+* favorites
+* recently exported files
+
+Each record should contain:
+
+* timestamp
+* type
+* format
+* payload summary
+* thumbnail
+* source
+* action
+
+Provide:
+
+* search
+* filter
+* sort
+* favorite
+* rename
+* delete
+* export
+
+# 12. FILE / EXPORT
+
+Support:
+
+* SVG
+* PNG
+* WebP
+* PDF
+* CSV
+* JSON
+* ZIP
+
+For professional printing, prioritize SVG/PDF.
+
+Export controls:
+
+* resolution
+* physical size
+* DPI metadata where relevant
+* transparent background
+* margin
+* filename
+* naming pattern
+* batch export
+
+# PHASE 4 — SYSTEM ARCHITECTURE
+
+Use a modular architecture.
+
+```text
+APPLICATION SHELL
+│
+├── Workspace Manager
+├── Responsive Layout Engine
+├── Command System
+├── Keyboard Shortcut Manager
+├── Gesture Engine
+├── Haptic Feedback Engine
+├── Accessibility Layer
+│
+├── CODE WORKSPACE
+│ ├── QR Generator
+│ ├── Barcode Generator
+│ ├── 2D Generator
+│ ├── Code Designer
+│ └── Preview Renderer
+│
+├── SCANNER WORKSPACE
+│ ├── Camera Manager
+│ ├── Image Import
+│ ├── Detection Engine
+│ ├── Multi-Code Detection
+│ └── Result Manager
+│
+├── DATA ENGINE
+│ ├── Payload Builder
+│ ├── Payload Parser
+│ ├── Structured Data
+│ ├── Validation
+│ └── Serial Generator
+│
+├── LABEL STUDIO
+│ ├── Canvas
+│ ├── Guides
+│ ├── Grid
+│ ├── Templates
+│ └── Print Layout
+│
+├── BATCH ENGINE
+│ ├── CSV Parser
+│ ├── JSON Parser
+│ ├── Row Processor
+│ ├── Batch Generator
+│ └── Export Manager
+│
+├── DIAGNOSTICS
+│ ├── Visual Inspection
+│ ├── Payload Inspection
+│ ├── Validation
+│ └── Print Readiness
+│
+├── LOCAL PROCESSING
+│ ├── Code Encoding
+│ ├── Code Decoding
+│ ├── Image Processing
+│ ├── Web Workers
+│ └── WASM-capable Processing
+│
+├── PROJECT STATE
+│ ├── Current Project
+│ ├── History
+│ ├── Templates
+│ ├── Scan History
+│ └── Preferences
+│
+└── OPTIONAL SERVICE LAYER
+├── Dynamic QR
+├── Hosted Files
+├── Analytics
+├── Cloud Sync
+├── Authentication
+└── Collaboration
+```
+
+The service layer must remain optional.
+
+The core application must remain useful without it.
+
+# PHASE 5 — CODE-CENTERED WORKSPACE
+
+The main workspace should not look like a generic dashboard.
+
+The generated/scanned code is the visual center.
+
+Desktop:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ Logo Workspace Project Undo Redo Export Menu │
+├────────────┬───────────────────────────────┬────────────────┤
+│ │ │ │
+│ CREATE │ │ Inspector │
+│ SCAN │ │ │
+│ DESIGN │ CODE CANVAS │ Content │
+│ LABEL │ │ Format │
+│ BATCH │ │ Appearance │
+│ VALIDATE │ │ Dimensions │
+│ HISTORY │ │ Validation │
+│ │ │ │
+├────────────┴───────────────────────────────┴────────────────┤
+│ Status │ Format │ Size │ Readability │ Zoom │ Fit │ Preview │
+└─────────────────────────────────────────────────────────────┘
+```
+
+The center canvas must support:
+
+* zoom
+* pan
+* fit
+* actual-size
+* rulers
+* grid
+* guides
+* selection
+* object positioning
+* print-safe visualization
+
+# PHASE 6 — MOBILE ARCHITECTURE
+
+Mobile must not be a shrunken desktop UI.
+
+Use a camera/code-first interface.
+
+```text
+┌──────────────────────────┐
+│ Workspace ⋯ │
+├──────────────────────────┤
+│ │
+│ │
+│ CODE / CAMERA │
+│ CANVAS │
+│ │
+│ │
+├──────────────────────────┤
+│ Create Scan Design │
+├──────────────────────────┤
+│ contextual controls │
+│ appear as bottom sheet │
+└──────────────────────────┘
+```
+
+Primary mobile navigation:
+
+* Create
+* Scan
+* Design
+* History
+* More
+
+Do not display every feature simultaneously.
+
+Use progressive disclosure.
+
+# PHASE 7 — MOBILE SCANNER UX
+
+Scanner mode should become a dedicated immersive state.
+
+```text
+┌──────────────────────────┐
+│ Back QR / Barcode │
+│ │
+│ CAMERA VIEW │
+│ │
+│ ┌──────────────┐ │
+│ │ │ │
+│ │ SCAN ZONE │ │
+│ │ │ │
+│ └──────────────┘ │
+│ │
+│ Gallery Flash │
+│ │
+│ Continuous History │
+└──────────────────────────┘
+```
+
+Scanner controls:
+
+* camera switch
+* flash
+* gallery
+* format filter
+* continuous mode
+* pause
+* scan history
+
+When a code is detected:
+
+1. Freeze/confirm detection.
+2. Show a compact result card.
+3. Display format.
+4. Display decoded content.
+5. Provide contextual actions.
+6. Allow resume scanning.
+
+Do not immediately navigate away from the scanner.
+
+# PHASE 8 — DESKTOP SCANNER
+
+Desktop scanner should support:
+
+* webcam
+* uploaded image
+* drag/drop
+* clipboard image
+* screenshot
+* multi-code detection
+
+Camera panel:
+
+```text
+┌───────────────────────────────┐
+│ Camera │
+│ │
+│ LIVE VIDEO │
+│ │
+│ ┌───────────────┐ │
+│ │ Detection │ │
+│ │ region │ │
+│ └───────────────┘ │
+│ │
+├───────────────────────────────┤
+│ Format: Auto │
+│ Continuous: ON │
+│ Camera: Integrated Webcam │
+└───────────────────────────────┘
+```
+
+Detected codes should appear as selectable overlays.
+
+# PHASE 9 — CONTEXTUAL INSPECTOR
+
+The right-side inspector must change according to the selected object.
+
+### QR selected
+
+Show:
+
+* payload
+* QR type
+* error correction
+* size
+* margin
+* colors
+* logo
+* validation
+* export
+
+### Barcode selected
+
+* symbology
+* encoded value
+* check digit
+* dimensions
+* bar width
+* height
+* human-readable text
+* export
+
+### Scan result selected
+
+* format
+* decoded value
+* parsed fields
+* validation
+* actions
+* copy
+* save
+* export
+
+# PHASE 10 — UNIVERSAL CONTROL SYSTEM
+
+Avoid overwhelming users with dozens of controls.
+
+Controls should be grouped into:
+
+### Content
+
+What is encoded?
+
+### Format
+
+How is it encoded?
+
+### Appearance
+
+How does it look?
+
+### Dimensions
+
+How large is it?
+
+### Reliability
+
+Will it scan reliably?
+
+### Output
+
+How is it exported?
+
+Universal controls:
+
+* Size
+* Margin
+* Contrast
+* Density
+* Error Correction
+* Scale
+* Quality
+
+Tool-specific controls appear only when relevant.
+
+# PHASE 11 — GESTURE SYSTEM
+
+Mobile interactions:
+
+### Canvas
+
+* One-finger drag → pan
+* Pinch → zoom
+* Double tap → fit
+* Two-finger double tap → reset
+* Long press → contextual menu
+
+### Code object
+
+* Drag → reposition
+* Pinch → resize
+* Rotation gesture → rotate
+* Long press → object actions
+
+### Scanner
+
+* Tap → pause/resume
+* Swipe up → result history
+* Swipe down → scanner controls
+
+### Sliders
+
+* Horizontal drag → parameter
+* Tap → jump to position
+* Long press → precise adjustment
+
+Gestures must never hide essential controls.
+
+# PHASE 12 — HAPTIC SYSTEM
+
+Use haptics only for semantic events.
+
+* tool selection → light tap
+* successful scan → confirmation pulse
+* invalid scan → warning pulse
+* slider boundary → subtle boundary pulse
+* snap → short confirmation
+* export complete → completion pattern
+* destructive action → stronger warning
+
+If haptics are unavailable, the interface must remain completely functional.
+
+# PHASE 13 — KEYBOARD SYSTEM
+
+Desktop shortcuts:
+
+```text
+Ctrl/Cmd + Z Undo
+Ctrl/Cmd + Shift+Z Redo
+Ctrl/Cmd + S Save
+Ctrl/Cmd + E Export
+Space Pan
++ / - Zoom
+0 Fit
+1 Actual Size
+C Create
+S Scan
+L Label
+B Batch
+V Validate
+H History
+```
+
+Provide a command palette:
+
+```text
+Search commands...
+Create QR
+Create Barcode
+Scan Image
+Open Camera
+Create Label
+Batch Generate
+Validate Code
+Export SVG
+Export PDF
+```
+
+# PHASE 14 — DESIGN SYSTEM
+
+The interface must use:
+
+* SVG icons
+* geometric icons
+* consistent stroke widths
+* no emojis
+* restrained typography
+* high contrast
+* compact professional controls
+* accessible focus states
+* subtle motion
+* contextual tooltips
+* keyboard accessibility
+
+Do not create:
+
+* emoji-based icons
+* excessive gradients
+* giant cards
+* unnecessary dashboards
+* decorative statistics
+* excessive rounded containers
+* nested navigation
+* excessive text labels
+* visually noisy toolbars
+
+The application should resemble a professional engineering/productivity tool.
+
+# PHASE 15 — DEMO / BUFFER STATE
+
+Before the user creates or imports anything, the application must display a built-in demonstration workspace.
+
+The demo workspace should contain:
+
+* example QR code
+* example Code 128 barcode
+* example EAN-13
+* example Data Matrix
+* sample scan result
+* sample label
+
+The user can experiment immediately.
+
+The demo data must be local.
+
+Never overwrite the original demo state.
+
+**Restore Demo**
+
+The initial state should therefore be:
+
+```text
+activeProject = userProject ?? demoProject
+```
+
+# PHASE 16 — PROJECT STATE
+
+Use a structured state model.
+
+```text
+Project
+│
+├── metadata
+├── codes[]
+│ ├── id
+│ ├── format
+│ ├── payload
+│ ├── appearance
+│ ├── dimensions
+│ └── validation
+│
+├── labels[]
+├── templates[]
+├── scanHistory[]
+├── exports[]
+├── settings
+└── history[]
+```
+
+Every modification should be represented as a reversible state transition.
+
+* undo
+* redo
+* duplicate
+* reset
+* restore
+* version history
+
+# PHASE 17 — RESPONSIVE BREAKPOINTS
+
+## Desktop ≥ 1200px
+
+Use:
+
+* left navigation
+* central canvas
+* right inspector
+* bottom status bar
+* keyboard shortcuts
+* command palette
+
+## Tablet 768–1199px
+
+* compact navigation
+* central canvas
+* collapsible inspector
+* bottom contextual controls
+* touch gestures
+
+## Mobile < 768px
+
+* canvas-first
+* minimal header
+* bottom navigation
+* bottom sheets
+* immersive scanner
+* gesture-driven canvas
+* large touch targets
+
+The same underlying tool registry must power all layouts.
+
+Do not duplicate business logic for mobile and desktop.
+
+# PHASE 18 — COMPONENT INVENTORY
+
+Create reusable components:
+
+### Shell
+
+* AppShell
+* Workspace
+* DesktopToolbar
+* MobileHeader
+* BottomNavigation
+* CommandPalette
+
+### Code
+
+* CodeCanvas
+* CodePreview
+* CodeObject
+* CodeInspector
+* CodeToolbar
+* CodeOverlay
+
+* ScannerViewport
+* DetectionOverlay
+* ScanResultCard
+* ScanHistory
+* CameraSelector
+* FlashControl
+
+### Generator
+
+* PayloadEditor
+* FormatSelector
+* QRTypeSelector
+* BarcodeTypeSelector
+* SerialGenerator
+* BatchGenerator
+
+### Design
+
+* AppearancePanel
+* ColorPicker
+* ErrorCorrectionControl
+* MarginControl
+* LogoControl
+* TypographyControl
+
+### Label
+
+* LabelCanvas
+* TemplateSelector
+* PrintSettings
+* Ruler
+* Guide
+* Grid
+
+### Validation
+
+* ValidationPanel
+* DiagnosticResult
+* ReadabilityIndicator
+* PayloadInspector
+
+* ExportDialog
+* FormatSelector
+* BatchExportPanel
+* PrintPreview
+
+# PHASE 19 — TOOL REGISTRY
+
+Do not hard-code every tool into separate UI systems.
+
+Create a registry concept:
+
+```text
+Tool
+├── id
+├── category
+├── title
+├── icon
+├── description
+├── inputType
+├── outputType
+├── supportedFormats
+├── capabilities
+├── browserSupport
+├── requiresCamera
+├── requiresBackend
+├── mobileAvailable
+├── desktopAvailable
+└── priority
+```
+
+The UI should derive navigation and contextual controls from this registry.
+
+This makes the suite extensible.
+
+Future additions should be able to register themselves rather than requiring major UI restructuring.
+
+# PHASE 20 — LOCAL-FIRST PRINCIPLE
+
+Default architecture:
+
+```text
+USER
+↓
+WEB APP
+↓
+LOCAL STATE
+↓
+LOCAL PROCESSING
+↓
+LOCAL EXPORT
+```
+
+Optional:
+
+```text
+LOCAL APP
+↓
+OPTIONAL SERVICE LAYER
+├── Dynamic QR
+├── Hosted Files
+├── Analytics
+├── Cloud Sync
+└── Collaboration
+```
+
+The core generator/scanner must not depend on an account.
+
+No login should be required for basic use.
+
+No user data should be uploaded merely to generate or scan a static code.
+
+# PHASE 21 — PRIVACY MODEL
+
+The application should communicate clearly:
+
+### Camera
+
+"Camera access is required for live scanning."
+
+### Local scan
+
+"Image processing occurs locally when supported."
+
+### Dynamic QR
+
+"This feature requires a service because the destination must remain editable after publication."
+
+### Hosted file
+
+"Your file must be hosted somewhere for this QR to remain accessible to other devices."
+
+Never imply that a dynamic QR is equivalent to a static QR.
+
+# PHASE 22 — ACCESSIBILITY
+
+* keyboard navigation
+* screen-reader labels
+* visible focus
+* reduced motion
+* high contrast
+* large controls
+* color-independent validation
+* accessible scanner result announcements
+* accessible error states
+
+Never communicate status solely through color.
+
+**icon + text + state**
+
+# PHASE 23 — FAILURE STATES
+
+Design explicit states for:
+
+* camera permission denied
+* camera unavailable
+* unsupported browser
+* unsupported format
+* invalid payload
+* code not detected
+* ambiguous detection
+* damaged code
+* low contrast
+* insufficient margin
+* export failure
+* invalid batch row
+* unsupported file type
+* oversized payload
+* dynamic feature unavailable offline
+
+The UI must explain:
+
+1. What happened.
+2. Why it happened.
+3. What the user can do next.
+
+# PHASE 24 — FINAL INFORMATION ARCHITECTURE
+
+The primary navigation should ultimately be:
+
+```text
+CREATE
+├── QR
+├── Barcode
+├── 2D Code
+├── Serial
+└── Batch
+
+SCAN
+├── Camera
+├── Image
+├── Clipboard
+└── Document
+
+DESIGN
+├── Code
+├── Label
+├── Templates
+└── Print
+
+VALIDATE
+├── Payload
+├── Barcode
+├── QR
+└── Diagnostics
+
+HISTORY
+├── Scans
+├── Codes
+├── Projects
+└── Exports
+```
+
+Optional service features:
+
+```text
+ONLINE
+├── Dynamic QR
+├── Hosted Files
+├── Analytics
+├── Cloud Projects
+└── Collaboration
+```
+
+# PHASE 25 — REQUIRED DELIVERABLES
+
+The architect/coding agent must produce:
+
+### A. Research Report
+
+Professional barcode and QR ecosystem research.
+
+### B. Capability Matrix
+
+Every discovered capability classified by:
+
+* category
+* purpose
+* browser feasibility
+* local feasibility
+* service dependency
+* priority
+
+### C. Final Tool Taxonomy
+
+The definitive tool hierarchy.
+
+### D. Browser/Service Boundary
+
+Explicitly identify what belongs locally and what requires optional infrastructure.
+
+### E. System Architecture
+
+Show all major modules and their relationships.
+
+### F. Desktop UI Architecture
+
+Show workspace composition and information hierarchy.
+
+### G. Mobile UI Architecture
+
+Show mobile-specific navigation, scanner experience, bottom sheets and gestures.
+
+### H. Interaction Specification
+
+Document:
+
+* gestures
+* haptics
+* keyboard
+* touch
+* mouse
+* accessibility
+
+### I. Component Inventory
+
+Reusable UI and application components.
+
+### J. State Model
+
+Projects, codes, scans, labels, history, templates and exports.
+
+### K. Failure-State Specification
+
+Permission, validation, scanning, export and compatibility states.
+
+### L. Service Boundary
+
+Explicitly document optional backend functionality.
+
+# CRITICAL STOP CONDITION
+
+After completing:
+
+**Research**
+
+→ **Capability Classification**
+
+→ **Browser/Service Classification**
+
+→ **Tool Taxonomy**
+
+→ **System Architecture**
+
+→ **Desktop UI**
+
+→ **Mobile UI**
+
+→ **Interaction Model**
+
+→ **State Model**
+
+→ **Component Architecture**
+
+**STOP.**
+
+Do NOT implement:
+
+* barcode encoding algorithms
+* QR encoding algorithms
+* barcode decoding algorithms
+* QR decoding algorithms
+* computer-vision algorithms
+* image preprocessing algorithms
+* perspective correction algorithms
+* error-correction algorithms
+* check-digit algorithms
+* scanner algorithms
+* camera-processing pipelines
+* WASM implementations
+* Web Worker implementations
+* backend APIs
+* dynamic QR infrastructure
+* analytics infrastructure
+* cloud storage
+* authentication
+* database schemas
+* production code
+
+Do not select implementation libraries as a substitute for architectural research.
+
+Do not begin coding.
+
+The completed output of this phase must be a professional:
+
+**Research → Capability Map → Browser/Service Classification → Tool Taxonomy → Architecture → Responsive UI → Interaction Specification → STOP**
+
+The algorithm and implementation phase will be handled separately.

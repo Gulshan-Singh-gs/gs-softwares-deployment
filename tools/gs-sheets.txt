@@ -1,0 +1,1514 @@
+# Spreadsheet / Excel Suite — Framework Execution
+
+I’m treating this as a **professional spreadsheet productivity suite**, not merely an Excel clone. The reference capability set is derived from the major spreadsheet paradigms represented by Microsoft Excel, Google Sheets, and The Document Foundation Calc.
+
+Current spreadsheet suites converge around **cell/grid editing, formulas, tables, filtering, charts, PivotTables/PivotCharts, data analysis, data import/transformation, collaboration, version history, and increasingly AI-assisted spreadsheet operations**. ([Microsoft Support][1])
+
+# PHASE 1 — Spreadsheet Suite Capability Research
+
+## 1. Core Workbook
+
+### Workbook
+
+* New workbook
+* Open workbook
+* Save workbook
+* Save As
+* Duplicate workbook
+* Rename workbook
+* Workbook properties
+* Recent files
+* Templates
+* Multiple worksheets
+* Sheet navigation
+* Sheet ordering
+* Sheet duplication
+* Sheet deletion
+* Sheet rename
+* Sheet color
+* Sheet visibility
+* Protected sheets
+* Workbook protection
+
+### File formats
+
+Primary:
+
+* `.xlsx`
+* `.xls`
+* `.csv`
+* `.tsv`
+* `.ods`
+
+Additional:
+
+* `.json`
+* `.xml`
+* `.html`
+* `.pdf`
+* `.txt`
+
+Export:
+
+* Excel
+* CSV
+* TSV
+* PDF
+* HTML
+* ODS
+* JSON
+
+# 2. Spreadsheet Grid Engine
+
+This is the **central equivalent of the image canvas** from our previous Image Suite architecture.
+
+### Cell operations
+
+* Select cell
+* Multi-cell selection
+* Row selection
+* Column selection
+* Range selection
+* Entire sheet selection
+* Merge cells
+* Unmerge cells
+* Insert cell
+* Delete cell
+* Clear cell
+* Clear formatting
+* Copy
+* Cut
+* Paste
+* Paste special
+* Duplicate
+* Fill
+* Autofill
+* Drag fill
+* Series generation
+
+### Rows
+
+* Insert row
+* Delete row
+* Resize row
+* Auto-fit row
+* Hide row
+* Show row
+* Freeze rows
+* Group rows
+* Ungroup rows
+
+### Columns
+
+* Insert column
+* Delete column
+* Resize column
+* Auto-fit column
+* Hide column
+* Show column
+* Freeze columns
+* Group columns
+* Ungroup columns
+
+# 3. Formula & Calculation Suite
+
+This becomes one of the most important browser-native subsystems.
+
+### Formula entry
+
+* Formula bar
+* Inline formula editing
+* Formula autocomplete
+* Function suggestions
+* Function categories
+* Formula references
+* Relative references
+* Absolute references
+* Mixed references
+* Cross-sheet references
+* Cross-workbook references
+
+### Mathematical
+
+* SUM
+* AVERAGE
+* MIN
+* MAX
+* ROUND
+* ROUNDUP
+* ROUNDDOWN
+* ABS
+* MOD
+* POWER
+* SQRT
+* PRODUCT
+
+### Statistical
+
+* COUNT
+* COUNTA
+* COUNTIF
+* COUNTIFS
+* AVERAGEIF
+* AVERAGEIFS
+* MEDIAN
+* MODE
+* STDEV
+* VAR
+* percentile functions
+
+### Logical
+
+* IF
+* IFS
+* AND
+* OR
+* NOT
+* XOR
+* IFERROR
+* IFNA
+
+### Lookup
+
+* VLOOKUP
+* HLOOKUP
+* XLOOKUP
+* INDEX
+* MATCH
+* XMATCH
+* LOOKUP
+
+### Text
+
+* CONCAT
+* TEXTJOIN
+* LEFT
+* RIGHT
+* MID
+* LEN
+* TRIM
+* UPPER
+* LOWER
+* PROPER
+* SUBSTITUTE
+* REPLACE
+* FIND
+* SEARCH
+
+### Date/time
+
+* TODAY
+* NOW
+* DATE
+* YEAR
+* MONTH
+* DAY
+* WEEKDAY
+* WORKDAY
+* NETWORKDAYS
+
+### Dynamic arrays
+
+* FILTER
+* SORT
+* SORTBY
+* UNIQUE
+* SEQUENCE
+* TRANSPOSE
+
+### Advanced
+
+* Named ranges
+* Named formulas
+* Lambda-style functions
+* Array formulas
+* Formula dependency graph
+* Circular-reference detection
+* Error tracing
+* Formula auditing
+
+LibreOffice and Excel both expose extensive formula/calculation capabilities, including complex functions and automatic recalculation. ([LibreOffice Help][2])
+
+# 4. Formatting Suite
+
+### Cell formatting
+
+* Font
+* Font size
+* Bold
+* Italic
+* Underline
+* Strikethrough
+* Text color
+* Cell background
+* Borders
+* Border styles
+* Alignment
+* Vertical alignment
+* Text wrapping
+* Text rotation
+* Indentation
+
+### Number formats
+
+* General
+* Number
+* Currency
+* Accounting
+* Percentage
+* Date
+* Time
+* Scientific
+* Fraction
+* Custom format
+
+### Conditional formatting
+
+* Cell rules
+* Color scales
+* Data bars
+* Icon sets
+* Duplicate detection
+* Above/below average
+* Top/bottom values
+* Formula-based rules
+
+# 5. Table & Data Management
+
+Excel specifically treats tables, sorting, filtering, charts and PivotTables as core spreadsheet workflows. ([Microsoft Support][3])
+
+### Tables
+
+* Convert range → table
+* Table styles
+* Header rows
+* Total rows
+* Calculated columns
+* Structured references
+* Table expansion
+* Table filtering
+* Table sorting
+
+### Sorting
+
+* A → Z
+* Z → A
+* Numeric sorting
+* Date sorting
+* Multi-column sorting
+* Custom sorting
+
+### Filtering
+
+* Basic filters
+* Text filters
+* Number filters
+* Date filters
+* Custom filters
+* Filter by color
+* Filter by value
+* Filter views
+
+### Data validation
+
+* Dropdown
+* Checkbox
+* Number limits
+* Date limits
+* Text length
+* Custom validation
+* Error messages
+* Input messages
+
+Google Sheets also uses filter views and structured spreadsheet features such as tables and smart chips. ([Google Workspace][4])
+
+# 6. Data Analysis
+
+## Pivot System
+
+* Pivot table
+* Pivot fields
+* Row fields
+* Column fields
+* Value fields
+* Filter fields
+* Grouping
+* Aggregation
+* Drill-down
+* Pivot chart
+* Pivot filters
+* Slicers
+
+PivotTables/PivotCharts are fundamental analytical features across modern spreadsheet systems. ([Microsoft Support][5])
+
+## What-if analysis
+
+* Scenario manager
+* Goal seek
+* Data tables
+* Sensitivity analysis
+
+Calc, E.g. explicitly supports what-if analysis and scenario-based calculations. ([LibreOffice Help][6])
+
+# 7. Visualization
+
+### Charts
+
+* Column
+* Bar
+* Line
+* Area
+* Pie
+* Doughnut
+* Scatter
+* Bubble
+* Radar
+* Histogram
+* Combo
+* Waterfall
+* Funnel
+* Stock
+* Treemap
+* Map
+
+### Chart controls
+
+* Title
+* Axis
+* Legend
+* Labels
+* Gridlines
+* Series
+* Colors
+* Data ranges
+* Formatting
+* Secondary axis
+
+### Dashboard
+
+* KPI cards
+* Charts
+* Tables
+* Filters
+* Slicers
+* Summary metrics
+* Dashboard layouts
+
+# 8. Data Import & Transformation
+
+This is where the boundary between **browser-native** and **advanced/server-assisted** starts appearing.
+
+### Import
+
+* CSV
+* TSV
+* XLSX
+* XLS
+* ODS
+* JSON
+* XML
+* HTML
+* Clipboard
+* Drag-and-drop files
+
+### Transformation
+
+* Remove columns
+* Rename columns
+* Change data type
+* Split columns
+* Merge columns
+* Remove duplicates
+* Replace values
+* Filter rows
+* Sort rows
+* Join tables
+* Append tables
+* Group data
+* Pivot/unpivot
+* Normalize data
+
+Excel's Power Query is specifically designed around importing, connecting, shaping, merging and refreshing external data. ([Microsoft Support][7])
+
+# 9. AI Spreadsheet Suite
+
+This is the AI layer rather than the spreadsheet core.
+
+### AI creation
+
+* Create spreadsheet from prompt
+* Create table from prompt
+* Generate formulas
+* Generate charts
+* Generate dashboards
+* Generate templates
+
+### AI analysis
+
+* Explain spreadsheet
+* Summarize data
+* Detect trends
+* Detect anomalies
+* Identify outliers
+* Find correlations
+* Generate insights
+* Generate executive summary
+
+### AI editing
+
+* Clean data
+* Standardize values
+* Categorize rows
+* Fill missing values
+* Detect duplicates
+* Format spreadsheet
+* Create conditional formatting
+* Create dropdowns
+* Sort/filter data
+
+Google's current Sheets AI functionality includes formula generation, table/chart creation, analysis, conditional formatting, pivot tables, filtering and other spreadsheet actions. ([Google Help][8])
+
+# 10. Collaboration
+
+* Multi-user editing
+* Presence indicators
+* Comments
+* Mentions
+* Assign tasks
+* Suggestions
+* Permissions
+* Viewer/editor roles
+* Sharing
+* Version history
+* Revision comparison
+* Restore version
+* Activity history
+
+Google Sheets, E.g. provides comments, task assignment and version history. ([Google Workspace][4])
+
+# 11. Smart Data Objects
+
+Inspired by the modern "smart chip" paradigm:
+
+* Person
+* Email
+* File
+* Date
+* Calendar event
+* Location
+* Finance entity
+* Rating
+* URL preview
+
+Google Sheets currently supports multiple smart-chip types directly in cells. ([Google Help][9])
+
+# 12. Presentation / Document Layer
+
+A professional spreadsheet suite shouldn't treat every sheet as raw data.
+
+* Print layout
+* Page breaks
+* Headers
+* Footers
+* Margins
+* Print area
+* PDF export
+* Report layouts
+* Dashboard mode
+* Presentation mode
+* Gridless presentation
+* Full-screen mode
+
+# PHASE 2 — Browser-Native vs AI/Server Classification
+
+This is the equivalent of the **"what can the coding agent build locally?"** stage from our Image Suite.
+
+## A. Browser-native — KEEP
+
+These can fundamentally operate locally in the browser.
+
+| Domain | Browser-native |
+| ------------------------- | -------------- |
+| Grid | Yes |
+| Cells | Yes |
+| Rows/columns | Yes |
+| Selection | Yes |
+| Copy/paste | Yes |
+| Formatting | Yes |
+| Tables | Yes |
+| Sorting | Yes |
+| Filtering | Yes |
+| Data validation | Yes |
+| Basic formulas | Yes |
+| Formula evaluation | Yes |
+| Dependency tracking | Yes |
+| Charts | Yes |
+| Basic pivot engine | Yes |
+| Conditional formatting | Yes |
+| Freeze panes | Yes |
+| Sheet management | Yes |
+| Workbook state | Yes |
+| Undo/redo | Yes |
+| History | Yes |
+| CSV import/export | Yes |
+| JSON import/export | Yes |
+| Local XLSX processing | Possible |
+| Local storage | Yes |
+| IndexedDB persistence | Yes |
+| Clipboard | Yes |
+| Keyboard shortcuts | Yes |
+| Drag/drop | Yes |
+| Basic data transformation | Yes |
+| Dashboard rendering | Yes |
+| Print/PDF generation | Yes |
+
+### Important architectural decision
+
+**The spreadsheet itself should be local-first.**
+
+The browser should not require a server simply to:
+
+> open → edit → calculate → format → chart → save
+
+That would unnecessarily turn a spreadsheet editor into a cloud-dependent application.
+
+# B. Browser-native but computationally complex
+
+These are still possible locally, but the engineering complexity is substantially higher.
+
+* Full Excel-compatible formula engine
+* Advanced PivotTables
+* Large workbook calculation
+* Large dataset processing
+* XLSX compatibility
+* XLS compatibility
+* ODS compatibility
+* Power Query-like transformation engine
+* Dependency graph optimization
+* Large-scale chart rendering
+* Formula auditing
+* What-if analysis
+* Advanced statistical analysis
+
+These should be considered **local computation engines**, not automatically "server features."
+
+# C. Server/cloud-dependent
+
+These inherently require infrastructure if implemented as collaborative services:
+
+* Real-time multi-user collaboration
+* Cloud document storage
+* Account synchronization
+* Cross-device synchronization
+* Cloud version history
+* Permission management
+* Enterprise sharing
+* Remote data connectors
+* Scheduled data refresh
+* External database connections
+
+# D. AI-dependent
+
+These require an AI inference layer unless suitable local models are embedded:
+
+* Natural-language spreadsheet creation
+* AI formula generation
+* AI data analysis
+* AI insights
+* Natural-language transformation
+* AI cleaning
+* AI categorization
+* AI anomaly interpretation
+* AI chart recommendation
+* AI dashboard generation
+* Spreadsheet question answering
+
+# PHASE 3 — FINAL TOOL TAXONOMY
+
+I would structure the suite into **12 primary domains**.
+
+```text
+SPREADSHEET SUITE
+│
+├── 01 WORKBOOK
+│ ├── New
+│ ├── Open
+│ ├── Save
+│ ├── Import
+│ ├── Export
+│ ├── Templates
+│ └── Workbook Management
+│
+├── 02 GRID
+│ ├── Cells
+│ ├── Rows
+│ ├── Columns
+│ ├── Selection
+│ ├── Fill
+│ ├── Merge
+│ └── Clipboard
+│
+├── 03 FORMULAS
+│ ├── Formula Bar
+│ ├── Functions
+│ ├── Lookup
+│ ├── Text
+│ ├── Date/Time
+│ ├── Statistics
+│ ├── Arrays
+│ └── Formula Audit
+│
+├── 04 FORMAT
+│ ├── Typography
+│ ├── Number Formats
+│ ├── Borders
+│ ├── Alignment
+│ ├── Styles
+│ └── Conditional Formatting
+│
+├── 05 DATA
+│ ├── Tables
+│ ├── Sort
+│ ├── Filter
+│ ├── Validation
+│ ├── Cleanup
+│ └── Transformation
+│
+├── 06 ANALYZE
+│ ├── Pivot
+│ ├── What-if
+│ ├── Statistics
+│ ├── Scenarios
+│ └── Insights
+│
+├── 07 VISUALIZE
+│ ├── Charts
+│ ├── Pivot Charts
+│ ├── Dashboards
+│ └── KPIs
+│
+├── 08 IMPORT / CONNECT
+│ ├── CSV
+│ ├── XLSX
+│ ├── ODS
+│ ├── JSON
+│ ├── XML
+│ └── External Data
+│
+├── 09 AI
+│ ├── Generate
+│ ├── Analyze
+│ ├── Transform
+│ ├── Clean
+│ ├── Formula Assistant
+│ ├── Chart Assistant
+│ └── Dashboard Assistant
+│
+├── 10 COLLABORATE
+│ ├── Comments
+│ ├── Mentions
+│ ├── Tasks
+│ ├── Sharing
+│ └── Version History
+│
+├── 11 VIEW
+│ ├── Freeze
+│ ├── Zoom
+│ ├── Gridlines
+│ ├── Fullscreen
+│ ├── Formula View
+│ └── Presentation View
+│
+└── 12 AUTOMATION
+├── Macros
+├── Scripts
+├── Reusable Actions
+├── Workflows
+└── Templates
+```
+
+# PHASE 4 — SYSTEM ARCHITECTURE
+
+Architecture: **not** resemble a conventional web CRUD application.
+
+The central abstraction is:
+
+> **Workbook → Sheets → Grid → Cell Graph → Calculation → View**
+
+### High-level architecture
+
+```text
+┌───────────────────────┐
+│ UI SHELL │
+│ Desktop / Tablet / │
+│ Mobile │
+└───────────┬───────────┘
+│
+┌───────────▼───────────┐
+│ WORKSPACE CONTROLLER │
+└───────────┬───────────┘
+│
+┌───────────────────────┼────────────────────────┐
+│ │ │
+▼ ▼ ▼
+┌───────────────┐ ┌─────────────────┐ ┌───────────────┐
+│ Workbook │ │ Interaction │ │ Command │
+│ State │ │ Engine │ │ System │
+└───────┬───────┘ └────────┬────────┘ └───────┬───────┘
+│ │ │
+└────────────────────────┼───────────────────────┘
+▼
+┌──────────────────┐
+│ Spreadsheet Core │
+├──────────────────┤
+│ Grid Engine │
+│ Formula Engine │
+│ Dependency Graph │
+│ Table Engine │
+│ Filter Engine │
+│ Sort Engine │
+│ Validation │
+└────────┬─────────┘
+│
+┌──────────────────┼──────────────────┐
+▼ ▼ ▼
+┌───────────┐ ┌────────────┐ ┌────────────┐
+│ Chart │ │ Pivot │ │ Data │
+│ Engine │ │ Engine │ │ Transform │
+└───────────┘ └────────────┘ └────────────┘
+
+OPTIONAL
+│
+▼
+┌──────────────────┐
+│ AI LAYER │
+│ Formula AI │
+│ Data AI │
+│ Insight AI │
+│ Generation AI │
+└──────────────────┘
+```
+
+# PHASE 5 — THE CENTRAL UI
+
+Unlike the Image Suite, the spreadsheet's **grid itself becomes the canvas**.
+
+## Desktop
+
+```text
+┌───────────────────────────────────────────────────────────────┐
+│ FILE │ HOME │ INSERT │ DATA │ FORMULAS │ ANALYZE │ VIEW │ AI │
+├───────────────────────────────────────────────────────────────┤
+│ Undo │ Redo │ Font │ Format │ Sort │ Filter │ Chart │ ... │
+├───────────────────────────────────────────────────────────────┤
+│ Name Box │ Formula Bar │
+├────────┬──────────────────────────────────────────┬───────────┤
+│ │ │ │
+│ TOOL │ SPREADSHEET GRID │ INSPECTOR │
+│ RAIL │ │ │
+│ │ │ │
+│ + │ │ │
+│ Data │ │ │
+│ View │ │ │
+│ AI │ │ │
+│ │ │ │
+├────────┴──────────────────────────────────────────┴───────────┤
+│ Sheet1 │ Sheet2 │ Sheet3 │ + Status │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### Important difference
+
+The **grid occupies the majority of the viewport**.
+
+The interface must not become a collection of giant cards surrounding a tiny spreadsheet.
+
+# PHASE 6 — DESKTOP ARCHITECTURE
+
+### Top layer
+
+**Application bar**
+
+* Logo
+* File name
+* Save state
+* Undo
+* Redo
+* Share
+* Export
+* Profile/settings
+
+### Second layer
+
+**Command ribbon**
+
+Categories:
+
+* Home
+* Insert
+* Data
+* Formulas
+* Analyze
+* View
+* AI
+
+### Third layer
+
+**Formula workspace**
+
+```text
+[ A1 ] [ =SUM(B2:B12) ]
+```
+
+### Main workspace
+
+```text
+Tool Rail | Spreadsheet Canvas | Context Inspector
+```
+
+### Bottom
+
+```text
+Sheet tabs | Navigation | Zoom | View controls | Calculation status
+```
+
+# PHASE 7 — MOBILE ARCHITECTURE
+
+A conventional desktop Excel ribbon simply **cannot be shrunk** onto a phone.
+
+Instead:
+
+```text
+┌─────────────────────────────┐
+│ ← Budget.xlsx ⋮ │
+├─────────────────────────────┤
+│ A1 │ =SUM(B2:B12) │
+├─────────────────────────────┤
+│ │
+│ SPREADSHEET │
+│ │
+│ │
+│ │
+├─────────────────────────────┤
+│ Cell │ Format │ Data │ AI │
+├─────────────────────────────┤
+│ Contextual Toolbar │
+└─────────────────────────────┘
+```
+
+### Mobile principles
+
+* Grid-first
+* Minimal permanent chrome
+* Bottom tool navigation
+* Bottom sheets
+* Context menus
+* Floating actions
+* Horizontal sheet navigation
+* Gesture-driven navigation
+* Long-press menus
+* Pinch zoom
+* Touch-optimized cell handles
+
+# PHASE 8 — TOUCH & GESTURE SYSTEM
+
+This is where the framework carries directly from the Image Suite.
+
+## Core gestures
+
+### One finger
+
+* Tap → select cell
+* Drag → select range
+* Drag selected border → move selection
+* Drag fill handle → autofill
+
+### Two fingers
+
+* Pinch → zoom
+* Two-finger drag → pan
+* Two-finger tap → contextual action
+
+### Long press
+
+Opens:
+
+```text
+Copy
+Cut
+Paste
+Fill
+Format
+Insert
+Delete
+Comment
+AI
+```
+
+### Double tap
+
+* Enter cell edit mode
+
+### Triple tap
+
+* Select row/semantic region depending on context
+
+### Horizontal sheet gesture
+
+Swipe left/right → change sheet
+
+### Formula gesture
+
+When editing a formula:
+
+* Tap cell → insert reference
+* Drag selection → extend range
+
+# PHASE 9 — HAPTIC SYSTEM
+
+Haptics should represent **state changes**, not decoration.
+
+| Event | Feedback |
+| ------------------- | --------------------- |
+| Cell selected | Light tap |
+| Range expanded | Subtle repeated ticks |
+| Row/column boundary | Medium pulse |
+| Snap-to-grid | Short confirmation |
+| Formula accepted | Light confirmation |
+| Invalid input | Warning pulse |
+| Undo | Short pulse |
+| Redo | Short pulse |
+| Sheet changed | Light transition |
+| AI action completed | Success pattern |
+| Export completed | Confirmation |
+
+Haptics remain optional and degrade gracefully on unsupported hardware.
+
+# PHASE 10 — UNIVERSAL CONTROL SYSTEM
+
+Instead of exposing hundreds of controls simultaneously:
+
+## Contextual inspector
+
+When a cell is selected:
+
+```text
+CELL
+─────────────────
+Value
+Formula
+Format
+Number
+Alignment
+Validation
+Comment
+```
+
+When a table is selected:
+
+```text
+TABLE
+─────────────────
+Style
+Columns
+Filters
+Totals
+Sort
+Validation
+```
+
+When a chart is selected:
+
+```text
+CHART
+─────────────────
+Type
+Data
+Series
+Axes
+Legend
+Labels
+Style
+```
+
+When a pivot is selected:
+
+```text
+PIVOT
+─────────────────
+Rows
+Columns
+Values
+Filters
+Grouping
+Layout
+```
+
+This is the spreadsheet equivalent of the **contextual AI inspector** from the Image Suite.
+
+# PHASE 11 — AI INTERFACE
+
+AI should **not replace the spreadsheet UI**.
+
+It should sit above it.
+
+### Global AI command bar
+
+```text
+┌─────────────────────────────────────────────┐
+│ Ask your spreadsheet... AI │
+└─────────────────────────────────────────────┘
+```
+
+Examples:
+
+> "Create a monthly revenue tracker."
+
+> "Find duplicate customers."
+
+> "Explain this formula."
+
+> "Create a chart showing revenue by region."
+
+> "Why is this total incorrect?"
+
+> "Clean the customer names."
+
+> "Create a dashboard from this sheet."
+
+### AI action preview
+
+Never silently modify important data.
+
+```text
+AI PROPOSAL
+
+Action:
+Normalize customer names
+
+Affected:
+1,248 cells
+
+Changes:
+• "Acme ltd" → "Acme Ltd"
+• "ACME LTD" → "Acme Ltd"
+
+[ Preview Changes ]
+
+[ Cancel ] [ Apply ]
+```
+
+This is critical for professional/enterprise use.
+
+# PHASE 12 — NON-DESTRUCTIVE DATA OPERATIONS
+
+Every significant operation should become a command.
+
+```text
+USER ACTION
+↓
+COMMAND
+↓
+VALIDATION
+↓
+PREVIEW
+↓
+APPLY
+↓
+HISTORY NODE
+```
+
+Example:
+
+```text
+Sheet
+↓
+Sort A → Z
+↓
+History
+↓
+Filter
+↓
+Formula modification
+↓
+AI cleanup
+↓
+Chart creation
+```
+
+This creates a powerful undo/redo architecture rather than simply maintaining an unreliable "last action" state.
+
+# PHASE 13 — HISTORY SYSTEM
+
+The suite should have:
+
+### Undo
+
+`Ctrl/Cmd + Z`
+
+### Redo
+
+`Ctrl/Cmd + Shift + Z`
+
+### History panel
+
+```text
+HISTORY
+
+23:42 AI cleanup
+23:39 Applied filter
+23:36 Added PivotTable
+23:30 Formula modified
+23:26 Imported CSV
+23:20 Created workbook
+```
+
+Selecting an operation allows:
+
+* Inspect
+* Undo to this point
+* Restore
+* Compare
+
+# PHASE 14 — DESKTOP KEYBOARD SYSTEM
+
+Essential shortcuts:
+
+| Shortcut | Action |
+| -------------------- | ------------- |
+| Ctrl/Cmd + N | New workbook |
+| Ctrl/Cmd + O | Open |
+| Ctrl/Cmd + S | Save |
+| Ctrl/Cmd + Z | Undo |
+| Ctrl/Cmd + Shift + Z | Redo |
+| Ctrl/Cmd + C | Copy |
+| Ctrl/Cmd + X | Cut |
+| Ctrl/Cmd + V | Paste |
+| Ctrl/Cmd + F | Find |
+| Ctrl/Cmd + H | Replace |
+| Ctrl/Cmd + A | Select |
+| F2 | Edit cell |
+| Enter | Commit |
+| Esc | Cancel |
+| Tab | Next cell |
+| Shift + Tab | Previous cell |
+| Ctrl/Cmd + Arrow | Jump region |
+| Ctrl/Cmd + Space | Select column |
+| Shift + Space | Select row |
+
+### Command palette
+
+`Ctrl/Cmd + K`
+
+```text
+Search commands...
+
+Create PivotTable
+Freeze First Row
+Insert Chart
+Format as Currency
+Remove Duplicates
+Create Dashboard
+Ask AI
+Export PDF
+```
+
+# PHASE 15 — RESPONSIVE BREAKPOINTS
+
+## Desktop — ≥1200px
+
+Full interface:
+
+```text
+Ribbon
+Tool rail
+Grid
+Inspector
+Formula bar
+Sheet tabs
+Status bar
+```
+
+## Tablet — 768–1199px
+
+```text
+Compact toolbar
+Grid
+Collapsible inspector
+Bottom contextual controls
+```
+
+## Mobile — <768px
+
+```text
+Minimal header
+Formula bar
+Grid
+Bottom navigation
+Bottom sheets
+Gestures
+Floating actions
+```
+
+# PHASE 16 — VISUAL DESIGN SYSTEM
+
+No emojis.
+
+Use:
+
+* SVG icons
+* geometric icons
+* consistent stroke weight
+* keyboard shortcut hints
+* subtle dividers
+* restrained motion
+* accessible contrast
+* semantic states
+
+### Avoid
+
+* Giant dashboard cards
+* Excessive gradients
+* Decorative statistics
+* Excessive rounded containers
+* Emoji icons
+* Every action becoming a button
+* Permanent AI chat window
+* Nested modal hell
+* Mobile desktop-ribbon duplication
+
+The spreadsheet itself should remain the visual center.
+
+# PHASE 17 — DEMO / BUFFER WORKBOOK
+
+This is directly analogous to the hardcoded demo image in our Image Suite.
+
+Before the user imports/opens a workbook:
+
+```text
+DEFAULT WORKBOOK
+```
+
+contains a realistic demonstration dataset.
+
+### Example
+
+**Sheet: Sales**
+
+```text
+Date Region Product Units Revenue
+01/10/26 North Laptop 12 ₹720,000
+02/10/26 West Monitor 21 ₹315,000
+03/10/26 South Keyboard 42 ₹126,000
+...
+```
+
+Additional sheets:
+
+```text
+Dashboard
+Sales
+Customers
+Products
+Analysis
+```
+
+The user can immediately test:
+
+* formulas
+* sorting
+* filtering
+* charts
+* formatting
+* tables
+* PivotTables
+* validation
+* dashboards
+* AI actions
+
+without importing anything.
+
+### State model
+
+```text
+activeWorkbook =
+userWorkbook
+??
+demoWorkbook
+```
+
+The demo workbook is never destroyed.
+
+Provide:
+
+> **Restore Demo Workbook**
+
+# PHASE 18 — COMPONENT INVENTORY
+
+### Core
+
+* `WorkbookShell`
+* `SpreadsheetCanvas`
+* `Cell`
+* `CellRange`
+* `RowHeader`
+* `ColumnHeader`
+* `SheetTab`
+* `FormulaBar`
+* `NameBox`
+
+### Navigation
+
+* `TopBar`
+* `Ribbon`
+* `ToolRail`
+* `BottomToolbar`
+* `ContextMenu`
+* `CommandPalette`
+
+### Data
+
+* `Table`
+* `FilterMenu`
+* `SortMenu`
+* `ValidationMenu`
+* `PivotBuilder`
+
+### Visualization
+
+* `Chart`
+* `ChartInspector`
+* `DashboardCanvas`
+* `KPI`
+
+### AI
+
+* `AICommandBar`
+* `AIActionPreview`
+* `AIInsightPanel`
+* `AIFormulaAssistant`
+
+### State
+
+* `HistoryPanel`
+* `VersionPanel`
+* `ChangePreview`
+
+# PHASE 19 — FINAL SYSTEM MODEL
+
+The final product architecture becomes:
+
+```text
+SPREADSHEET SUITE
+│
+┌─────────────────┴─────────────────┐
+│ │
+LOCAL-FIRST CORE OPTIONAL SERVICES
+│ │
+┌──────┼─────────┐ ┌───────────┼──────────┐
+│ │ │ │ │ │
+GRID FORMULA DATA CLOUD AI COLLAB
+│ │ │ │ │ │
+│ │ │ │ │ │
+└──────┼─────────┘ └───────────┼──────────┘
+│ │
+▼ ▼
+LOCAL WORKBOOK OPTIONAL CLOUD
+ENGINE / AI SERVICES
+```
+
+## The fundamental architectural principle
+
+> **Spreadsheet editing should work without a server.**
+
+The server becomes an **augmentation layer**, not the foundation.
+
+That gives the product three modes:
+
+### Mode 1 — Local
+
+```text
+Spreadsheet
++ Formula Engine
++ Charts
++ Tables
++ Analysis
++ Import/Export
+```
+
+No account required.
+
+### Mode 2 — AI
+
+```text
+Local Spreadsheet
++
+AI Assistant
+```
+
+### Mode 3 — Collaborative
+
+```text
+Local Spreadsheet
++
+Cloud Sync
++
+Real-time Collaboration
++
+Version History
+```
+
+This is a considerably stronger architecture than simply cloning Excel as a cloud application.
+
+# FINAL DELIVERABLE MAP
+
+The framework has now produced:
+
+| Deliverable | Status |
+| ------------------------------- | -------- |
+| Spreadsheet capability research | Complete |
+| Professional tool inventory | Complete |
+| Browser-native classification | Complete |
+| Server-dependent classification | Complete |
+| AI-dependent classification | Complete |
+| Final taxonomy | Complete |
+| Core architecture | Complete |
+| Desktop architecture | Complete |
+| Mobile architecture | Complete |
+| Touch/gesture system | Complete |
+| Haptic system | Complete |
+| AI interaction architecture | Complete |
+| Non-destructive history | Complete |
+| Demo workbook system | Complete |
+| Responsive breakpoints | Complete |
+| Component inventory | Complete |
+| Design principles | Complete |
+
+### **STOP POINT**
+
+Per the framework you established, I am **stopping here**.
+
+I am **not** proceeding into:
+
+* formula-engine algorithms
+* XLSX parsing algorithms
+* XLS compatibility algorithms
+* calculation-engine implementation
+* dependency-graph algorithms
+* PivotTable algorithms
+* chart-rendering implementation
+* data-processing algorithms
+* AI model selection
+* AI inference
+* backend implementation
+* real-time collaboration algorithms
+* database architecture
+* cloud infrastructure
+* optimization
+* production code
+
+The next stage would be a separate **Algorithm & Engineering phase**.
+
+The current result is therefore:
+
+> **Research → Capability Map → Browser/Server Classification → Spreadsheet Tool Taxonomy → Architecture → Desktop UI → Mobile UI → Interaction Specification → STOP**

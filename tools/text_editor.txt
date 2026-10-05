@@ -1,0 +1,1157 @@
+# Text Editor Suite — Framework Execution
+
+The correct target is **not a basic `<textarea>` with formatting buttons**. A professional text editor should unify:
+
+> **Writing + Editing + Formatting + Document Structure + Research + AI Assistance + Collaboration + Publishing**
+
+The central artifact is the **structured document**, not the editor UI.
+
+# 1. Research Target
+
+The capability baseline should be derived from professional text/document applications such as:
+
+* Microsoft Word
+* Google Docs
+* Apple Pages
+* LibreOffice Writer
+* Notion
+* Obsidian
+* Typora
+* Markdown editors
+* Ulysses
+* Scrivener
+* Grammarly
+* LanguageTool
+* AI writing/document systems
+
+Goal: identify capabilities worth reproducing, then classify them by execution environment.
+
+# 2. Execution Classification
+
+## Class A — Browser-Native / Deterministic
+
+These should work without a server.
+
+### Core editing
+
+* Typing
+* Selection
+* Copy/cut/paste
+* Undo/redo
+* Find/replace
+* Multi-cursor editing
+* Drag/drop text
+* Word/character counting
+* Line/paragraph operations
+* Auto-save
+* Clipboard integration
+* Keyboard shortcuts
+
+### Formatting
+
+* Bold
+* Italic
+* Underline
+* Strikethrough
+* Superscript
+* Subscript
+* Highlight
+* Font family
+* Font size
+* Text color
+* Alignment
+* Indentation
+* Line spacing
+* Paragraph spacing
+* Lists
+* Numbered lists
+* Checklists
+* Quotes
+* Code blocks
+* Tables
+* Links
+* Images
+* Dividers
+
+### Document structure
+
+* Headings
+* Sections
+* Page breaks
+* Columns
+* Headers
+* Footers
+* Footnotes
+* Endnotes
+* Table of contents
+* Cross-references
+* Bookmarks
+
+### File operations
+
+* New document
+* Open
+* Save
+* Save As
+* Import
+* Export
+* Print
+* PDF export
+* Markdown
+* TXT
+* HTML
+* DOCX where a compatible document engine is available
+
+# 3. Class B — Local Compute
+
+These can run locally using Web Workers/WASM/local models where practical.
+
+* Spell checking
+* Grammar checking
+* Sentence segmentation
+* Language detection
+* Readability analysis
+* Document statistics
+* Keyword extraction
+* Local embeddings
+* Semantic document search
+* Duplicate detection
+* Similarity analysis
+* Local OCR
+* Citation parsing
+* Local document indexing
+* Offline autocomplete
+* Local summarization with suitable models
+* Local translation models
+* Local writing analysis
+
+The important distinction:
+
+> **The editor itself should never depend on AI.**
+
+AI enhances the editor; it does not become the editor.
+
+# 4. Class C — AI / Remote Inference
+
+Potentially expensive or model-dependent capabilities:
+
+### AI writing
+
+* Continue writing
+* Rewrite
+* Expand
+* Shorten
+* Simplify
+* Formalize
+* Humanize
+* Change tone
+* Change audience
+* Improve clarity
+* Improve structure
+* Generate introduction
+* Generate conclusion
+* Generate outline
+* Generate title
+* Generate abstract
+
+### AI document understanding
+
+* Summarize
+* Ask questions about document
+* Extract key points
+* Extract entities
+* Extract action items
+* Extract dates
+* Extract requirements
+* Extract risks
+* Extract decisions
+* Identify contradictions
+* Identify unsupported claims
+
+### AI research
+
+* Research assistant
+* Source discovery
+* Citation generation
+* Citation verification
+* Literature summarization
+* Evidence extraction
+* Research outline generation
+
+### AI transformation
+
+* Translate
+* Convert notes → article
+* Convert outline → document
+* Convert transcript → article
+* Convert meeting notes → report
+* Convert raw text → structured document
+
+# 5. Class D — Hybrid
+
+Some of the strongest features should use both deterministic document operations and AI.
+
+Examples:
+
+**"Make this report professional."**
+
+```text
+User Intent
+↓
+AI understands request
+↓
+AI proposes document operations
+↓
+Editor validates operations
+↓
+Preview
+↓
+User approves
+↓
+Document state updated
+```
+
+Likewise:
+
+* AI formatting
+* AI citation insertion
+* AI table generation
+* AI document restructuring
+* grammar correction
+* semantic search
+* smart autocomplete
+* document summarization
+* style consistency
+* intelligent headings
+* automatic table of contents
+* intelligent redaction
+* document comparison
+
+# 6. Final Tool Taxonomy
+
+## 01. Writing
+
+* Plain text
+* Rich text
+* Markdown
+* Focus mode
+* Distraction-free mode
+* Typewriter mode
+* Word goals
+* Writing goals
+* Writing statistics
+* Autosave
+* Draft management
+
+## 02. Formatting
+
+* Fonts
+* Typography
+* Paragraph formatting
+* Lists
+* Alignment
+* Indentation
+* Spacing
+* Colors
+* Highlights
+* Styles
+* Themes
+* Templates
+* Borders
+* Backgrounds
+
+## 03. Document Structure
+
+* Heading hierarchy
+* Sections
+* Page breaks
+* Columns
+* TOC
+* Footnotes
+* Endnotes
+* Cross-references
+* Bookmarks
+* Captions
+* Bibliography
+* References
+
+## 04. Tables
+
+* Insert table
+* Resize
+* Merge/split cells
+* Row/column insertion
+* Sorting
+* Cell formatting
+* Formula support
+* Header rows
+* Table styles
+* Convert text → table
+* Convert table → text
+
+## 05. Media
+
+* Images
+* SVG
+* GIF
+* Video embeds
+* Audio embeds
+* Charts
+* Diagrams
+* Captions
+* Alt text
+* Image positioning
+* Text wrapping
+* Crop/resize
+
+## 06. Links & References
+
+* Hyperlinks
+* Internal links
+* Bookmarks
+* Cross-document references
+* Citations
+* Bibliography
+* Citation styles
+* Automatic references
+
+# 7. Review & Editing
+
+A professional editor needs a complete review layer.
+
+### Proofreading
+
+* Spelling
+* Grammar
+* Punctuation
+* Style
+* Readability
+* Passive voice
+* Repetition
+* Sentence length
+* Word choice
+
+### Revision
+
+* Track changes
+* Accept/reject
+* Suggestions
+* Comments
+* Annotations
+* Version history
+* Compare versions
+* Restore version
+* Change navigation
+
+# 8. AI Writing Studio
+
+This becomes one of the major differentiators.
+
+Instead of a generic chatbot sitting beside the document:
+
+```text
+DOCUMENT
+↓
+Selection / Paragraph / Section / Entire Document
+↓
+AI COMMAND
+↓
+PROPOSED CHANGE
+↓
+DIFF / PREVIEW
+↓
+Accept / Reject
+```
+
+Example commands:
+
+> Rewrite this paragraph for an executive audience.
+
+> Make this section technically precise.
+
+> Reduce this to 100 words.
+
+> Convert these notes into a structured report.
+
+> Make the argument stronger without adding unsupported claims.
+
+> Find contradictions in this document.
+
+> Extract all requirements.
+
+> Turn this section into a table.
+
+> Create a professional executive summary.
+
+The AI should **never silently overwrite the document**.
+
+# 9. AI Document Intelligence
+
+The AI layer should understand the document as a structured artifact.
+
+For example:
+
+```text
+Document
+├── Title
+├── Abstract
+├── Section 1
+│ ├── Paragraph
+│ ├── Table
+│ └── Figure
+├── Section 2
+│ ├── Heading
+│ └── Paragraph
+├── References
+└── Appendix
+```
+
+This allows commands such as:
+
+> "Summarize Section 3."
+
+> "Find every mention of the database architecture."
+
+> "Compare the conclusions of Sections 2 and 5."
+
+> "Create a table of all requirements."
+
+> "Show every unresolved issue."
+
+# 10. Research Workspace
+
+For academic and professional users:
+
+### Research tools
+
+* Source collection
+* Web references
+* PDF references
+* Notes
+* Citations
+* Bibliography
+* Source metadata
+* Quote extraction
+* Evidence snippets
+* Research folders
+* Source tagging
+* Citation management
+
+### Evidence-aware AI
+
+Instead of:
+
+> "This is probably true."
+
+the system should provide:
+
+```text
+Claim
+↓
+Supporting Source
+↓
+Relevant Passage
+↓
+Citation
+```
+
+This dramatically reduces hallucination risk.
+
+# 11. Markdown Mode
+
+The editor should support both:
+
+### WYSIWYG
+
+```text
+[visual document]
+```
+
+and
+
+### Source
+
+```markdown
+# Architecture
+
+The system consists of...
+
+## Components
+
+- Orchestrator
+- Worker
+- Storage
+```
+
+And ideally:
+
+```text
+WYSIWYG ↔ Markdown
+```
+
+with synchronized document state rather than two unrelated editors.
+
+# 12. Code / Technical Writing
+
+Useful for your own workflow in particular.
+
+Support:
+
+* Code blocks
+* Syntax highlighting
+* Inline code
+* Copy code
+* Language selection
+* Line numbers
+* Monospace typography
+* Diff blocks
+* Mermaid/diagram blocks
+* LaTeX/math
+* JSON/XML/YAML blocks
+* Terminal blocks
+* Technical callouts
+
+Potential command:
+
+> "Convert this architecture description into Mermaid."
+
+# 13. Document Templates
+
+Built-in templates:
+
+* Resume
+* CV
+* Report
+* Research paper
+* Project proposal
+* Technical specification
+* PRD
+* BRD
+* TRD
+* Meeting notes
+* Business proposal
+* Invoice
+* Letter
+* Essay
+* Thesis
+* README
+* Documentation
+* Blog
+* Newsletter
+* Presentation outline
+
+# 14. Publishing
+
+The same document should be publishable into different representations.
+
+```text
+Structured Document
+│
+├── PDF
+├── DOCX
+├── Markdown
+├── HTML
+├── TXT
+├── EPUB
+└── Print
+```
+
+This means the internal document model should remain format-independent.
+
+# 15. Accessibility
+
+Professional document software should include:
+
+* Heading validation
+* Reading order
+* Alt text
+* Table accessibility
+* Language declaration
+* Contrast checking
+* Keyboard navigation
+* Screen-reader compatibility
+* Focus indicators
+* Accessible links
+* Accessible document export
+
+AI can assist:
+
+> "Find accessibility problems in this document."
+
+# 16. Application Architecture
+
+```text
+┌─────────────────────────────────────────────┐
+│ APPLICATION SHELL │
+│ Command Palette • Search • Settings • Sync │
+└──────────────────────┬──────────────────────┘
+↓
+┌─────────────────────────────────────────────┐
+│ DOCUMENT WORKSPACE │
+│ │
+│ Writer • Outline • Review • Research • AI │
+└──────────────────────┬──────────────────────┘
+↓
+┌─────────────────────────────────────────────┐
+│ DOCUMENT STATE ENGINE │
+│ │
+│ Blocks • Text • Styles • Tables • Media │
+│ Comments • Changes • References • History │
+└──────────────────────┬──────────────────────┘
+↓
+┌─────────────────────────────────────────────┐
+│ DOCUMENT ENGINE │
+│ │
+│ Parsing • Rendering • Layout • Export │
+│ Import • Pagination • Printing │
+└──────────────────────┬──────────────────────┘
+↓
+┌─────────────────────────────────────────────┐
+│ LOCAL PROCESSING │
+│ │
+│ Spell • Grammar • Search • Index • OCR │
+└──────────────────────┬──────────────────────┘
+↓
+┌─────────────────────────────────────────────┐
+│ AI LAYER │
+│ │
+│ Writing • Research • Analysis • Generation │
+└──────────────────────┬──────────────────────┘
+↓
+┌─────────────────────────────────────────────┐
+│ STORAGE │
+│ │
+│ Documents • Versions • Assets • Cache │
+└─────────────────────────────────────────────┘
+```
+
+# 17. Core Document State
+
+The most important architectural decision:
+
+**Do not make HTML the application's source of truth.**
+
+Use a structured document model.
+
+```text
+Document
+│
+├── Metadata
+│ ├── Title
+│ ├── Author
+│ ├── Language
+│ └── Created/Modified
+│
+├── Blocks
+│ ├── Paragraph
+│ ├── Heading
+│ ├── List
+│ ├── Quote
+│ ├── Code
+│ ├── Table
+│ ├── Image
+│ ├── Video
+│ ├── Divider
+│ └── Embed
+│
+├── Styles
+│
+├── Sections
+│
+├── References
+│
+├── Comments
+│
+├── Suggestions
+│
+├── Revisions
+│
+├── Media
+│
+├── AI Results
+│
+├── Research Sources
+│
+├── Permissions
+│
+└── History
+```
+
+This gives you a foundation for Word-like editing, Markdown, AI editing, PDF generation and future collaboration.
+
+# 18. Desktop UI
+
+Professional desktop layout:
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│ Logo │ File │ Edit │ View │ Insert │ Format │ AI │ ... │
+├────────────┬──────────────────────────────┬─────────────┤
+│ │ │ │
+│ OUTLINE │ DOCUMENT CANVAS │ INSPECTOR │
+│ │ │ │
+│ Heading 1 │ Title │ Typography │
+│ Section │ │ Paragraph │
+│ Section │ Paragraph... │ Styles │
+│ │ │ AI │
+│ COMMENTS │ Table │ References │
+│ │ │ │
+├────────────┴──────────────────────────────┴─────────────┤
+│ Page 2/12 │ Words 1,284 │ Language │ Saved │ Zoom 100% │
+└─────────────────────────────────────────────────────────┘
+```
+
+The document remains visually dominant.
+
+# 19. Tablet UI
+
+```text
+┌───────────────────────────────┐
+│ ← Document AI ⋯ │
+├───────────────────────────────┤
+│ │
+│ DOCUMENT │
+│ │
+│ CONTENT │
+│ │
+├───────────────────────────────┤
+│ Format │ Insert │ Review │ AI │
+└───────────────────────────────┘
+```
+
+Tool panels become contextual bottom sheets.
+
+# 20. Mobile UI
+
+Mobile should **not attempt to reproduce desktop Word literally**.
+
+```text
+┌─────────────────────────┐
+│ ← Document ⋯ │
+├─────────────────────────┤
+│ │
+│ DOCUMENT │
+│ │
+│ CONTENT │
+│ │
+│ │
+├─────────────────────────┤
+│ Edit │ Format │ AI │ + │
+└─────────────────────────┘
+```
+
+Selecting text exposes a contextual toolbar.
+
+Long press exposes document operations.
+
+# 21. Gestures
+
+### One finger
+
+* Cursor placement
+* Selection
+* Scroll
+* Drag
+* Text interaction
+
+### Double tap
+
+* Select word
+
+### Triple tap
+
+* Select paragraph
+
+### Long press
+
+* Context menu
+* Selection controls
+
+### Two-finger
+
+* Document navigation
+* Zoom
+* Pan in page-layout mode
+
+### Three-finger
+
+* Undo
+* Redo
+
+### Edge swipe
+
+* Open outline/navigation
+
+### Selection gesture
+
+```text
+Select text
+↓
+Contextual toolbar
+↓
+Copy | Format | Comment | AI | Link | More
+```
+
+# 22. Haptic Feedback
+
+Use haptics semantically rather than continuously.
+
+* selection boundary
+* snapping
+* successful formatting
+* comment placement
+* page boundary
+* drag/drop completion
+* undo/redo
+* AI operation completion
+* invalid operation
+* successful export
+
+No unnecessary continuous vibration while typing.
+
+# 23. Keyboard System
+
+Desktop shortcuts:
+
+| Shortcut | Action |
+| -------------------- | --------------- |
+| Ctrl/Cmd + Z | Undo |
+| Ctrl/Cmd + Shift + Z | Redo |
+| Ctrl/Cmd + F | Find |
+| Ctrl/Cmd + H | Replace |
+| Ctrl/Cmd + B | Bold |
+| Ctrl/Cmd + I | Italic |
+| Ctrl/Cmd + K | Link |
+| Ctrl/Cmd + Shift + 7 | Numbered list |
+| Ctrl/Cmd + Shift + 8 | Bullet list |
+| Ctrl/Cmd + Alt + 1 | Heading 1 |
+| Ctrl/Cmd + Alt + 2 | Heading 2 |
+| Ctrl/Cmd + P | Print/export |
+| Ctrl/Cmd + S | Save |
+| Ctrl/Cmd + Shift + P | Command palette |
+
+Shortcuts should be remappable.
+
+# 24. Command Palette
+
+The command palette becomes a universal interface.
+
+```text
+Create new document
+Insert table
+Insert image
+Create table of contents
+Show outline
+Find repeated phrases
+Check grammar
+Summarize document
+Rewrite selection
+Make selection concise
+Translate selection
+Explain this paragraph
+Generate citations
+Find unsupported claims
+Compare with previous version
+Export as PDF
+Export as Markdown
+Enter focus mode
+```
+
+AI commands and deterministic commands should coexist.
+
+# 25. AI Command Architecture
+
+A critical design:
+
+```text
+User Language
+↓
+Intent Parser
+↓
+Document Context Resolver
+↓
+Operation Planner
+↓
+Structured Operations
+↓
+Preview / Diff
+↓
+User Approval
+↓
+Document State Engine
+```
+
+Example:
+
+> "Make the second section shorter."
+
+AI should produce something conceptually equivalent to:
+
+```text
+Target:
+Section 2
+
+Operation:
+Rewrite
+
+Constraint:
+Reduce length by ~40%
+
+Preserve:
+Technical meaning
+Citations
+Tables
+
+Result:
+Proposed version
+```
+
+The editor then renders a diff.
+
+# 26. Non-Destructive AI
+
+Every AI modification should preserve:
+
+```text
+Original
+↓
+AI Variant A
+AI Variant B
+AI Variant C
+↓
+User selects B
+↓
+Accepted revision
+```
+
+Store:
+
+* prompt
+* source selection
+* model/provider
+* parameters
+* timestamp
+* generated result
+* accepted/rejected state
+
+This gives the system an **AI revision history**.
+
+# 27. Version History
+
+Use an operation graph rather than merely saving full copies.
+
+```text
+Document v1
+↓
+Heading edited
+↓
+Paragraph rewritten
+↓
+Table inserted
+↓
+AI rewrite
+├── Variant A
+├── Variant B
+└── Variant C
+↓
+Variant B accepted
+↓
+Document v5
+```
+
+Users should be able to:
+
+* inspect changes
+* compare versions
+* restore versions
+* branch variants
+* undo AI operations independently.
+
+# 28. Demo / Buffer Document
+
+Before importing anything, the editor should open with a bundled **Demo Document**.
+
+It should contain:
+
+* title
+* subtitle
+* multiple heading levels
+* paragraphs
+* lists
+* checklist
+* quotation
+* table
+* image
+* caption
+* hyperlink
+* footnote
+* citation
+* code block
+* callout
+* page break
+* header/footer
+* comments
+* tracked changes
+* references
+* AI suggestions
+
+The user can immediately test the entire editor.
+
+### Required action
+
+**Restore Demo Document**
+
+This must never affect user-created documents.
+
+# 29. Storage Architecture
+
+```text
+Local Document
+│
+├── Document State
+├── Assets
+├── Versions
+├── Comments
+├── AI Results
+├── Research Sources
+└── Search Index
+```
+
+Use browser/local persistence wherever practical.
+
+Offline editing should remain functional for core document operations.
+
+# 30. Performance Architecture
+
+Priority order:
+
+```text
+1. Typing responsiveness
+2. Cursor/selection responsiveness
+3. Scrolling
+4. Document rendering
+5. Undo/redo
+6. Autosave
+7. Search/indexing
+8. Local analysis
+9. AI processing
+10. Export
+```
+
+Never allow AI processing to block typing.
+
+Heavy operations should move away from the main UI thread.
+
+# 31. Accessibility Architecture
+
+The document itself should remain semantically structured.
+
+```text
+Heading
+Paragraph
+List
+Table
+Figure
+Caption
+Footnote
+```
+
+rather than treating everything as arbitrary positioned text.
+
+That makes:
+
+* screen readers
+* keyboard navigation
+* HTML export
+* PDF accessibility
+* document conversion
+* AI document understanding
+
+substantially easier.
+
+# 32. Unified Text Suite Architecture
+
+The final system becomes:
+
+```text
+TEXT SUITE
+│
+┌─────────────┼─────────────┐
+↓ ↓ ↓
+WRITER RESEARCH REVIEW
+│ │ │
+└─────────────┼─────────────┘
+↓
+DOCUMENT ENGINE
+│
+┌───────────────┼────────────────┐
+↓ ↓ ↓
+LOCAL AI LAYER EXPORT
+PROCESSING ENGINE
+│ │ │
+└───────────────┼────────────────┘
+↓
+STORAGE
+```
+
+And the user experience becomes:
+
+> **Write → Structure → Research → Edit → Review → AI-assist → Verify → Publish**
+
+rather than a collection of disconnected tools.
+
+# 33. Required Deliverables
+
+The architecture phase should produce:
+
+**A.** Research/capability report
+**B.** Capability execution matrix
+**C.** Final tool taxonomy
+**D.** Browser/local/AI/hybrid classification
+**E.** Document architecture
+**F.** Document state model
+**G.** Desktop UI architecture
+**H.** Tablet UI architecture
+**I.** Mobile UI architecture
+**J.** Gesture specification
+**K.** Haptic specification
+**L.** Keyboard/command system
+**M.** AI command architecture
+**N.** Non-destructive revision architecture
+**O.** Research/citation architecture
+**P.** Version/history architecture
+**Q.** Accessibility architecture
+**R.** Storage architecture
+**S.** Demo document specification
+**T.** Performance architecture
+
+# 34. Final Stop Condition
+
+now, **STOP**.
+
+Do **not** automatically move into:
+
+* text rendering algorithms
+* collaborative CRDT implementation
+* spell-check algorithms
+* grammar models
+* LLM implementation
+* embeddings
+* RAG
+* document conversion algorithms
+* DOCX parser implementation
+* PDF generation implementation
+* pagination algorithms
+* OCR implementation
+* database implementation
+* backend implementation
+* cloud architecture
+* model training
+
+Those belong to the **next engineering phase**.
+
+The architectural boundary is:
+
+> **Research → Classification → Taxonomy → Document Architecture → Responsive UI → Interaction → AI Command Model → State Model → Demo Document → STOP.**
+
+This gives you a **professional Text Suite**, rather than merely a rich-text editor.

@@ -13,6 +13,8 @@ import { ToolRegistry, StudioId } from './platform';
 import { InstallBanner } from './components/InstallBanner';
 import { GlobalToastRegion } from './components/GlobalToastRegion';
 import { Shield, Sparkles, X, Code2, MessageSquare, Info, FileQuestion, Sliders, Zap, Award } from 'lucide-react';
+import { GlobalCommandManager } from './platform/commands';
+import { ShortcutHelpModal } from './components/ShortcutHelpModal';
 
 function AppContent() {
   const [currentApp, setCurrentApp] = useState<string>('home');
@@ -20,6 +22,7 @@ function AppContent() {
   const [aboutModalOpen, setAboutModalOpen] = useState<boolean>(false);
   const [noticesModalOpen, setNoticesModalOpen] = useState<boolean>(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState<boolean>(false);
+  const [shortcutHelpOpen, setShortcutHelpOpen] = useState<boolean>(false);
   const [showFooter, setShowFooter] = useState<boolean>(() => {
     return localStorage.getItem('gs_show_footer') !== 'false';
   });
@@ -33,16 +36,40 @@ function AppContent() {
     });
   };
 
+  // Sync active studio with Command Manager context
   React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setCommandPaletteOpen((prev) => !prev);
-      }
+    GlobalCommandManager.setContext({
+      suiteId: currentApp,
+      isModalOpen: aboutModalOpen || noticesModalOpen || commandPaletteOpen || shortcutHelpOpen || isSettingsOpen
+    });
+  }, [currentApp, aboutModalOpen, noticesModalOpen, commandPaletteOpen, shortcutHelpOpen, isSettingsOpen]);
+
+  // Register core application commands
+  React.useEffect(() => {
+    GlobalCommandManager.startListening();
+
+    const unregPalette = GlobalCommandManager.registerHandler('command.openPalette', () => {
+      setCommandPaletteOpen((prev) => !prev);
+    });
+
+    const unregHelp = GlobalCommandManager.registerHandler('command.openHelp', () => {
+      setShortcutHelpOpen((prev) => !prev);
+    });
+
+    const unregClose = GlobalCommandManager.registerHandler('modal.close', () => {
+      if (commandPaletteOpen) { setCommandPaletteOpen(false); return; }
+      if (shortcutHelpOpen) { setShortcutHelpOpen(false); return; }
+      if (aboutModalOpen) { setAboutModalOpen(false); return; }
+      if (noticesModalOpen) { setNoticesModalOpen(false); return; }
+      if (isSettingsOpen) { setIsSettingsOpen(false); return; }
+    });
+
+    return () => {
+      unregPalette();
+      unregHelp();
+      unregClose();
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [commandPaletteOpen, shortcutHelpOpen, aboutModalOpen, noticesModalOpen, isSettingsOpen, setIsSettingsOpen]);
 
   const handleLaunchTool = (appId: string) => {
     setLandingSlug(null);
@@ -387,6 +414,13 @@ function AppContent() {
       <OpenSourceNoticesModal
         isOpen={noticesModalOpen}
         onClose={() => setNoticesModalOpen(false)}
+      />
+
+      {/* Global Shortcut Help Sheet (?) */}
+      <ShortcutHelpModal
+        isOpen={shortcutHelpOpen}
+        onClose={() => setShortcutHelpOpen(false)}
+        currentSuiteId={currentApp}
       />
     </div>
   );

@@ -1,0 +1,1624 @@
+# AI VIDEO SUITE
+
+## Research → Capability Classification → Architecture → Responsive UI → Interaction Specification
+
+You are designing a **professional AI Video Suite** that combines:
+
+* nonlinear video editing
+* audio editing
+* motion graphics
+* color correction
+* visual effects
+* AI-assisted editing
+* AI video generation
+* AI audio generation/enhancement
+* captions and transcription
+* AI-powered media analysis
+* browser-native media processing
+* professional export workflows
+
+The objective of this phase is:
+
+**Research → Capability Classification → Browser/Server Feasibility → Tool Taxonomy → System Architecture → Desktop/Tablet/Mobile UI → Interaction Design → STOP**
+
+Do **not** implement the algorithms or AI inference systems yet.
+
+# PHASE 1 — RESEARCH THE VIDEO-SUITE LANDSCAPE
+
+Research professional video applications and AI video platforms.
+
+Study capabilities from categories such as:
+
+* professional nonlinear editors
+* AI video editors
+* browser-based video editors
+* generative video platforms
+* motion graphics applications
+* color-grading applications
+* audio/video production platforms
+* transcript-based editors
+* social-media video creation platforms
+* avatar/presenter platforms
+* VFX/compositing systems
+
+Use established products as capability references rather than copying their interfaces.
+
+Research the capability patterns represented by products such as:
+
+* Adobe Premiere
+* DaVinci Resolve
+* Runway
+* Descript
+* CapCut
+* other relevant professional and AI-native systems discovered during research
+
+Identify:
+
+1. What professional editors expect.
+2. What AI video users expect.
+3. What tools are becoming standard.
+4. Which tools are genuinely AI-dependent.
+5. Which operations can execute locally.
+6. Which operations can execute entirely in the browser.
+7. Which operations benefit from GPU acceleration.
+8. Which operations require remote AI inference.
+9. Which operations can be hybrid.
+10. Which capabilities should be treated as first-class suite modules.
+
+Do not simply create a list of competitors' features.
+
+Determine the **underlying capability architecture** of a modern video suite.
+
+# PHASE 2 — CLASSIFY EVERY CAPABILITY
+
+Every discovered capability must be classified into one of four execution classes.
+
+## CLASS A — BROWSER-NATIVE / DETERMINISTIC
+
+Operations that can fundamentally be performed without an AI server.
+
+Examples:
+
+* media import
+* playback
+* timeline editing
+* cut
+* trim
+* split
+* ripple editing
+* roll editing
+* slip editing
+* slide editing
+* clip duplication
+* clip repositioning
+* clip scaling
+* crop
+* rotate
+* flip
+* speed adjustment
+* freeze frame
+* frame stepping
+* timeline navigation
+* track management
+* layer management
+* opacity
+* blending
+* transforms
+* basic transitions
+* basic effects
+* basic filters
+* basic color controls
+* basic keyframes
+* text overlays
+* shapes
+* graphics
+* masks
+* manual audio editing
+* volume
+* pan
+* fades
+* waveform visualization
+* audio routing
+* basic equalization
+* compression
+* normalization
+* playback-rate manipulation
+* subtitles from supplied text
+* manual captions
+* canvas composition
+* aspect-ratio conversion
+* preview rendering
+* proxy workflow
+* project state
+* undo/redo
+* history
+* local asset management
+* recording
+* export where browser codec/container support permits
+
+The implementation architecture should exploit browser capabilities such as:
+
+* WebCodecs
+* Web Audio API
+* AudioWorklet
+* MediaRecorder
+* Web Workers
+* OffscreenCanvas
+* WebGPU where available
+* IndexedDB
+* File System Access APIs where available
+
+Do not assume every browser supports every codec or advanced GPU feature.
+
+# CLASS B — LOCAL COMPUTE / ADVANCED PROCESSING
+
+Capabilities that can potentially execute locally but may require substantial CPU/GPU resources.
+
+* advanced video filtering
+* frame interpolation
+* optical-flow operations
+* advanced denoising
+* local super-resolution
+* local object tracking
+* local segmentation
+* local speech recognition
+* local transcription
+* local audio enhancement
+* local scene detection
+* local shot detection
+* local semantic indexing
+* local face/object detection
+* local embeddings
+* local media analysis
+
+These must be classified separately from ordinary deterministic editing.
+
+The architecture must support:
+
+**Browser → Local Worker → WebAssembly/WebGPU → Result**
+
+without forcing the application to send media to a server.
+
+# CLASS C — AI / REMOTE INFERENCE
+
+Capabilities that normally require an AI model or substantial remote inference.
+
+* text-to-video generation
+* image-to-video generation
+* video-to-video generation
+* generative video extension
+* generative scene modification
+* generative object replacement
+* generative object insertion
+* generative background replacement
+* generative background creation
+* AI character replacement
+* AI actor transformation
+* AI relighting
+* AI restyling
+* AI motion generation
+* AI camera-motion generation
+* generative transitions
+* AI storyboarding
+* AI b-roll generation
+* AI avatar generation
+* AI voice generation
+* voice cloning
+* advanced lip synchronization
+* AI music generation
+* AI sound-effect generation
+* semantic video editing
+* generative video repair
+* AI frame reconstruction
+
+These capabilities must remain isolated from the deterministic editor.
+
+# CLASS D — HYBRID
+
+Capabilities where the user interface and editing environment can run locally while an AI service performs a specific operation.
+
+* AI object removal
+* AI rotoscoping
+* AI tracking
+* AI captions
+* AI translation
+* AI scene detection
+* AI audio cleanup
+* AI speech enhancement
+* AI reframing
+* AI highlight extraction
+* AI clip generation
+* AI storyboard generation
+* AI video extension
+* AI generative effects
+* AI media search
+* AI semantic timeline search
+
+Architecture: treat AI as a **processing service attached to the editor**, not as the editor itself.
+
+# PHASE 3 — FINAL VIDEO-SUITE TOOL TAXONOMY
+
+Organize the complete suite into the following professional domains.
+
+# 1. MEDIA
+
+### Import
+
+* Video
+* Audio
+* Images
+* GIF
+* SVG
+* subtitles
+* project files
+* media folders
+
+### Media Management
+
+* bins
+* folders
+* tags
+* metadata
+* favorites
+* ratings
+* markers
+* search
+* smart collections
+* proxy media
+* offline/online media
+* relinking
+* duplicate detection
+* media information
+
+### Capture
+
+* camera recording
+* microphone recording
+* screen recording
+* webcam recording
+* system audio capture
+* voiceover recording
+
+# 2. TIMELINE / EDIT
+
+### Core Editing
+
+* select
+* cut
+* trim
+* split
+* ripple
+* roll
+* slip
+* slide
+* overwrite
+* insert
+* replace
+* append
+* lift
+* extract
+
+### Clip Operations
+
+* duplicate
+* disable
+* lock
+* mute
+* hide
+* group
+* link/unlink
+* nest
+* compound clips
+* markers
+* clip labels
+
+### Timing
+
+* speed
+* reverse
+* freeze frame
+* frame hold
+* time remapping
+* speed ramps
+* duration control
+
+### Timeline
+
+* unlimited tracks
+* video tracks
+* audio tracks
+* adjustment layers
+* markers
+* snapping
+* magnetic editing
+* track targeting
+* track locking
+* timeline versions
+
+# 3. CANVAS / COMPOSITION
+
+* position
+* scale
+* rotation
+* anchor point
+* crop
+* transform
+* perspective
+* opacity
+* blend modes
+* masks
+* feather
+* gradients
+* overlays
+* picture-in-picture
+* split screen
+* multi-layer composition
+* nested compositions
+
+# 4. TRANSITIONS
+
+### Standard
+
+* cut
+* dissolve
+* fade
+* wipe
+* slide
+* zoom
+* push
+* blur
+* glitch
+* light leak
+* film transitions
+
+### Advanced
+
+* masked transitions
+* motion-based transitions
+* object-aware transitions
+* beat-synchronized transitions
+* AI-generated transitions
+
+# 5. EFFECTS / VFX
+
+### Visual Effects
+
+* blur
+* sharpen
+* glow
+* bloom
+* chromatic aberration
+* noise
+* grain
+* distortion
+* displacement
+* vignette
+* lens effects
+* motion blur
+* film effects
+
+### Compositing
+
+* chroma key
+* masks
+* rotoscoping
+* tracking
+* planar tracking
+* motion tracking
+* object isolation
+* background removal
+* compositing
+
+### AI VFX
+
+* object removal
+* object replacement
+* object insertion
+* environment replacement
+* relighting
+* restyling
+* generative effects
+* generative scene modification
+* AI cleanup
+
+# 6. COLOR
+
+### Basic
+
+* exposure
+* brightness
+* contrast
+* highlights
+* shadows
+* whites
+* blacks
+* temperature
+* tint
+* saturation
+* vibrance
+* hue
+
+### Professional
+
+* curves
+* wheels
+* lift/gamma/gain
+* HSL
+* selective color
+* secondary correction
+* masks
+* qualifiers
+* LUTs
+* color management
+* HDR controls
+* scopes
+
+### AI
+
+* automatic color correction
+* shot matching
+* intelligent relighting
+* subject-specific grading
+* look transfer
+* cinematic style matching
+
+# 7. AUDIO
+
+### Editing
+
+* trim
+* split
+* fade
+* crossfade
+* gain
+* volume automation
+* pan
+* channel mapping
+
+### Processing
+
+* EQ
+* compressor
+* limiter
+* noise gate
+* de-esser
+* reverb
+* delay
+* distortion
+* stereo widening
+* normalization
+
+### AI Audio
+
+* speech enhancement
+* noise removal
+* voice isolation
+* dialogue separation
+* music separation
+* stem separation
+* filler-word removal
+* silence removal
+* voice cloning
+* AI voice generation
+* AI sound effects
+* AI music generation
+* automatic mixing
+* loudness matching
+
+# 8. TEXT / TITLES / CAPTIONS
+
+### Text
+
+* text layers
+* rich text
+* font selection
+* typography
+* tracking
+* kerning
+* line spacing
+* alignment
+* animation
+* text presets
+
+### Titles
+
+* lower thirds
+* headlines
+* credits
+* callouts
+* kinetic typography
+* animated titles
+
+### Captions
+
+* manual captions
+* automatic captions
+* caption styling
+* word highlighting
+* animated captions
+* caption timing
+* caption translation
+* subtitle import/export
+
+* transcript generation
+* text-based editing
+* caption generation
+* caption translation
+* semantic transcript editing
+* automatic highlight extraction
+
+# 9. MOTION GRAPHICS
+
+* keyframes
+* easing
+* motion paths
+* transform animation
+* text animation
+* shape animation
+* masks
+* expressions
+* particle systems
+* procedural animation
+* motion presets
+* templates
+* animated backgrounds
+
+# 10. AI VIDEO GENERATION
+
+### Generative Creation
+
+* text → video
+* image → video
+* storyboard → video
+* script → video
+* reference → video
+* keyframe → video
+* video → video
+
+### Generative Editing
+
+* extend shot
+* replace object
+* remove object
+* insert object
+* replace character
+* replace background
+* relight scene
+* change environment
+* change weather
+* change time of day
+* restyle footage
+* generate b-roll
+* generate transition
+* generate missing footage
+
+### Control
+
+* reference frames
+* first frame
+* last frame
+* motion guidance
+* camera guidance
+* composition guidance
+* character consistency
+* style consistency
+* scene consistency
+
+# 11. AI AVATAR / PRESENTER
+
+* avatar generation
+* script-driven presenter
+* talking avatar
+* voice-driven avatar
+* lip synchronization
+* facial expression
+* gesture generation
+* presenter replacement
+* multilingual presenter
+* voice cloning
+* avatar templates
+
+# 12. AI STORY / PRE-PRODUCTION
+
+* idea generation
+* script generation
+* script refinement
+* storyboard generation
+* shot-list generation
+* scene breakdown
+* camera-shot suggestions
+* B-roll suggestions
+* visual references
+* production planning
+* automatic timeline assembly
+
+# 13. AI MEDIA INTELLIGENCE
+
+* transcription
+* scene detection
+* shot detection
+* speaker detection
+* face detection
+* object detection
+* action recognition
+* semantic search
+* visual search
+* dialogue search
+* sound search
+* duplicate detection
+* highlight detection
+* best-take detection
+* clip classification
+* content moderation
+* metadata generation
+
+# 14. SOCIAL / CONTENT REPURPOSING
+
+* automatic highlights
+* short generation
+* vertical conversion
+* square conversion
+* landscape conversion
+* smart reframing
+* speaker tracking
+* face-aware cropping
+* automatic captions
+* hook generation
+* title generation
+* thumbnail extraction
+* social templates
+* platform presets
+
+# 15. RECORDING STUDIO
+
+* webcam
+* microphone
+* screen
+* screen + camera
+* teleprompter
+* live captions
+* live audio monitoring
+* camera controls
+* microphone controls
+* recording markers
+* retake management
+
+# 16. ASSET / TEMPLATE LIBRARY
+
+* stock video
+* stock audio
+* images
+* graphics
+* fonts
+* transitions
+* effects
+* LUTs
+* motion templates
+* caption templates
+* intro/outro templates
+* AI generations
+* reusable presets
+
+# 17. EXPORT / DELIVERY
+
+* MP4
+* WebM
+* MOV
+* image sequence
+* audio-only
+* GIF
+* subtitle files
+
+### Presets
+
+* YouTube
+* Instagram
+* TikTok
+* LinkedIn
+* presentations
+* cinema
+* broadcast
+* custom
+
+### Controls
+
+* resolution
+* frame rate
+* bitrate
+* codec
+* audio format
+* audio bitrate
+* color space
+* HDR
+* filename
+* metadata
+
+# PHASE 4 — SYSTEM ARCHITECTURE
+
+The suite must be architected as a layered system.
+
+```text
+┌──────────────────────────────────────────────────────────┐
+│ APPLICATION SHELL │
+│ Workspace │ Projects │ Command Palette │ Settings │
+└──────────────────────────────────────────────────────────┘
+│
+┌──────────────────────────────────────────────────────────┐
+│ EDITOR EXPERIENCE │
+│ Media │ Viewer │ Timeline │ Inspector │ Audio │ Tools │
+└──────────────────────────────────────────────────────────┘
+│
+┌──────────────────────────────────────────────────────────┐
+│ EDITOR STATE ENGINE │
+│ Project │ Sequence │ Clips │ Tracks │ Keyframes │ Masks │
+│ History │ Variants │ Markers │ Selections │ Metadata │
+└──────────────────────────────────────────────────────────┘
+│
+┌──────────────┴──────────────┐
+│ │
+┌───────────────────────┐ ┌─────────────────────────────┐
+│ BROWSER MEDIA ENGINE │ │ AI PROCESSING LAYER │
+│ WebCodecs │ │ Generation │
+│ Web Audio │ │ Analysis │
+│ AudioWorklet │ │ Enhancement │
+│ Web Workers │ │ Transformation │
+│ WebGPU │ │ Transcription │
+│ MediaRecorder │ │ Specialized Models │
+└───────────────────────┘ └─────────────────────────────┘
+│ │
+└──────────────┬──────────────┘
+│
+┌──────────────────────────────────────────────────────────┐
+│ MEDIA / PROJECT STORAGE │
+│ Original Media │ Proxies │ Cache │ Generated Assets │
+│ IndexedDB │ File System │ Project Metadata │
+└──────────────────────────────────────────────────────────┘
+```
+
+The critical architectural principle is:
+
+**The timeline/editor must not depend on AI.**
+
+AI is an optional processing layer that can create, modify, analyze, or enrich media inside the existing editing environment.
+
+# PHASE 5 — CORE EDITOR STATE MODEL
+
+The application must maintain:
+
+```text
+Project
+├── Project Metadata
+├── Media Pool
+├── Sequences
+│ ├── Video Tracks
+│ │ └── Clips
+│ ├── Audio Tracks
+│ │ └── Clips
+│ ├── Adjustment Layers
+│ └── Graphics
+├── Markers
+├── Transitions
+├── Effects
+├── Keyframes
+├── Masks
+├── Captions
+├── AI Generations
+├── Variants
+├── History
+└── Export Profiles
+```
+
+All editing operations must be represented as state changes rather than destructive modification of the original media.
+
+# PHASE 6 — DESKTOP UI ARCHITECTURE
+
+The desktop interface must be designed around the **video viewer and timeline**.
+
+```text
+┌───────────────────────────────────────────────────────────────┐
+│ Logo │ Project │ Undo │ Redo │ Save │ Export │ Search │ User │
+├───────────┬───────────────────────────────┬───────────────────┤
+│ │ │ │
+│ TOOL │ │ INSPECTOR │
+│ RAIL │ VIDEO VIEWER │ │
+│ │ │ Properties │
+│ Media │ │ Transform │
+│ Edit │ │ Color │
+│ Audio │ │ Audio │
+│ Color │ │ Effects │
+│ Effects │ │ AI │
+│ Text │ │ │
+│ Motion │ │ │
+│ AI │ │ │
+│ Export │ │ │
+├───────────┴───────────────────────────────┴───────────────────┤
+│ TIMELINE │
+│ V3 ───────────────────────────────────────────────────────── │
+│ V2 ────────[CLIP]──────[CLIP]────────────── │
+│ V1 ──[CLIP]──────────────[CLIP]──────────── │
+│ A1 ──[AUDIO]──────[AUDIO]────────────────── │
+│ A2 ─────────[MUSIC]──────────────────────── │
+├───────────────────────────────────────────────────────────────┤
+│ Transport │ Zoom │ Timeline Controls │ Playback │ Performance │
+└───────────────────────────────────────────────────────────────┘
+```
+
+The viewer remains the visual center.
+
+The timeline remains the temporal center.
+
+The inspector remains the parameter center.
+
+The tool rail remains the capability center.
+
+# PHASE 7 — MOBILE UI ARCHITECTURE
+
+Do not attempt to shrink the desktop editor onto a phone.
+
+Use a **canvas/viewer-first mobile architecture**.
+
+```text
+┌─────────────────────────────┐
+│ Back │ Project │ Undo │ More│
+├─────────────────────────────┤
+│ │
+│ │
+│ VIDEO VIEWER │
+│ │
+│ │
+│ contextual tools │
+│ │
+├─────────────────────────────┤
+│ Timeline / Clip Strip │
+│ ────────●────────────── │
+├─────────────────────────────┤
+│ Media Edit Audio Text AI │
+└─────────────────────────────┘
+```
+
+When a category is selected:
+
+```text
+┌─────────────────────────────┐
+│ VIDEO │
+│ │
+│ VIEWER │
+│ │
+├─────────────────────────────┤
+│ Tool-specific bottom sheet │
+│ │
+│ Strength ─────●──────── │
+│ Intensity ────●──────── │
+│ │
+│ Cancel Apply │
+└─────────────────────────────┘
+```
+
+Use bottom sheets instead of persistent desktop-style inspectors.
+
+# PHASE 8 — TABLET UI
+
+Tablet must use a hybrid architecture.
+
+* compact left tool rail
+* collapsible inspector
+* larger viewer
+* timeline at bottom
+* bottom-sheet controls when necessary
+* optional split-screen editing
+* gesture support
+* hardware keyboard support
+
+The inspector should automatically collapse when the viewer requires more space.
+
+# PHASE 9 — CANVAS / VIEWER-FIRST INTERACTION
+
+The viewer is the primary interaction surface.
+
+### Gestures
+
+**One finger**
+
+* scrub when interacting with timeline
+* drag objects when an object is selected
+* manipulate masks
+
+**Two fingers**
+
+* pinch zoom
+* pan viewer
+* rotate selected composition where supported
+
+**Double tap**
+
+* fit viewer
+* contextual zoom
+
+**Long press**
+
+* contextual action menu
+
+**Two-finger hold**
+
+* temporary before/after comparison
+
+**Three-finger swipe**
+
+* undo / redo
+
+**Vertical swipe on active parameter**
+
+* increase/decrease parameter
+
+**Pinch while transforming**
+
+* scale
+
+**Two-finger timeline gesture**
+
+* timeline zoom
+
+**Horizontal timeline swipe**
+
+* navigate through timeline
+
+Gestures must never conflict with standard operating-system navigation.
+
+# PHASE 10 — HAPTIC SYSTEM
+
+Haptics must communicate state rather than decorate the interface.
+
+Use semantic feedback for:
+
+* tool selection
+* clip snapping
+* timeline snapping
+* keyframe placement
+* parameter boundaries
+* successful action
+* failed action
+* recording start
+* recording stop
+* generation completion
+* export completion
+* undo
+* redo
+
+Haptics must degrade gracefully on unsupported hardware.
+
+Never make haptics mandatory for operation.
+
+# PHASE 11 — UNIVERSAL CONTROL SYSTEM
+
+Avoid presenting dozens of unrelated sliders.
+
+Define a common parameter vocabulary.
+
+### Universal controls
+
+* Amount
+* Strength
+* Intensity
+* Opacity
+* Speed
+* Duration
+* Scale
+* Position
+* Rotation
+* Smoothing
+* Detail
+* Preservation
+* Similarity
+* Creativity
+
+The UI should dynamically expose only parameters relevant to the selected operation.
+
+# PHASE 12 — AI COMMAND INTERFACE
+
+Add a universal AI command surface.
+
+Example:
+
+```text
+┌─────────────────────────────────────────┐
+│ What do you want to change? │
+│ │
+│ "Remove the background and brighten │
+│ the subject." │
+│ │
+│ [Generate Action] │
+└─────────────────────────────────────────┘
+```
+
+The AI command layer must translate natural language into **editor operations**.
+
+It should not bypass the editor state.
+
+For example:
+
+```text
+User Intent
+↓
+AI Interpretation
+↓
+Editor Operations
+↓
+Preview
+↓
+User Approval
+↓
+Commit
+```
+
+Every AI operation should remain reversible.
+
+# PHASE 13 — NON-DESTRUCTIVE AI WORKFLOW
+
+Every AI operation must create a new result rather than silently destroying the original.
+
+```text
+Original Clip
+│
+├── AI Variant A
+├── AI Variant B
+└── AI Variant C
+```
+
+The user can:
+
+* preview
+* compare
+* accept
+* reject
+* regenerate
+* create variation
+* restore original
+
+AI-generated media must be visually distinguishable from original media inside the project state.
+
+# PHASE 14 — VARIANT SYSTEM
+
+AI generation should not be a single-result workflow.
+
+Use:
+
+```text
+Prompt
+↓
+Generation
+↓
+┌───────┬───────┬───────┬───────┐
+│ A │ B │ C │ D │
+└───────┴───────┴───────┴───────┘
+```
+
+Each result should preserve:
+
+* prompt
+* parameters
+* source clip
+* reference assets
+* model/provider metadata
+* timestamp
+* generation status
+
+This enables reproducibility and comparison.
+
+# PHASE 15 — TIMELINE INTELLIGENCE
+
+The timeline itself should eventually become AI-aware.
+
+Possible intelligent operations:
+
+* find all dialogue
+* find all shots containing a person
+* find every appearance of an object
+* remove filler words
+* remove silence
+* identify duplicate takes
+* identify strongest takes
+* generate highlights
+* locate B-roll opportunities
+* find clips matching a description
+* synchronize footage
+* detect scenes
+* generate rough cut
+* create social cuts
+* generate captions
+
+AI suggestions must always be editable manually.
+
+The user remains the final authority over the timeline.
+
+# PHASE 16 — RESPONSIVE BREAKPOINTS
+
+## Desktop
+
+`≥ 1200px`
+
+Full professional workspace.
+
+* tool rail
+* viewer
+* inspector
+* timeline
+* media browser
+* scopes
+* advanced panels
+
+## Tablet
+
+`768px – 1199px`
+
+Hybrid workspace.
+
+* compact tool rail
+* collapsible inspector
+* viewer
+* timeline
+* bottom sheets
+
+## Mobile
+
+`< 768px`
+
+Canvas/viewer-first workflow.
+
+* minimal top bar
+* viewer
+* compact timeline
+* bottom category navigation
+* contextual sheets
+* gesture-first interaction
+
+# PHASE 17 — KEYBOARD SYSTEM
+
+Desktop shortcuts should be first-class.
+
+```text
+Space Play/Pause
+J Reverse playback
+K Stop
+L Forward playback
+
+C Cut
+V Selection
+B Blade
+A Audio selection
+
+I Mark In
+O Mark Out
+
+Ctrl/Cmd+Z Undo
+Ctrl/Cmd+Shift+Z Redo
+
+S Snapping
+M Marker
+
+0 Fit Viewer
+1 100%
+
+Ctrl/Cmd+K Command Palette
+```
+
+Shortcuts must be remappable.
+
+# PHASE 18 — COMMAND PALETTE
+
+Provide a universal command system.
+
+```text
+> remove silence
+> color correct selected clip
+> create vertical version
+> generate captions
+> find all shots containing car
+> export YouTube version
+> add cinematic grade
+> generate b-roll
+> normalize dialogue
+```
+
+The command palette must expose both deterministic editor actions and AI actions.
+
+# PHASE 19 — RECORDING EXPERIENCE
+
+The suite should contain an integrated recording studio.
+
+Recording modes:
+
+* camera
+* microphone
+* screen
+* camera + screen
+* camera + microphone
+* screen + microphone
+
+Before recording:
+
+```text
+Camera
+Microphone
+Resolution
+Frame Rate
+Audio Input
+Preview
+```
+
+During recording:
+
+```text
+Timer
+Audio Meter
+Camera Preview
+Recording Status
+Pause
+Stop
+Marker
+```
+
+The recording should immediately become editable media.
+
+# PHASE 20 — DEMO / BUFFER STATE
+
+Before the user imports media, the application must **not appear empty**.
+
+Ship a bundled demo project containing:
+
+* video clips
+* multiple camera angles
+* dialogue
+* music
+* sound effects
+* captions
+* B-roll
+* graphics
+* transitions
+* color corrections
+* timeline markers
+
+The demo project acts as the initial editing buffer.
+
+The user can immediately experiment with:
+
+* cutting
+* trimming
+* color
+* audio
+* effects
+* captions
+* transitions
+* motion
+* AI tools
+
+The demo content must remain recoverable.
+
+Provide:
+
+**Restore Demo Project**
+
+The demo project must never be treated as the user's original media.
+
+# PHASE 21 — VISUAL DESIGN SYSTEM
+
+No emojis.
+
+* SVG icons
+* geometric icons
+* professional iconography
+* restrained typography
+* monochrome or neutral interface foundation
+* clear accent states
+* subtle motion
+* contextual highlighting
+* precise spacing
+* high information density
+* strong hierarchy
+
+Avoid:
+
+* emoji icons
+* oversized cards
+* excessive gradients
+* decorative dashboards
+* unnecessary statistics
+* giant buttons
+* nested navigation
+* excessive labels
+* permanently visible parameter panels
+* visual clutter
+
+The application should feel closer to a **professional production workstation** than a generic SaaS dashboard.
+
+# PHASE 22 — CONTEXTUAL UI
+
+Controls should appear near the object or timeline element they modify.
+
+Selecting a clip:
+
+```text
+[Transform] [Color] [Audio] [Speed] [AI]
+```
+
+Selecting text:
+
+```text
+[Font] [Size] [Spacing] [Animation] [Style]
+```
+
+Selecting audio:
+
+```text
+[Gain] [EQ] [Noise] [Voice] [AI]
+```
+
+Selecting an AI-generated clip:
+
+```text
+[Compare] [Variation] [Regenerate] [Accept] [Revert]
+```
+
+Do not expose every possible control simultaneously.
+
+# PHASE 23 — PERFORMANCE ARCHITECTURE
+
+The editor must be designed around progressive performance.
+
+```text
+Original Media
+↓
+Proxy / Preview Representation
+↓
+Interactive Editing
+↓
+High-Quality Render
+↓
+Final Export
+```
+
+The UI must remain responsive during:
+
+* playback
+* scrubbing
+* timeline manipulation
+* audio visualization
+* parameter adjustment
+* background processing
+
+Heavy processing must be moved away from the main UI thread wherever possible.
+
+# PHASE 24 — PROJECT HISTORY
+
+History should be represented as an editable operation graph rather than merely a long undo list.
+
+```text
+Import
+↓
+Cut
+↓
+Color
+├── Variant A
+├── Variant B
+└── Variant C
+↓
+Selected
+↓
+Captions
+↓
+Export
+```
+
+This allows future support for:
+
+* branching edits
+* version comparison
+* AI variations
+* project snapshots
+* timeline versions
+* restoration
+
+# PHASE 25 — FINAL ARCHITECTURAL PRINCIPLES
+
+The AI Video Suite must follow these principles:
+
+### 1. Editor first
+
+The application must remain a real video editor even without AI.
+
+### 2. Timeline first
+
+Video editing revolves around time, tracks, clips, and sequences.
+
+### 3. Viewer first on mobile
+
+Do not compress the desktop UI onto mobile.
+
+### 4. Browser-native where practical
+
+Do not send deterministic operations to a server unnecessarily.
+
+### 5. AI as an extension
+
+AI enhances the editor rather than replacing the editor.
+
+### 6. Non-destructive
+
+Original media must remain recoverable.
+
+### 7. Reversible AI
+
+AI actions must be previewable and reversible.
+
+### 8. Human control
+
+AI suggestions must remain editable.
+
+### 9. Progressive disclosure
+
+Expose complexity only when the user requests it.
+
+### 10. Performance-aware
+
+Separate UI, media processing, AI processing, and storage.
+
+### 11. Cross-device
+
+Desktop, tablet, and mobile must have intentionally designed experiences.
+
+### 12. Professional interaction
+
+Keyboard, mouse, touch, gestures, haptics, contextual controls, and command interfaces should work together.
+
+# PHASE 26 — REQUIRED DELIVERABLES
+
+Produce the following before stopping:
+
+## A. Research Report
+
+Modern AI/video-suite capability analysis.
+
+## B. Capability Matrix
+
+For every tool:
+
+| Tool | Category | Function | Browser | Local Compute | AI | Hybrid | Server Required | Priority |
+| ---- | -------- | -------- | ------- | ------------- | -- | ------ | --------------- | -------- |
+
+## C. Final Tool Taxonomy
+
+All capabilities organized into the final suite categories.
+
+## D. Execution Architecture
+
+Clearly separate:
+
+* browser-native
+* local compute
+* AI inference
+* storage
+* project state
+* rendering/export
+
+## E. Desktop Architecture
+
+Provide complete workstation layout.
+
+## F. Tablet Architecture
+
+Provide adaptive hybrid layout.
+
+## G. Mobile Architecture
+
+Provide canvas/viewer-first layout.
+
+## H. Interaction Specification
+
+Define:
+
+* mouse
+* keyboard
+* touch
+* gestures
+* haptics
+* contextual controls
+* command palette
+
+## I. Design System
+
+* typography
+* spacing
+* icons
+* controls
+* panels
+* sheets
+* timeline components
+* viewer components
+* states
+* animations
+
+## J. State Model
+
+* project
+* sequence
+* media
+* tracks
+* clips
+* effects
+* keyframes
+* masks
+* AI generations
+* variants
+* history
+* exports
+
+## K. Demo Project Specification
+
+Define the bundled pre-import project and all media required to make the suite immediately testable.
+
+# CRITICAL STOP CONDITION
+
+After completing:
+
+**Research**
+
+→ **Capability Classification**
+
+→ **Browser / Local / AI / Hybrid Classification**
+
+→ **Final Tool Taxonomy**
+
+→ **System Architecture**
+
+→ **Desktop UI**
+
+→ **Tablet UI**
+
+→ **Mobile UI**
+
+→ **Interaction System**
+
+→ **Gesture System**
+
+→ **Haptic System**
+
+→ **State Model**
+
+→ **Demo Project**
+
+**STOP.**
+
+Do NOT proceed into algorithm engineering.
+
+Do NOT:
+
+* implement video-generation algorithms
+* implement diffusion
+* implement video diffusion
+* implement image-to-video models
+* implement text-to-video models
+* implement optical flow
+* implement frame interpolation
+* implement segmentation algorithms
+* implement tracking algorithms
+* implement rotoscoping algorithms
+* implement face-swap algorithms
+* implement lip-sync algorithms
+* implement voice-cloning algorithms
+* implement AI transcription models
+* implement AI audio models
+* implement generative AI inference
+* select production AI models
+* build inference pipelines
+* build model-serving infrastructure
+* build backend APIs
+* build cloud infrastructure
+* implement training pipelines
+* implement production rendering algorithms
+
+The objective of this phase is to finish with a complete:
+
+**Research → Capability Map → Browser/Local/AI Classification → Tool Taxonomy → Architecture → Responsive UI → Interaction Specification**
+
+The suite must be ready for a separate subsequent **algorithm and implementation engineering phase**.
+
+Do not enter that phase automatically.
