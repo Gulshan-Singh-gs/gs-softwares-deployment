@@ -25,7 +25,7 @@
     "clsx": "^2.1.1",
     "jszip": "^3.10.1",
     "lucide-react": "^1.51.0",
-    "pdfjs-dist": "^6.2.108",
+    "pdfjs-dist": "^6.4.299",
     "perfect-freehand": "^1.2.2",
     "piexifjs": "^1.0.6",
     "react": "^19.0.0",
